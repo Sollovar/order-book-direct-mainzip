@@ -106,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head>
+      <head suppressHydrationWarning>
         <HeadContent />
         {/* Page loader styles — inlined so they're available before any CSS bundle */}
         <style dangerouslySetInnerHTML={{ __html: `

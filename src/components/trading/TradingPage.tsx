@@ -733,15 +733,18 @@ function MarketBar() {
                 }`}
               >
                 <span className="flex items-center gap-2 min-w-0">
-                  <button
+                  <span
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => { e.stopPropagation(); toggleFavorite(pair.symbol); }}
-                    className="hover:scale-110 transition-transform flex-shrink-0"
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); toggleFavorite(pair.symbol); } }}
+                    className="hover:scale-110 transition-transform flex-shrink-0 cursor-pointer"
                     aria-label={favorites.includes(pair.symbol) ? "Remove from favorites" : "Add to favorites"}
                   >
                     <Star
                       className={`w-3.5 h-3.5 ${favorites.includes(pair.symbol) ? "text-primary fill-primary" : "text-muted-foreground/40"}`}
                     />
-                  </button>
+                  </span>
                   <span className={`w-5 h-5 rounded-full ${pair.iconClass} flex items-center justify-center text-white text-[10px] font-bold shrink-0`}>{pair.icon}</span>
                   <span className="truncate">
                     <span className="block font-medium">{pair.symbol}</span>
@@ -953,19 +956,23 @@ function ChartCanvas() {
   );
 }
 
+// Deterministic values rounded to 2 decimal places to avoid floating-point epsilon
+// differences between the Node.js SSR environment and the browser JS engine.
 const volumeBars = Array.from({ length: 85 }).map((_, i) => {
-  const h = 15 + Math.abs(Math.sin(i * 0.6) * 40) + (i > 70 ? Math.random() * 60 : Math.random() * 25);
+  const h = Math.round((15 + Math.abs(Math.sin(i * 0.6) * 40) + (i > 70 ? Math.abs(Math.sin(i * 1.31) * 60) : Math.abs(Math.sin(i * 2.71) * 25))) * 100) / 100;
   return { h, up: Math.sin(i * 0.9) > -0.2 };
 });
 
 function Candles() {
+  // Deterministic values rounded to 2 decimal places to avoid floating-point epsilon
+  // differences between the Node.js SSR environment and the browser JS engine.
   const candles = Array.from({ length: 85 }).map((_, i) => {
-    const base = 320 + Math.sin(i * 0.25) * 60 + (i > 65 ? (i - 65) * 8 : 0);
-    const wick = 12 + Math.random() * 14;
-    const body = 4 + Math.random() * 18;
+    const base = Math.round((320 + Math.sin(i * 0.25) * 60 + (i > 65 ? (i - 65) * 8 : 0)) * 100) / 100;
+    const wick = Math.round((12 + Math.abs(Math.sin(i * 1.73)) * 14) * 100) / 100;
+    const body = Math.round((4 + Math.abs(Math.sin(i * 2.31)) * 18) * 100) / 100;
     const up = Math.sin(i * 0.7) > 0;
     const x = i * 10 + 6;
-    return { x, y: base - body / 2, body, wick, up, cy: base };
+    return { x, y: Math.round((base - body / 2) * 100) / 100, body, wick, up, cy: base };
   });
   return (
     <g>

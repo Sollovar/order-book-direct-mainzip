@@ -503,18 +503,25 @@ function BookRow({ row, side }: { row: { p: number; s: number; pct: number }; si
 }
 
 function MiniChart() {
-  const [pts, setPts] = useState<number[]>(() =>
-    Array.from({ length: 48 }, (_, i) => 50 + Math.sin(i / 3) * 12 + Math.random() * 6)
-  );
+  const [pts, setPts] = useState<number[]>([]);
   useEffect(() => {
+    // Initialize with random data on the client only to avoid SSR hydration mismatch
+    const initial = Array.from(
+      { length: 48 },
+      (_, i) => 50 + Math.sin(i / 3) * 12 + Math.random() * 6
+    );
+    setPts(initial);
     const t = setInterval(() => {
       setPts((p) => {
+        if (p.length === 0) return p;
         const next = [...p.slice(1), Math.max(20, Math.min(80, p[p.length - 1] + (Math.random() - 0.5) * 8))];
         return next;
       });
     }, 900);
     return () => clearInterval(t);
   }, []);
+
+  if (pts.length === 0) return null;
 
   const w = 400;
   const h = 220;
