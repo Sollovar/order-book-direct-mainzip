@@ -150,16 +150,17 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --trade-bg: oklch(0.1 0 0);
-  --trade-card: oklch(0.17 0 0);
-  --trade-text: oklch(1 0 0);
-  --trade-text-muted: oklch(0.7 0 0);
-  --trade-border: oklch(1 0 0 / 5%);
-  --trade-surface: oklch(1 0 0 / 14%);
-  --trade-ask: oklch(0.65 0.2 20);
-  --trade-bid: oklch(0.7 0.2 150);
-  --trade-primary: oklch(0.85 0.05 80);
-  --trade-primary-text: oklch(0.2 0 0);
+  /* ── Design tokens ── */
+  --trade-bg:           #0A0A0B;
+  --trade-card:         #171718;
+  --trade-text:         #F3F3F3;
+  --trade-text-muted:   #8A8A8A;
+  --trade-border:       #2A2A2C;
+  --trade-surface:      #1D1D1E;
+  --trade-ask:          #E05B57;
+  --trade-bid:          #19D18A;
+  --trade-primary:      #EFCFA7;
+  --trade-primary-text: #0A0A0B;
 }
 
 @layer base {
@@ -241,40 +242,39 @@
 }
 
 .aster-desktop.dark {
-  /* Dark mode — aligned with mobile's darker neutral palette:
-     background = mobile trade-bg (0.1), cards = mobile trade-card (0.17) */
-  --background:              oklch(0.1 0 0);
-  --color-background:        oklch(0.1 0 0);
-  --foreground:              oklch(0.96 0 0);
-  --color-foreground:        oklch(0.96 0 0);
-  --card:                    oklch(0.17 0 0);
-  --color-card:              oklch(0.17 0 0);
-  --card-foreground:         oklch(0.96 0 0);
-  --color-card-foreground:   oklch(0.96 0 0);
-  --popover:                 oklch(0.14 0 0);
-  --color-popover:           oklch(0.14 0 0);
-  --popover-foreground:      oklch(0.96 0 0);
-  --color-popover-foreground:oklch(0.96 0 0);
-  --primary:                 oklch(0.85 0.12 85);
-  --color-primary:           oklch(0.85 0.12 85);
-  --primary-foreground:      oklch(0.15 0 0);
-  --color-primary-foreground:oklch(0.15 0 0);
-  --secondary:               oklch(0.19 0 0);
-  --color-secondary:         oklch(0.19 0 0);
-  --secondary-foreground:    oklch(0.96 0 0);
-  --muted:                   oklch(0.18 0 0);
-  --color-muted:             oklch(0.18 0 0);
-  --muted-foreground:        oklch(0.70 0 0);
-  --color-muted-foreground:  oklch(0.70 0 0);
-  --accent:                  oklch(0.22 0 0);
-  --color-accent:            oklch(0.22 0 0);
-  --accent-foreground:       oklch(0.96 0 0);
-  --border:                  oklch(1 0 0 / 7%);
-  --color-border:            oklch(1 0 0 / 7%);
-  --input:                   oklch(0.22 0 0);
-  --color-input:             oklch(0.22 0 0);
-  --bid:                     oklch(0.72 0.17 155);
-  --ask:                     oklch(0.68 0.2 25);
-  --bid-bg:                  oklch(0.72 0.17 155 / 0.13);
-  --ask-bg:                  oklch(0.68 0.2 25 / 0.13);
+  /* ── Design tokens ── */
+  --background:              #0A0A0B;
+  --color-background:        #0A0A0B;
+  --foreground:              #F3F3F3;
+  --color-foreground:        #F3F3F3;
+  --card:                    #171718;
+  --color-card:              #171718;
+  --card-foreground:         #F3F3F3;
+  --color-card-foreground:   #F3F3F3;
+  --popover:                 #121213;
+  --color-popover:           #121213;
+  --popover-foreground:      #F3F3F3;
+  --color-popover-foreground:#F3F3F3;
+  --primary:                 #EFCFA7;
+  --color-primary:           #EFCFA7;
+  --primary-foreground:      #0A0A0B;
+  --color-primary-foreground:#0A0A0B;
+  --secondary:               #171718;
+  --color-secondary:         #171718;
+  --secondary-foreground:    #F3F3F3;
+  --muted:                   #1D1D1E;
+  --color-muted:             #1D1D1E;
+  --muted-foreground:        #8A8A8A;
+  --color-muted-foreground:  #8A8A8A;
+  --accent:                  #1D1D1E;
+  --color-accent:            #1D1D1E;
+  --accent-foreground:       #F3F3F3;
+  --border:                  #2A2A2C;
+  --color-border:            #2A2A2C;
+  --input:                   #1D1D1E;
+  --color-input:             #1D1D1E;
+  --bid:                     #19D18A;
+  --ask:                     #E05B57;
+  --bid-bg:                  color-mix(in srgb, #19D18A 13%, transparent);
+  --ask-bg:                  color-mix(in srgb, #E05B57 13%, transparent);
 }

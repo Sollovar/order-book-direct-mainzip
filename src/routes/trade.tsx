@@ -262,12 +262,12 @@ function Index() {
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");
-      root.style.backgroundColor = "oklch(0.1 0 0)";
-      document.body.style.backgroundColor = "oklch(0.1 0 0)";
+      root.style.backgroundColor = "#0A0A0B";
+      document.body.style.backgroundColor = "#0A0A0B";
     } else {
       root.classList.remove("dark");
-      root.style.backgroundColor = "oklch(0.98 0 0)";
-      document.body.style.backgroundColor = "oklch(0.98 0 0)";
+      root.style.backgroundColor = "#F3F3F3";
+      document.body.style.backgroundColor = "#F3F3F3";
     }
   }, [theme]);
 
