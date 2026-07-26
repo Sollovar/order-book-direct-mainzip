@@ -1139,12 +1139,12 @@ function OrderBookPanel() {
 
 function BookRow({ row, side, depth }: { row: { p: string; s: string; t: string }; side: "bid" | "ask"; depth: number }) {
   const color = side === "bid" ? "text-[color:var(--bid)]" : "text-[color:var(--ask)]";
-  const bg = side === "bid" ? "var(--bid-bg)" : "var(--ask-bg)";
+  const bar = side === "bid" ? "bg-trade-bid/15" : "bg-trade-ask/15";
   return (
     <div className="relative grid grid-cols-3 px-2 py-[3px] text-[11.5px] hover:bg-accent/40 cursor-pointer">
       <div
-        className="absolute inset-y-0 right-0 pointer-events-none"
-        style={{ width: `${depth}%`, background: bg }}
+        className={`absolute inset-y-0 right-0 rounded-sm pointer-events-none ${bar}`}
+        style={{ width: `${depth}%` }}
       />
       <span className={`relative font-semibold ${color}`}>{row.p}</span>
       <span className="relative text-right font-medium text-foreground/90">{row.s}</span>
