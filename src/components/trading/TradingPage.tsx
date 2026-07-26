@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { WalletButton } from "../WalletButton";
 import {
   ChevronDown,
   Star,
@@ -145,10 +146,7 @@ function TopNav({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
         >
           {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
-        <button className="h-7 px-3 rounded-full bg-primary text-primary-foreground font-semibold text-[11px] hover:brightness-110 transition flex items-center gap-1.5">
-          <Wallet className="w-3.5 h-3.5" />
-          Connect Wallet
-        </button>
+        <WalletButton />
         <button className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
           <Bell className="w-4 h-4" />
         </button>
@@ -865,9 +863,7 @@ function OrderFormPanel() {
       </div>
 
       {/* Connect Wallet CTA */}
-      <button className="h-8 rounded-full bg-primary text-primary-foreground font-bold text-[11px] hover:brightness-110 active:brightness-95 transition mt-0.5 shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--primary)_55%,transparent)] tracking-wide">
-        Connect Wallet
-      </button>
+      <WalletButton fullWidth />
 
       {/* Order stats */}
       <div className="text-[11px] pt-0.5">
