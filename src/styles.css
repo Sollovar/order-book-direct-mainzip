@@ -271,8 +271,8 @@
   --accent-foreground:       oklch(0.96 0.005 260);
   --border:                  oklch(0.26 0.006 260);
   --color-border:            oklch(0.26 0.006 260);
-  --input:                   oklch(0.24 0.006 260);
-  --color-input:             oklch(0.24 0.006 260);
+  --input:                   oklch(0.31 0.008 260);
+  --color-input:             oklch(0.31 0.008 260);
   --bid:                     oklch(0.72 0.17 155);
   --ask:                     oklch(0.68 0.2 25);
   --bid-bg:                  oklch(0.72 0.17 155 / 0.13);
