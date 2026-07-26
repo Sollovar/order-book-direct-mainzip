@@ -241,38 +241,38 @@
 }
 
 .aster-desktop.dark {
-  /* Dark mode — background matches mobile trade-card/sheet texture (oklch 0.17),
-     panels sit slightly lighter on top of it for visual separation */
-  --background:              oklch(0.17 0 0);
-  --color-background:        oklch(0.17 0 0);
-  --foreground:              oklch(0.96 0.005 260);
-  --color-foreground:        oklch(0.96 0.005 260);
-  --card:                    oklch(0.23 0.006 260);
-  --color-card:              oklch(0.23 0.006 260);
-  --card-foreground:         oklch(0.96 0.005 260);
-  --color-card-foreground:   oklch(0.96 0.005 260);
-  --popover:                 oklch(0.19 0.006 260);
-  --color-popover:           oklch(0.19 0.006 260);
-  --popover-foreground:      oklch(0.96 0.005 260);
-  --color-popover-foreground:oklch(0.96 0.005 260);
+  /* Dark mode — aligned with mobile's darker neutral palette:
+     background = mobile trade-bg (0.1), cards = mobile trade-card (0.17) */
+  --background:              oklch(0.1 0 0);
+  --color-background:        oklch(0.1 0 0);
+  --foreground:              oklch(0.96 0 0);
+  --color-foreground:        oklch(0.96 0 0);
+  --card:                    oklch(0.17 0 0);
+  --color-card:              oklch(0.17 0 0);
+  --card-foreground:         oklch(0.96 0 0);
+  --color-card-foreground:   oklch(0.96 0 0);
+  --popover:                 oklch(0.14 0 0);
+  --color-popover:           oklch(0.14 0 0);
+  --popover-foreground:      oklch(0.96 0 0);
+  --color-popover-foreground:oklch(0.96 0 0);
   --primary:                 oklch(0.85 0.12 85);
   --color-primary:           oklch(0.85 0.12 85);
-  --primary-foreground:      oklch(0.2 0.01 260);
-  --color-primary-foreground:oklch(0.2 0.01 260);
-  --secondary:               oklch(0.24 0.007 260);
-  --color-secondary:         oklch(0.24 0.007 260);
-  --secondary-foreground:    oklch(0.96 0.005 260);
-  --muted:                   oklch(0.22 0.006 260);
-  --color-muted:             oklch(0.22 0.006 260);
-  --muted-foreground:        oklch(0.62 0.01 260);
-  --color-muted-foreground:  oklch(0.62 0.01 260);
-  --accent:                  oklch(0.26 0.008 260);
-  --color-accent:            oklch(0.26 0.008 260);
-  --accent-foreground:       oklch(0.96 0.005 260);
-  --border:                  oklch(0.26 0.006 260);
-  --color-border:            oklch(0.26 0.006 260);
-  --input:                   oklch(0.31 0.008 260);
-  --color-input:             oklch(0.31 0.008 260);
+  --primary-foreground:      oklch(0.15 0 0);
+  --color-primary-foreground:oklch(0.15 0 0);
+  --secondary:               oklch(0.19 0 0);
+  --color-secondary:         oklch(0.19 0 0);
+  --secondary-foreground:    oklch(0.96 0 0);
+  --muted:                   oklch(0.18 0 0);
+  --color-muted:             oklch(0.18 0 0);
+  --muted-foreground:        oklch(0.70 0 0);
+  --color-muted-foreground:  oklch(0.70 0 0);
+  --accent:                  oklch(0.22 0 0);
+  --color-accent:            oklch(0.22 0 0);
+  --accent-foreground:       oklch(0.96 0 0);
+  --border:                  oklch(1 0 0 / 7%);
+  --color-border:            oklch(1 0 0 / 7%);
+  --input:                   oklch(0.22 0 0);
+  --color-input:             oklch(0.22 0 0);
   --bid:                     oklch(0.72 0.17 155);
   --ask:                     oklch(0.68 0.2 25);
   --bid-bg:                  oklch(0.72 0.17 155 / 0.13);
