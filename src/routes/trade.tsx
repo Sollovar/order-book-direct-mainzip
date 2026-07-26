@@ -7,6 +7,8 @@ import { WalletButton } from "../components/WalletButton";
 import { PairSelectorPanel } from "../components/PairSelectorPanel";
 import { NotificationsSheet, type Notification } from "../components/NotificationsSheet";
 import { SettingsSheet } from "../components/SettingsSheet";
+import { TradingPage } from "../components/trading/TradingPage";
+import { useIsMobile } from "../hooks/use-mobile";
 import {
   ChevronDown,
   Search,
@@ -59,8 +61,15 @@ export const Route = createFileRoute("/trade")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Index,
+  component: TradingRoute,
 });
+
+function TradingRoute() {
+  const isMobile = useIsMobile();
+  // While the hook resolves (SSR / first paint), default to desktop to avoid flash
+  if (isMobile === false || isMobile === undefined) return <TradingPage />;
+  return <Index />;
+}
 
 type Row = { price: string; size: string; pct: number };
 
