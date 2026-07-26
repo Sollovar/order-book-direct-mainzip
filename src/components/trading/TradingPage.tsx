@@ -225,7 +225,7 @@ function NotificationsDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="fixed z-[9999] w-80"
+      className="fixed z-[9999] w-[26rem]"
       style={{ top: pos.top, right: pos.right }}
     >
       <div
@@ -233,14 +233,14 @@ function NotificationsDropdown({
         style={{
           background: "var(--trade-card)",
           border: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)",
-          boxShadow: "0 24px 60px -12px rgba(0,0,0,0.6)",
+          boxShadow: "0 32px 80px -16px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04) inset",
         }}
       >
         {/* Header */}
-        <div className="flex items-end justify-between px-4 pt-4 pb-3">
+        <div className="flex items-end justify-between px-5 pt-5 pb-4">
           <div>
-            <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--trade-text-muted)" }}>Inbox</p>
-            <p className="text-[16px] font-bold leading-tight flex items-center gap-2" style={{ color: "var(--trade-text)" }}>
+            <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "var(--trade-text-muted)" }}>Inbox</p>
+            <p className="text-[17px] font-bold leading-tight flex items-center gap-2" style={{ color: "var(--trade-text)" }}>
               Notifications
               {unread > 0 && (
                 <span className="inline-flex items-center justify-center h-4 px-1.5 rounded-full text-[9px] font-bold text-black" style={{ backgroundColor: "#f0b90b", minWidth: 16 }}>
@@ -266,25 +266,29 @@ function NotificationsDropdown({
           </div>
         </div>
 
+        {/* Divider */}
+        <div style={{ height: 1, background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }} />
+
         {/* List */}
-        <div className="px-3 pb-3 space-y-1.5 max-h-[420px] overflow-y-auto scrollbar-hidden">
+        <div className="max-h-[540px] overflow-y-auto scrollbar-hidden">
           {notifs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <div className="flex flex-col items-center justify-center py-12 gap-2">
               <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,185,11,0.10)" }}>
                 <Bell className="h-4 w-4" style={{ color: "#f0b90b" }} />
               </div>
               <p className="text-[12px]" style={{ color: "var(--trade-text-muted)" }}>No notifications</p>
             </div>
-          ) : notifs.map((n) => {
+          ) : notifs.map((n, i) => {
             const meta = NOTIF_META[n.type];
             const Icon = meta.icon;
             return (
               <div
                 key={n.id}
-                className="flex items-start gap-2.5 rounded-xl px-2.5 py-2.5"
+                className="flex items-start gap-3 px-5 py-3.5"
                 style={{
-                  background: n.unread ? "rgba(240,185,11,0.05)" : "rgba(255,255,255,0.02)",
-                  border: n.unread ? "1px solid rgba(240,185,11,0.12)" : "1px solid transparent",
+                  borderTop: i > 0 ? "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" : undefined,
+                  borderLeft: n.unread ? "2px solid #f0b90b" : "2px solid transparent",
+                  background: n.unread ? "rgba(240,185,11,0.03)" : "transparent",
                 }}
               >
                 <span className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: meta.bg }}>
@@ -396,7 +400,7 @@ function SettingsDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="fixed z-[9999] w-72"
+      className="fixed z-[9999] w-[22rem]"
       style={{ top: pos.top, right: pos.right }}
     >
       <div
@@ -404,14 +408,14 @@ function SettingsDropdown({
         style={{
           background: "var(--trade-card)",
           border: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)",
-          boxShadow: "0 24px 60px -12px rgba(0,0,0,0.6)",
+          boxShadow: "0 32px 80px -16px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04) inset",
         }}
       >
         {/* Header */}
-        <div className="flex items-end justify-between px-4 pt-4 pb-3">
+        <div className="flex items-end justify-between px-5 pt-5 pb-4">
           <div>
-            <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--trade-text-muted)" }}>Preferences</p>
-            <p className="text-[16px] font-bold leading-tight" style={{ color: "var(--trade-text)" }}>Settings</p>
+            <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "var(--trade-text-muted)" }}>Preferences</p>
+            <p className="text-[17px] font-bold leading-tight" style={{ color: "var(--trade-text)" }}>Settings</p>
           </div>
           <button
             onClick={onClose}
@@ -423,19 +427,27 @@ function SettingsDropdown({
           </button>
         </div>
 
+        {/* Divider */}
+        <div style={{ height: 1, background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }} />
+
         {/* Rows */}
-        <div className="px-4 pb-4">
+        <div className="px-5 pb-5">
           {rows.map(({ Icon, label, sub, right, onClick }, i) => (
             <div
               key={label}
-              className={`flex items-center gap-3 py-3 ${onClick ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
+              className={`flex items-center gap-4 py-4 ${onClick ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
               style={i > 0 ? rowStyle : {}}
               onClick={onClick}
             >
-              <Icon className="h-[17px] w-[17px] flex-shrink-0" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
+              <div
+                className="h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "color-mix(in oklab, var(--trade-text) 6%, transparent)" }}
+              >
+                <Icon className="h-[17px] w-[17px]" style={{ color: "color-mix(in oklab, var(--trade-text) 70%, transparent)" }} />
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium leading-tight" style={{ color: "var(--trade-text)" }}>{label}</p>
-                {sub && <p className="text-[10px] mt-0.5" style={{ color: "var(--trade-text-muted)" }}>{sub}</p>}
+                <p className="text-[13px] font-semibold leading-tight" style={{ color: "var(--trade-text)" }}>{label}</p>
+                {sub && <p className="text-[11px] mt-0.5" style={{ color: "var(--trade-text-muted)" }}>{sub}</p>}
               </div>
               {right}
             </div>
@@ -446,8 +458,11 @@ function SettingsDropdown({
         {langOpen && (
           <div className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col" style={{ background: "var(--trade-card)", zIndex: 1 }}>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 pt-4 pb-3">
-              <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--trade-text-muted)" }}>Language</p>
+            <div className="flex items-center justify-between px-5 pt-5 pb-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "var(--trade-text-muted)" }}>Select</p>
+                <p className="text-[17px] font-bold leading-tight" style={{ color: "var(--trade-text)" }}>Language</p>
+              </div>
               <button
                 onClick={() => setLangOpen(false)}
                 className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity"
@@ -457,6 +472,8 @@ function SettingsDropdown({
                 <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
               </button>
             </div>
+            {/* Divider */}
+            <div style={{ height: 1, background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }} />
             {/* List */}
             <div className="overflow-y-auto flex-1 scrollbar-hidden pb-2">
               {LANGUAGES.map((lang) => {
@@ -465,7 +482,7 @@ function SettingsDropdown({
                   <button
                     key={lang}
                     onClick={() => { setLanguage(lang); setLangOpen(false); }}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:opacity-70 transition-opacity"
+                    className="w-full flex items-center justify-between px-5 py-3.5 hover:opacity-70 transition-opacity"
                     style={{ borderTop: "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" }}
                   >
                     <span className="text-[13px]" style={{ color: active ? "#f0b90b" : "var(--trade-text)", fontWeight: active ? 600 : 400 }}>
