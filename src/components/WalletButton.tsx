@@ -299,138 +299,140 @@ function WalletDropdown({
    * matching the mobile WalletSheet colours precisely.
    * `position: fixed` keeps it visually anchored near the button.
    */
+
+  const divider = (
+    <div style={{ height: 1, background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }} />
+  );
+
   return (
     <div
       ref={dropdownRef}
-      className="fixed z-[9999] w-72"
+      className="fixed z-[9999] w-[22rem]"
       style={{ top: pos.top, right: pos.right }}
     >
-      {/* Panel — bg-trade-card is identical to the mobile WalletSheet surface */}
+      {/* Panel */}
       <div
         className="rounded-2xl overflow-hidden"
         style={{
           background: "var(--trade-card)",
           border: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)",
-          boxShadow: "0 24px 60px -12px rgba(0,0,0,0.6)",
+          boxShadow: "0 32px 80px -16px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.04) inset",
         }}
       >
-        <div className="px-4 pt-4 pb-4 space-y-4">
 
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
-              <span className="text-[15px] font-bold" style={{ color: "var(--trade-text)" }}>Connected</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {activeChain && (
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: activeChain.bg, color: activeChain.color }}
-                >
-                  {activeChain.shortName}
-                </span>
-              )}
-              <button
-                onClick={onClose}
-                className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity"
-                style={{ background: "var(--trade-surface)" }}
-                aria-label="Close"
+        {/* ── Header row ── */}
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
+            <span className="text-[15px] font-bold" style={{ color: "var(--trade-text)" }}>Connected</span>
+            {activeChain && (
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: activeChain.bg, color: activeChain.color }}
               >
-                <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
-              </button>
-            </div>
+                {activeChain.shortName}
+              </span>
+            )}
           </div>
-
-          {/* Address card */}
-          <div>
-            <p className="text-[11px] font-medium mb-1.5" style={{ color: "var(--trade-text-muted)" }}>Wallet Address</p>
-            <div
-              className="rounded-xl px-3 py-2.5 flex items-start justify-between gap-2"
-              style={{ background: "rgba(255,255,255,0.04)" }}
-            >
-              <p className="text-[12px] font-mono font-semibold break-all leading-relaxed" style={{ color: "var(--trade-text)" }}>
-                {address ?? "No address"}
-              </p>
-              <button
-                onClick={copy}
-                className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity mt-0.5"
-                style={{ background: "var(--trade-surface)" }}
-                aria-label="Copy address"
-              >
-                {copied
-                  ? <Check className="h-3 w-3 text-[#22c55e]" />
-                  : <Copy className="h-3 w-3" style={{ color: "color-mix(in oklab, var(--trade-text) 50%, transparent)" }} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Chain selector */}
-          <div>
-            <p className="text-[11px] font-medium mb-1.5" style={{ color: "var(--trade-text-muted)" }}>Network</p>
-            <div className="space-y-1.5">
-              {CHAINS.map((chain) => {
-                const isActive = chain.id === chainId;
-                const isLoading = switching === chain.id;
-                return (
-                  <button
-                    key={chain.id}
-                    onClick={() => handleSwitch(chain.id)}
-                    disabled={isActive || switching !== null}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-opacity hover:opacity-80 disabled:cursor-default"
-                    style={{
-                      background: isActive ? chain.bg : "rgba(255,255,255,0.04)",
-                      border: isActive ? `1px solid ${chain.color}40` : "1px solid transparent",
-                    }}
-                  >
-                    <span
-                      className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-black"
-                      style={{ background: chain.bg, color: chain.color }}
-                    >
-                      {chain.shortName[0]}
-                    </span>
-                    <span
-                      className="flex-1 text-left text-[13px] font-semibold"
-                      style={{ color: isActive ? chain.color : "var(--trade-text)" }}
-                    >
-                      {chain.name}
-                    </span>
-                    {isLoading ? (
-                      <Loader className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--trade-text-muted)" }} />
-                    ) : isActive ? (
-                      <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: chain.color }} />
-                    ) : (
-                      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "var(--trade-text-muted)" }} />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)" }} />
-
-          {/* Add Funds */}
           <button
-            onClick={onAddFunds}
-            className="w-full py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
-            style={{ background: "rgba(240,185,11,0.12)", color: "#f0b90b" }}
+            onClick={onClose}
+            className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity"
+            style={{ background: "var(--trade-surface)" }}
+            aria-label="Close"
           >
-            <Plus className="h-3.5 w-3.5" />
-            Add Funds
+            <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
           </button>
-
-          {/* Disconnect */}
-          <button
-            onClick={onDisconnect}
-            className="w-full py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
-            style={{ background: "rgba(220,38,38,0.12)", color: "#f87171" }}
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Disconnect
-          </button>
-
         </div>
+
+        {divider}
+
+        {/* ── Address row ── */}
+        <div className="flex items-center justify-between px-5 py-4 gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--trade-text-muted)" }}>Wallet Address</p>
+            <p className="text-[12px] font-mono font-medium truncate" style={{ color: "var(--trade-text)" }}>
+              {address ?? "No address"}
+            </p>
+          </div>
+          <button
+            onClick={copy}
+            className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity"
+            style={{ background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }}
+            aria-label="Copy address"
+          >
+            {copied
+              ? <Check className="h-3.5 w-3.5 text-[#22c55e]" />
+              : <Copy className="h-3.5 w-3.5" style={{ color: "color-mix(in oklab, var(--trade-text) 50%, transparent)" }} />}
+          </button>
+        </div>
+
+        {divider}
+
+        {/* ── Network label ── */}
+        <div className="px-5 pt-3.5 pb-1">
+          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--trade-text-muted)" }}>Network</p>
+        </div>
+
+        {/* ── Chain rows ── */}
+        {CHAINS.map((chain, i) => {
+          const isActive = chain.id === chainId;
+          const isLoading = switching === chain.id;
+          return (
+            <button
+              key={chain.id}
+              onClick={() => handleSwitch(chain.id)}
+              disabled={isActive || switching !== null}
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:opacity-70 transition-opacity disabled:cursor-default"
+              style={{
+                borderTop: i > 0 ? "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" : undefined,
+                borderLeft: isActive ? `2px solid ${chain.color}` : "2px solid transparent",
+              }}
+            >
+              {/* Color dot */}
+              <span
+                className="h-2 w-2 rounded-full flex-shrink-0"
+                style={{ background: chain.color, opacity: isActive ? 1 : 0.3 }}
+              />
+              <span
+                className="flex-1 text-left text-[13px]"
+                style={{
+                  color: isActive ? "var(--trade-text)" : "color-mix(in oklab, var(--trade-text) 55%, transparent)",
+                  fontWeight: isActive ? 600 : 400,
+                }}
+              >
+                {chain.name}
+              </span>
+              {isLoading ? (
+                <Loader className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--trade-text-muted)" }} />
+              ) : isActive ? (
+                <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: chain.color }} />
+              ) : null}
+            </button>
+          );
+        })}
+
+        {divider}
+
+        {/* ── Add Funds ── */}
+        <button
+          onClick={onAddFunds}
+          className="w-full flex items-center gap-3 px-5 py-4 hover:opacity-70 transition-opacity"
+        >
+          <Plus className="h-4 w-4 flex-shrink-0" style={{ color: "#f0b90b" }} />
+          <span className="text-[13px] font-semibold" style={{ color: "#f0b90b" }}>Add Funds</span>
+        </button>
+
+        {divider}
+
+        {/* ── Disconnect ── */}
+        <button
+          onClick={onDisconnect}
+          className="w-full flex items-center gap-3 px-5 py-4 hover:opacity-70 transition-opacity"
+        >
+          <LogOut className="h-4 w-4 flex-shrink-0" style={{ color: "#f87171" }} />
+          <span className="text-[13px] font-semibold" style={{ color: "#f87171" }}>Disconnect</span>
+        </button>
+
       </div>
     </div>
   );
