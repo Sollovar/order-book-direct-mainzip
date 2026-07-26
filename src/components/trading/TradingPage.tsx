@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { WalletButton } from "../WalletButton";
+import { loadFavorites, saveFavorites } from "../../lib/alerts";
 import {
   ChevronDown,
   ChevronRight,
@@ -582,13 +583,57 @@ function MarketBar() {
   const [selectedPair, setSelectedPair] = useState(pairOptions[1]);
   const [isPairSelectorOpen, setIsPairSelectorOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("All");
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   const [showPairInfo, setShowPairInfo] = useState(false);
   const isNeg = selectedPair.change.startsWith("-");
 
-  const visiblePairs = pairOptions.filter((pair) =>
+  // Load favorites from localStorage on mount
+  useEffect(() => { setFavorites(loadFavorites()); }, []);
+
+  const toggleFavorite = useCallback((symbol: string) => {
+    setFavorites((prev) => {
+      const next = prev.includes(symbol)
+        ? prev.filter((s) => s !== symbol)
+        : [...prev, symbol];
+      saveFavorites(next);
+      return next;
+    });
+  }, []);
+
+  const FILTERS = ["All", "Favorites", "Gainers", "Losers", "Volume", "Trending"];
+
+  function applyFilter(pairs: typeof pairOptions) {
+    switch (filter) {
+      case "Favorites":
+        return pairs.filter((p) => favorites.includes(p.symbol));
+      case "Gainers":
+        return [...pairs]
+          .filter((p) => !p.change.startsWith("-"))
+          .sort((a, b) => parseFloat(b.change) - parseFloat(a.change));
+      case "Losers":
+        return [...pairs]
+          .filter((p) => p.change.startsWith("-"))
+          .sort((a, b) => parseFloat(a.change) - parseFloat(b.change));
+      case "Volume":
+        return [...pairs].sort((a, b) =>
+          parseFloat(b.volume.replace(/[^0-9.]/g, "")) -
+          parseFloat(a.volume.replace(/[^0-9.]/g, ""))
+        );
+      case "Trending":
+        return [...pairs].sort((a, b) =>
+          Math.abs(parseFloat(b.change)) - Math.abs(parseFloat(a.change))
+        );
+      default:
+        return pairs;
+    }
+  }
+
+  const searchedPairs = pairOptions.filter((pair) =>
     pair.symbol.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+  const visiblePairs = applyFilter(searchedPairs);
 
   return (
     <div className="relative h-13 shrink-0 flex items-center gap-5 px-3">
@@ -632,20 +677,18 @@ function MarketBar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 px-4 h-9 border-b border-border text-[11px]">
-            <button className="text-muted-foreground hover:text-foreground">Favorites</button>
-            <button className="h-full border-b-2 border-primary text-foreground font-semibold">Futures</button>
-            <button className="text-muted-foreground hover:text-foreground">Spot</button>
-            <button className="text-muted-foreground hover:text-foreground flex items-center gap-1">Prediction <span className="w-1.5 h-1.5 rounded-full bg-pink-500" /></button>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-4 py-3 border-b border-border overflow-x-auto scrollbar-hidden text-[10px] text-muted-foreground">
-            {["All markets", "Top", "New", "Meme", "AI", "Pre-launch", "Stocks", "Commodities", "ETF", "Semiconductor", "Listing Vote"].map((category, index) => (
+          <div className="flex items-center gap-5 px-4 border-b border-border overflow-x-auto scrollbar-hidden">
+            {FILTERS.map((f) => (
               <button
-                key={category}
-                className={`shrink-0 rounded px-2 py-1 ${index === 0 ? "bg-accent text-foreground font-semibold" : "hover:bg-accent/70"}`}
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`shrink-0 py-2.5 text-[11px] font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  filter === f
+                    ? "border-primary text-foreground font-semibold"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {category}
+                {f}
               </button>
             ))}
           </div>
@@ -673,7 +716,15 @@ function MarketBar() {
                 }`}
               >
                 <span className="flex items-center gap-2 min-w-0">
-                  <span className="text-muted-foreground text-[15px]">☆</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleFavorite(pair.symbol); }}
+                    className="hover:scale-110 transition-transform flex-shrink-0"
+                    aria-label={favorites.includes(pair.symbol) ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Star
+                      className={`w-3.5 h-3.5 ${favorites.includes(pair.symbol) ? "text-primary fill-primary" : "text-muted-foreground/40"}`}
+                    />
+                  </button>
                   <span className={`w-5 h-5 rounded-full ${pair.iconClass} flex items-center justify-center text-white text-[10px] font-bold shrink-0`}>{pair.icon}</span>
                   <span className="truncate">
                     <span className="block font-medium">{pair.symbol}</span>
