@@ -79,9 +79,9 @@ function LadderRow({
       {/* Icon */}
       <span
         className="h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: "rgba(240,185,11,0.12)" }}
+        style={{ backgroundColor: "rgba(239,207,167,0.12)" }}
       >
-        <Layers className="h-4 w-4" style={{ color: "#f0b90b" }} />
+        <Layers className="h-4 w-4" style={{ color: "#EFCFA7" }} />
       </span>
 
       {/* Info */}
@@ -91,8 +91,8 @@ function LadderRow({
           <span
             className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md ${
               order.direction === "Long"
-                ? "bg-[#16a34a]/15 text-[#22c55e]"
-                : "bg-[#dc2626]/15 text-[#f87171]"
+                ? "bg-[#19D18A]/15 text-[#19D18A]"
+                : "bg-[#E05B57]/15 text-[#E05B57]"
             }`}
           >
             {order.direction}
@@ -103,7 +103,7 @@ function LadderRow({
           <div className="flex-1 h-1 rounded-full bg-trade-surface overflow-hidden">
             <div
               className="h-full rounded-full"
-              style={{ width: `${pct}%`, background: "#f0b90b" }}
+              style={{ width: `${pct}%`, background: "#EFCFA7" }}
             />
           </div>
           <span className="text-[11px] text-trade-text-muted flex-shrink-0">
@@ -173,8 +173,8 @@ function LadderDetailSheet({
             <span
               className={`text-[12px] font-bold px-2 py-0.5 rounded-md ${
                 order.direction === "Long"
-                  ? "bg-[#16a34a]/15 text-[#22c55e]"
-                  : "bg-[#dc2626]/15 text-[#f87171]"
+                  ? "bg-[#19D18A]/15 text-[#19D18A]"
+                  : "bg-[#E05B57]/15 text-[#E05B57]"
               }`}
             >
               {order.direction}
@@ -190,7 +190,7 @@ function LadderDetailSheet({
             <div className="flex-1 h-1.5 rounded-full bg-trade-surface overflow-hidden">
               <div
                 className="h-full rounded-full transition-all"
-                style={{ width: `${pct}%`, background: "#f0b90b" }}
+                style={{ width: `${pct}%`, background: "#EFCFA7" }}
               />
             </div>
             <span className="text-[12px] text-trade-text-muted">
@@ -212,7 +212,7 @@ function LadderDetailSheet({
                 {/* Level badge */}
                 <span
                   className="h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[11px] font-bold"
-                  style={{ backgroundColor: "rgba(240,185,11,0.12)", color: "#f0b90b" }}
+                  style={{ backgroundColor: "rgba(239,207,167,0.12)", color: "#EFCFA7" }}
                 >
                   {child.level}
                 </span>
@@ -230,7 +230,7 @@ function LadderDetailSheet({
 
                 {/* Status / cancel */}
                 {child.status === "filled" && (
-                  <span className="text-[11px] font-semibold text-[#22c55e] px-2 py-0.5 rounded-md bg-[#16a34a]/15">
+                  <span className="text-[11px] font-semibold text-[#19D18A] px-2 py-0.5 rounded-md bg-[#19D18A]/15">
                     Filled
                   </span>
                 )}
@@ -242,7 +242,7 @@ function LadderDetailSheet({
                 {child.status === "pending" && (
                   <button
                     onClick={() => onCancelChild(child.id)}
-                    className="text-[11px] font-semibold text-[#f87171] px-2.5 py-1 rounded-lg active:opacity-60 transition-opacity"
+                    className="text-[11px] font-semibold text-[#E05B57] px-2.5 py-1 rounded-lg active:opacity-60 transition-opacity"
                     style={{ background: "rgba(220,38,38,0.12)" }}
                   >
                     Cancel
@@ -260,7 +260,7 @@ function LadderDetailSheet({
             <button
               onClick={onCancelAll}
               className="w-full py-3.5 rounded-2xl text-[15px] font-bold transition-opacity active:opacity-70"
-              style={{ background: "rgba(220,38,38,0.14)", color: "#f87171" }}
+              style={{ background: "rgba(224,91,87,0.14)", color: "#E05B57" }}
             >
               Cancel Order
             </button>

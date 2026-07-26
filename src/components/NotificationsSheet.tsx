@@ -73,8 +73,8 @@ const TYPE_META: Record<
   Notification["type"],
   { icon: React.ElementType; color: string; bg: string }
 > = {
-  fill:    { icon: CheckCircle2, color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-  funding: { icon: Zap,          color: "#f0b90b", bg: "rgba(240,185,11,0.12)" },
+  fill:    { icon: CheckCircle2, color: "#19D18A", bg: "rgba(25,209,138,0.12)" },
+  funding: { icon: Zap,          color: "#EFCFA7", bg: "rgba(239,207,167,0.12)" },
   alert:   { icon: AlertCircle,  color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
   system:  { icon: Bell,         color: "#8b8b8b", bg: "rgba(139,139,139,0.12)" },
   reward:  { icon: Gift,         color: "#a855f7", bg: "rgba(168,85,247,0.12)" },
@@ -140,7 +140,7 @@ export function NotificationsSheet({ onClose, theme, alertNotifications = [] }: 
               Notifications
               {unreadCount > 0 && (
                 <span className="ml-2 inline-flex items-center justify-center h-5 px-1.5 rounded-full text-[10px] font-bold text-black"
-                  style={{ backgroundColor: "#f0b90b", minWidth: 20 }}>
+                  style={{ backgroundColor: "#EFCFA7", minWidth: 20 }}>
                   {unreadCount}
                 </span>
               )}
@@ -161,8 +161,8 @@ export function NotificationsSheet({ onClose, theme, alertNotifications = [] }: 
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <div className="h-12 w-12 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: "rgba(240,185,11,0.10)" }}>
-                <Bell className="h-5 w-5" style={{ color: "#f0b90b" }} />
+                style={{ backgroundColor: "rgba(239,207,167,0.10)" }}>
+                <Bell className="h-5 w-5" style={{ color: "#EFCFA7" }} />
               </div>
               <p className="text-[13px] text-trade-text-muted">No notifications</p>
             </div>
@@ -174,8 +174,8 @@ export function NotificationsSheet({ onClose, theme, alertNotifications = [] }: 
                 <div
                   key={n.id}
                   className="flex items-start gap-3 rounded-2xl px-3 py-3 transition-colors"
-                  style={{ backgroundColor: n.unread ? "rgba(240,185,11,0.05)" : "transparent",
-                           border: n.unread ? "1px solid rgba(240,185,11,0.12)" : "1px solid transparent" }}
+                  style={{ backgroundColor: n.unread ? "rgba(239,207,167,0.05)" : "transparent",
+                           border: n.unread ? "1px solid rgba(239,207,167,0.12)" : "1px solid transparent" }}
                 >
                   {/* Icon */}
                   <span
