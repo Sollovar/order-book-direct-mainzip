@@ -1126,63 +1126,81 @@ function OrderFormPanel() {
 
       {/* Price input — hidden for Market and Ladder */}
       {showPrice && (
-        <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-          <input
-            defaultValue="61789.0"
-            className="flex-1 min-w-0 bg-transparent outline-none text-[14px] font-medium"
-          />
-          <span className="text-muted-foreground text-[12px] font-medium shrink-0">USDT</span>
-          <div className="w-px h-4 bg-border/60 shrink-0" />
-          <button className="text-[11px] text-foreground/60 hover:text-foreground font-bold tracking-wider shrink-0 transition-colors">BBO</button>
+        <div className="rounded-md bg-input p-2 flex items-center justify-between">
+          <div className="flex-1">
+            <div className="text-[10px] text-muted-foreground mb-0.5">Order price</div>
+            <input
+              defaultValue="61789.0"
+              className="w-full bg-transparent outline-none text-foreground placeholder:text-foreground/30"
+              style={{ fontSize: '16px' }}
+            />
+          </div>
+          <div className="flex items-center gap-1 ml-2 shrink-0">
+            <span className="text-[11px] text-foreground/70 px-1.5">USDT</span>
+            <span className="text-foreground/20">|</span>
+            <span className="text-[11px] text-foreground/70 px-1.5">BBO</span>
+          </div>
         </div>
       )}
 
       {/* Ladder-specific inputs: Price Start, Price End, Levels */}
       {showLadder && (
         <>
-          <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-            <span className="text-muted-foreground text-[11px] font-medium shrink-0">Price Start</span>
-            <input
-              placeholder="0.00"
-              className="flex-1 min-w-0 bg-transparent outline-none text-[14px] font-medium text-right placeholder:text-muted-foreground/50"
-            />
-            <span className="text-muted-foreground text-[12px] font-medium shrink-0">USDT</span>
+          <div className="rounded-md bg-input p-2 flex items-center justify-between">
+            <div className="flex-1">
+              <div className="text-[10px] text-muted-foreground mb-0.5">Price Start</div>
+              <input
+                placeholder="0.00"
+                className="w-full bg-transparent outline-none text-foreground placeholder:text-foreground/30"
+                style={{ fontSize: '16px' }}
+              />
+            </div>
+            <span className="text-[11px] text-foreground/50 ml-2 shrink-0">USDT</span>
           </div>
-          <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-            <span className="text-muted-foreground text-[11px] font-medium shrink-0">Price End</span>
-            <input
-              placeholder="0.00"
-              className="flex-1 min-w-0 bg-transparent outline-none text-[14px] font-medium text-right placeholder:text-muted-foreground/50"
-            />
-            <span className="text-muted-foreground text-[12px] font-medium shrink-0">USDT</span>
+          <div className="rounded-md bg-input p-2 flex items-center justify-between">
+            <div className="flex-1">
+              <div className="text-[10px] text-muted-foreground mb-0.5">Price End</div>
+              <input
+                placeholder="0.00"
+                className="w-full bg-transparent outline-none text-foreground placeholder:text-foreground/30"
+                style={{ fontSize: '16px' }}
+              />
+            </div>
+            <span className="text-[11px] text-foreground/50 ml-2 shrink-0">USDT</span>
           </div>
-          <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-            <span className="text-muted-foreground text-[11px] font-medium shrink-0">Levels</span>
-            <input
-              type="number"
-              min={1}
-              max={50}
-              value={levels}
-              onChange={(e) => {
-                const v = Math.min(50, Math.max(1, Number(e.target.value)));
-                setLevels(v);
-              }}
-              className="flex-1 min-w-0 bg-transparent outline-none text-[14px] font-medium text-right"
-            />
-            <span className="text-muted-foreground text-[12px] font-medium shrink-0">/ 50</span>
+          <div className="rounded-md bg-input p-2 flex items-center justify-between">
+            <div className="flex-1">
+              <div className="text-[10px] text-muted-foreground mb-0.5">Levels</div>
+              <div className="flex items-center gap-3 mt-1">
+                <button
+                  onClick={() => setLevels(l => Math.max(1, l - 1))}
+                  className="h-6 w-6 rounded-full bg-foreground/10 flex items-center justify-center text-foreground text-[14px] font-bold hover:bg-foreground/20 transition-colors"
+                >−</button>
+                <span className="text-[14px] text-foreground font-semibold w-6 text-center">{levels}</span>
+                <button
+                  onClick={() => setLevels(l => Math.min(50, l + 1))}
+                  className="h-6 w-6 rounded-full bg-foreground/10 flex items-center justify-center text-foreground text-[14px] font-bold hover:bg-foreground/20 transition-colors"
+                >+</button>
+              </div>
+            </div>
+            <span className="text-[11px] text-foreground/50 shrink-0">1 – 50</span>
           </div>
         </>
       )}
 
       {/* Size input */}
-      <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-        <input
-          placeholder="Size"
-          className="flex-1 min-w-0 bg-transparent outline-none text-[14px] font-medium placeholder:text-muted-foreground/50"
-        />
-        <button className="text-[12px] text-muted-foreground font-medium flex items-center gap-1 shrink-0 hover:text-foreground transition-colors">
+      <div className="rounded-md bg-input p-2 flex items-center justify-between">
+        <div className="flex-1">
+          <div className="text-[10px] text-muted-foreground mb-0.5">Size</div>
+          <input
+            placeholder="0.00"
+            className="w-full bg-transparent outline-none text-foreground placeholder:text-foreground/30"
+            style={{ fontSize: '16px' }}
+          />
+        </div>
+        <div className="flex items-center gap-1 ml-2 shrink-0 text-[12px] text-foreground/70 hover:text-foreground transition-colors cursor-pointer">
           USDT <ChevronDown className="w-3 h-3" />
-        </button>
+        </div>
       </div>
 
       {/* Percentage slider */}
@@ -1213,21 +1231,25 @@ function OrderFormPanel() {
           </button>
           {tpsl && (
             <div className="mt-1.5 space-y-1.5">
-              <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-                <span className="text-muted-foreground text-[11px] font-medium shrink-0">TP Price</span>
+              <div className="rounded-md bg-input flex items-center overflow-hidden">
+                <span className="px-3 py-3 text-[12px] font-bold text-foreground shrink-0">TP</span>
+                <span className="text-foreground/20 text-[13px]">|</span>
                 <input
-                  placeholder="Trigger price"
-                  className="flex-1 min-w-0 bg-transparent outline-none text-[13px] font-medium text-right placeholder:text-muted-foreground/50"
+                  placeholder="Take Profit price"
+                  className="flex-1 bg-transparent text-foreground/60 placeholder:text-foreground/30 outline-none px-3 py-3"
+                  style={{ fontSize: '16px' }}
                 />
-                <span className="text-muted-foreground text-[11px] font-medium shrink-0">USDT</span>
+                <span className="px-3 text-[12px] font-bold text-foreground shrink-0">USDT</span>
               </div>
-              <div className="flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-                <span className="text-muted-foreground text-[11px] font-medium shrink-0">SL Price</span>
+              <div className="rounded-md bg-input flex items-center overflow-hidden">
+                <span className="px-3 py-3 text-[12px] font-bold text-foreground shrink-0">SL</span>
+                <span className="text-foreground/20 text-[13px]">|</span>
                 <input
-                  placeholder="Trigger price"
-                  className="flex-1 min-w-0 bg-transparent outline-none text-[13px] font-medium text-right placeholder:text-muted-foreground/50"
+                  placeholder="Stop Loss price"
+                  className="flex-1 bg-transparent text-foreground/60 placeholder:text-foreground/30 outline-none px-3 py-3"
+                  style={{ fontSize: '16px' }}
                 />
-                <span className="text-muted-foreground text-[11px] font-medium shrink-0">USDT</span>
+                <span className="px-3 text-[12px] font-bold text-foreground shrink-0">USDT</span>
               </div>
             </div>
           )}
@@ -1254,16 +1276,19 @@ function OrderFormPanel() {
             )}
           </div>
           {expiry && (
-            <div className="mt-1.5 flex items-center h-8 rounded-md bg-input border border-border/40 px-2.5 gap-2 focus-within:border-border transition-colors">
-              <span className="text-muted-foreground text-[11px] font-medium shrink-0">Expires in</span>
+            <div className="mt-1.5 rounded-md bg-input flex items-center overflow-hidden">
               <input
                 type="number"
                 min={1}
                 value={expiryMinutes}
                 onChange={(e) => setExpiryMinutes(e.target.value.replace(/[^0-9]/g, ""))}
-                className="flex-1 min-w-0 bg-transparent outline-none text-[14px] font-medium text-right tabular-nums"
+                placeholder="0"
+                className="flex-1 bg-transparent text-foreground placeholder:text-foreground/30 outline-none px-3 py-2.5 tabular-nums"
+                style={{ fontSize: '16px' }}
               />
-              <span className="text-muted-foreground text-[11px] font-medium shrink-0">min</span>
+              <span className="px-3 text-[11px] font-medium text-foreground/50 shrink-0 border-l border-border/30 py-2.5">
+                min
+              </span>
             </div>
           )}
         </div>
