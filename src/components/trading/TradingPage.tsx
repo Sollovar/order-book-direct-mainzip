@@ -58,7 +58,25 @@ const bids = [
 /* -------------------- Layout -------------------- */
 
 export function TradingPage() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(() => {
+    if (typeof window === "undefined") return true; // SSR default → dark
+    const saved = localStorage.getItem("asterdex-theme");
+    if (saved === "light") return false;
+    return true; // "dark" or no preference → dark
+  });
+
+  // Keep <html> class + localStorage in sync so WalletSheet, Privy modal,
+  // and --trade-* vars (which all key off `.dark` on <html>) stay correct.
+  useEffect(() => {
+    const el = document.documentElement;
+    if (dark) {
+      el.classList.add("dark");
+      localStorage.setItem("asterdex-theme", "dark");
+    } else {
+      el.classList.remove("dark");
+      localStorage.setItem("asterdex-theme", "light");
+    }
+  }, [dark]);
   const activityRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
