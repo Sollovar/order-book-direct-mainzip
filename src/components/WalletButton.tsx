@@ -75,6 +75,7 @@ function WalletSheet({
   }
 
   const activeChain = chainById(chainId);
+  const divider = <div style={{ height: 1, background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }} />;
 
   return (
     <div className="fixed inset-0 flex flex-col justify-end" style={{ zIndex: 9999 }}>
@@ -87,132 +88,128 @@ function WalletSheet({
       {/* Sheet */}
       <div
         className="relative bg-trade-card rounded-t-3xl shadow-2xl overflow-y-auto max-h-[80vh]"
-        style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="h-[4px] w-9 rounded-full bg-trade-text/20" />
         </div>
 
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 h-8 w-8 flex items-center justify-center rounded-full bg-trade-surface active:opacity-60 transition-opacity"
-          aria-label="Close"
-        >
-          <X className="h-[15px] w-[15px] text-trade-text/70" />
-        </button>
-
-        <div className="px-5 pt-3 pb-4 space-y-5">
-
-          {/* Title + active chain badge */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
-              <span className="text-[18px] font-bold text-trade-text">Connected</span>
-            </div>
+        {/* ── Header row ── */}
+        <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="text-[15px] font-bold" style={{ color: "var(--trade-text)" }}>Connected</span>
             {activeChain && (
               <span
-                className="text-[11px] font-bold px-2.5 py-1 rounded-full"
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
                 style={{ background: activeChain.bg, color: activeChain.color }}
               >
                 {activeChain.shortName}
               </span>
             )}
           </div>
-
-          {/* Address card */}
-          <div>
-            <p className="text-[12px] text-trade-text-muted font-medium mb-2">Wallet Address</p>
-            <div
-              className="rounded-2xl px-4 py-3.5 flex items-start justify-between gap-3"
-              style={{ background: "rgba(255,255,255,0.04)" }}
-            >
-              <p className="text-[13px] font-mono font-semibold text-trade-text break-all leading-relaxed">
-                {address ?? "No address"}
-              </p>
-              <button
-                onClick={copy}
-                className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-xl bg-trade-surface active:opacity-60 transition-opacity mt-0.5"
-                aria-label="Copy address"
-              >
-                {copied
-                  ? <Check className="h-3.5 w-3.5 text-[#22c55e]" />
-                  : <Copy className="h-3.5 w-3.5 text-trade-text/50" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Chain selector */}
-          <div>
-            <p className="text-[12px] text-trade-text-muted font-medium mb-2">Network</p>
-            <div className="space-y-2">
-              {CHAINS.map((chain) => {
-                const isActive = chain.id === chainId;
-                const isLoading = switching === chain.id;
-                return (
-                  <button
-                    key={chain.id}
-                    onClick={() => handleSwitch(chain.id)}
-                    disabled={isActive || switching !== null}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-opacity active:opacity-70 disabled:cursor-default"
-                    style={{
-                      background: isActive ? chain.bg : "rgba(255,255,255,0.04)",
-                      border: isActive ? `1px solid ${chain.color}40` : "1px solid transparent",
-                    }}
-                  >
-                    {/* Chain logo */}
-                    <img
-                      src={chain.logo}
-                      alt={chain.name}
-                      width={28}
-                      height={28}
-                      className="h-7 w-7 rounded-full flex-shrink-0 object-cover"
-                    />
-
-                    <span
-                      className="flex-1 text-left text-[14px] font-semibold"
-                      style={{ color: isActive ? chain.color : "var(--trade-text)" }}
-                    >
-                      {chain.name}
-                    </span>
-
-                    {isLoading ? (
-                      <Loader className="h-4 w-4 animate-spin text-trade-text-muted" />
-                    ) : isActive ? (
-                      <Check className="h-4 w-4 flex-shrink-0" style={{ color: chain.color }} />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-trade-text-muted" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Add Funds */}
           <button
-            onClick={onAddFunds}
-            className="w-full py-3.5 rounded-2xl text-[15px] font-bold flex items-center justify-center gap-2 active:opacity-70 transition-opacity"
-            style={{ background: "rgba(240,185,11,0.12)", color: "#f0b90b" }}
+            onClick={onClose}
+            className="h-7 w-7 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
+            style={{ background: "var(--trade-surface)" }}
+            aria-label="Close"
           >
-            <Plus className="h-4 w-4" />
-            Add Funds
+            <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
           </button>
-
-          <div className="border-t border-trade-text/8" />
-
-          {/* Disconnect */}
-          <button
-            onClick={onDisconnect}
-            className="w-full py-3.5 rounded-2xl text-[15px] font-bold flex items-center justify-center gap-2 active:opacity-70 transition-opacity"
-            style={{ background: "rgba(220,38,38,0.12)", color: "#f87171" }}
-          >
-            <LogOut className="h-4 w-4" />
-            Disconnect
-          </button>
-
         </div>
+
+        {divider}
+
+        {/* ── Address row ── */}
+        <div className="flex items-center justify-between px-5 py-4 gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--trade-text-muted)" }}>Wallet Address</p>
+            <p className="text-[13px] font-mono font-medium truncate" style={{ color: "var(--trade-text)" }}>
+              {address ?? "No address"}
+            </p>
+          </div>
+          <button
+            onClick={copy}
+            className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-lg active:opacity-60 transition-opacity"
+            style={{ background: "color-mix(in oklab, var(--trade-text) 7%, transparent)" }}
+            aria-label="Copy address"
+          >
+            {copied
+              ? <Check className="h-3.5 w-3.5 text-[#22c55e]" />
+              : <Copy className="h-3.5 w-3.5" style={{ color: "color-mix(in oklab, var(--trade-text) 50%, transparent)" }} />}
+          </button>
+        </div>
+
+        {divider}
+
+        {/* ── Network label ── */}
+        <div className="px-5 pt-3.5 pb-1">
+          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--trade-text-muted)" }}>Network</p>
+        </div>
+
+        {/* ── Chain rows ── */}
+        {CHAINS.map((chain, i) => {
+          const isActive = chain.id === chainId;
+          const isLoading = switching === chain.id;
+          return (
+            <button
+              key={chain.id}
+              onClick={() => handleSwitch(chain.id)}
+              disabled={isActive || switching !== null}
+              className="w-full flex items-center gap-3 px-5 py-3.5 active:opacity-70 transition-opacity disabled:cursor-default"
+              style={{
+                borderTop: i > 0 ? "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" : undefined,
+                borderLeft: isActive ? `2px solid ${chain.color}` : "2px solid transparent",
+              }}
+            >
+              <img
+                src={chain.logo}
+                alt={chain.name}
+                width={20}
+                height={20}
+                className="h-5 w-5 rounded-full flex-shrink-0 object-cover"
+                style={{ opacity: isActive ? 1 : 0.45 }}
+              />
+              <span
+                className="flex-1 text-left text-[14px]"
+                style={{
+                  color: isActive ? "var(--trade-text)" : "color-mix(in oklab, var(--trade-text) 55%, transparent)",
+                  fontWeight: isActive ? 600 : 400,
+                }}
+              >
+                {chain.name}
+              </span>
+              {isLoading ? (
+                <Loader className="h-4 w-4 animate-spin" style={{ color: "var(--trade-text-muted)" }} />
+              ) : isActive ? (
+                <Check className="h-4 w-4 flex-shrink-0" style={{ color: chain.color }} />
+              ) : null}
+            </button>
+          );
+        })}
+
+        {divider}
+
+        {/* ── Add Funds ── */}
+        <button
+          onClick={onAddFunds}
+          className="w-full flex items-center gap-3 px-5 py-4 active:opacity-70 transition-opacity"
+        >
+          <Plus className="h-4 w-4 flex-shrink-0" style={{ color: "color-mix(in oklab, var(--trade-text) 55%, transparent)" }} />
+          <span className="text-[14px] font-semibold" style={{ color: "color-mix(in oklab, var(--trade-text) 70%, transparent)" }}>Add Funds</span>
+        </button>
+
+        {divider}
+
+        {/* ── Disconnect ── */}
+        <button
+          onClick={onDisconnect}
+          className="w-full flex items-center gap-3 px-5 py-4 active:opacity-70 transition-opacity"
+        >
+          <LogOut className="h-4 w-4 flex-shrink-0" style={{ color: "color-mix(in oklab, var(--trade-text) 55%, transparent)" }} />
+          <span className="text-[14px] font-semibold" style={{ color: "color-mix(in oklab, var(--trade-text) 70%, transparent)" }}>Disconnect</span>
+        </button>
+
       </div>
     </div>
   );
@@ -440,6 +437,53 @@ function WalletDropdown({
 
       </div>
     </div>
+  );
+}
+
+/* ─── Externally triggered mobile wallet menu ─────────────────── */
+
+export function MobileWalletMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { ready, authenticated, login, logout } = usePrivy();
+  const { wallets } = useWallets();
+  const { addFunds } = useAddFunds();
+
+  const wallet = wallets[0] ?? null;
+  const address = wallet?.address ?? null;
+  const chainId = (wallet as { chainId?: number } | null)?.chainId;
+
+  // If not authenticated, trigger Privy login and close
+  useEffect(() => {
+    if (open && ready && !authenticated) {
+      login();
+      onClose();
+    }
+  }, [open, ready, authenticated, login, onClose]);
+
+  async function handleAddFunds() {
+    if (!address) return;
+    onClose();
+    await addFunds({
+      destination: { address, chain: "eip155:56", asset: "native-currency" },
+      fiat: {},
+    });
+  }
+
+  async function handleSwitchChain(id: number) {
+    if (!wallet) return;
+    await (wallet as { switchChain: (id: number) => Promise<void> }).switchChain(id);
+  }
+
+  if (!open || !authenticated) return null;
+
+  return (
+    <WalletSheet
+      address={address}
+      chainId={chainId}
+      onClose={onClose}
+      onDisconnect={() => { logout(); onClose(); }}
+      onAddFunds={handleAddFunds}
+      onSwitchChain={handleSwitchChain}
+    />
   );
 }
 

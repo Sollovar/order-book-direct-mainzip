@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { PairSelectorPanel } from "./PairSelectorPanel";
 import { LadderHistoryPanel } from "./LadderOrderSheet";
-import { WalletButton } from "./WalletButton";
+import { WalletButton, MobileWalletMenu } from "./WalletButton";
 
 /* ─── Seeded PRNG ────────────────────────────────────── */
 function seededRand(seed: number) {
@@ -191,6 +191,7 @@ export function ChartOverlay({
   const [timeframe, setTimeframe] = useState("1D");
   const [bottomTab, setBottomTab] = useState("Open Orders");
   const [pairsOpen, setPairsOpen] = useState(false);
+  const [walletMenuOpen, setWalletMenuOpen] = useState(false);
   const currentPrice = 63934.3;
 
   const fmtCountdown = (s: number) => {
@@ -437,6 +438,7 @@ export function ChartOverlay({
             <button
               key={label}
               onClick={() => {
+                if (label === "Account") { setWalletMenuOpen(true); return; }
                 setNavTab(label);
                 if (label === "Markets") onOpenChart();
               }}
@@ -453,6 +455,9 @@ export function ChartOverlay({
 
       {/* Pair selector panel */}
       <PairSelectorPanel open={pairsOpen} onClose={() => setPairsOpen(false)} />
+
+      {/* Mobile wallet menu — triggered by Account tab */}
+      <MobileWalletMenu open={walletMenuOpen} onClose={() => setWalletMenuOpen(false)} />
 
     </div>
   );
