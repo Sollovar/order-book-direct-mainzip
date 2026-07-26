@@ -82,7 +82,7 @@ export function TradingPage() {
   }, []);
 
   return (
-    <div className={`${dark ? "" : "light"} h-screen w-screen flex flex-col bg-background text-foreground text-[12px] overflow-hidden`}>
+    <div className={`aster-desktop ${dark ? "dark" : ""} h-screen w-screen flex flex-col bg-background text-foreground text-[12px] overflow-hidden`}>
       <TopNav dark={dark} onToggle={() => setDark((d) => !d)} />
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hidden">
         <div className="h-[calc(100vh-4.5rem)] min-h-0 shrink-0 grid grid-cols-[minmax(0,1fr)_23vw_23vw] gap-1 p-1">
