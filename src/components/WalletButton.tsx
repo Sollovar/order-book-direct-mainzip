@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { usePrivy, useWallets, useAddFunds } from "@privy-io/react-auth";
 import { Wallet, Copy, LogOut, Check, X, Plus, ChevronRight, Loader } from "lucide-react";
 
@@ -216,6 +217,212 @@ function WalletSheet({
   );
 }
 
+/* ─── Desktop dropdown (same texture as WalletSheet) ─────────── */
+
+function WalletDropdown({
+  address,
+  chainId,
+  anchorRef,
+  onClose,
+  onDisconnect,
+  onAddFunds,
+  onSwitchChain,
+}: {
+  address: string | null;
+  chainId: number | undefined;
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+  onDisconnect: () => void;
+  onAddFunds: () => void;
+  onSwitchChain: (id: number) => Promise<void>;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [switching, setSwitching] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Position the dropdown below the anchor button
+  const [pos, setPos] = useState({ top: 0, right: 0 });
+
+  useEffect(() => {
+    function place() {
+      const btn = anchorRef.current;
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      setPos({
+        top: rect.bottom + 8 + window.scrollY,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [anchorRef]);
+
+  // Close on outside click
+  useEffect(() => {
+    function onDown(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        anchorRef.current &&
+        !anchorRef.current.contains(e.target as Node)
+      ) {
+        onClose();
+      }
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [onClose, anchorRef]);
+
+  function copy() {
+    if (!address) return;
+    navigator.clipboard.writeText(address).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  async function handleSwitch(id: number) {
+    if (id === chainId || switching !== null) return;
+    setSwitching(id);
+    try {
+      await onSwitchChain(id);
+    } finally {
+      setSwitching(null);
+    }
+  }
+
+  const activeChain = chainById(chainId);
+
+  const dropdown = (
+    <div
+      ref={dropdownRef}
+      className="fixed z-[9999] w-72"
+      style={{ top: pos.top, right: pos.right }}
+    >
+      {/* Sheet — bg-trade-card matches the mobile WalletSheet texture exactly */}
+      <div className="bg-trade-card rounded-2xl shadow-2xl border border-trade-text/8 overflow-hidden">
+        <div className="px-4 pt-4 pb-4 space-y-4">
+
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
+              <span className="text-[15px] font-bold text-trade-text">Connected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {activeChain && (
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: activeChain.bg, color: activeChain.color }}
+                >
+                  {activeChain.shortName}
+                </span>
+              )}
+              <button
+                onClick={onClose}
+                className="h-7 w-7 flex items-center justify-center rounded-full bg-trade-surface hover:opacity-70 transition-opacity"
+                aria-label="Close"
+              >
+                <X className="h-[13px] w-[13px] text-trade-text/60" />
+              </button>
+            </div>
+          </div>
+
+          {/* Address card */}
+          <div>
+            <p className="text-[11px] text-trade-text-muted font-medium mb-1.5">Wallet Address</p>
+            <div
+              className="rounded-xl px-3 py-2.5 flex items-start justify-between gap-2"
+              style={{ background: "rgba(255,255,255,0.04)" }}
+            >
+              <p className="text-[12px] font-mono font-semibold text-trade-text break-all leading-relaxed">
+                {address ?? "No address"}
+              </p>
+              <button
+                onClick={copy}
+                className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-trade-surface hover:opacity-70 transition-opacity mt-0.5"
+                aria-label="Copy address"
+              >
+                {copied
+                  ? <Check className="h-3 w-3 text-[#22c55e]" />
+                  : <Copy className="h-3 w-3 text-trade-text/50" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Chain selector */}
+          <div>
+            <p className="text-[11px] text-trade-text-muted font-medium mb-1.5">Network</p>
+            <div className="space-y-1.5">
+              {CHAINS.map((chain) => {
+                const isActive = chain.id === chainId;
+                const isLoading = switching === chain.id;
+                return (
+                  <button
+                    key={chain.id}
+                    onClick={() => handleSwitch(chain.id)}
+                    disabled={isActive || switching !== null}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-opacity hover:opacity-80 disabled:cursor-default"
+                    style={{
+                      background: isActive ? chain.bg : "rgba(255,255,255,0.04)",
+                      border: isActive ? `1px solid ${chain.color}40` : "1px solid transparent",
+                    }}
+                  >
+                    <span
+                      className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-black"
+                      style={{ background: chain.bg, color: chain.color }}
+                    >
+                      {chain.shortName[0]}
+                    </span>
+                    <span
+                      className="flex-1 text-left text-[13px] font-semibold"
+                      style={{ color: isActive ? chain.color : "var(--trade-text)" }}
+                    >
+                      {chain.name}
+                    </span>
+                    {isLoading ? (
+                      <Loader className="h-3.5 w-3.5 animate-spin text-trade-text-muted" />
+                    ) : isActive ? (
+                      <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: chain.color }} />
+                    ) : (
+                      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-trade-text-muted" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border-t border-trade-text/8" />
+
+          {/* Add Funds */}
+          <button
+            onClick={onAddFunds}
+            className="w-full py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+            style={{ background: "rgba(240,185,11,0.12)", color: "#f0b90b" }}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Funds
+          </button>
+
+          {/* Disconnect */}
+          <button
+            onClick={onDisconnect}
+            className="w-full py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+            style={{ background: "rgba(220,38,38,0.12)", color: "#f87171" }}
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Disconnect
+          </button>
+
+        </div>
+      </div>
+    </div>
+  );
+
+  return typeof document !== "undefined" ? createPortal(dropdown, document.body) : null;
+}
+
 /* ─── Main export ─────────────────────────────────────────────── */
 
 interface WalletButtonProps {
@@ -228,6 +435,19 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
   const { wallets } = useWallets();
   const { addFunds } = useAddFunds();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Desktop = viewport ≥ 768px (matches Tailwind md breakpoint)
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 768 : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // First EVM wallet (embedded or external)
   const wallet = wallets[0] ?? null;
@@ -308,6 +528,7 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
   return (
     <>
       <button
+        ref={buttonRef}
         onClick={() => setSheetOpen(true)}
         className="flex items-center gap-1.5 rounded-full bg-trade-surface border border-[#f0b90b]/30 pl-2.5 pr-3 py-1.5 text-[13px] font-semibold text-[#f0b90b] active:opacity-70 transition-all"
       >
@@ -323,7 +544,19 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
         )}
       </button>
 
-      {sheetOpen && (
+      {sheetOpen && isDesktop && (
+        <WalletDropdown
+          address={address}
+          chainId={chainId}
+          anchorRef={buttonRef}
+          onClose={() => setSheetOpen(false)}
+          onDisconnect={() => { logout(); setSheetOpen(false); }}
+          onAddFunds={handleAddFunds}
+          onSwitchChain={handleSwitchChain}
+        />
+      )}
+
+      {sheetOpen && !isDesktop && (
         <WalletSheet
           address={address}
           chainId={chainId}
