@@ -2,6 +2,40 @@ import { useState, useRef, useEffect } from "react";
 import { usePrivy, useWallets, useAddFunds } from "@privy-io/react-auth";
 import { Wallet, Copy, LogOut, Check, X, Plus, ChevronRight, Loader } from "lucide-react";
 
+/* ─── Chain logos ────────────────────────────────────────────── */
+
+function BnbLogo({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#F0B90B"/>
+      {/* 5-diamond BNB pattern */}
+      <path d="M16 6L19.2 9.2L16 12.4L12.8 9.2Z" fill="white"/>
+      <path d="M6 16L9.2 12.8L12.4 16L9.2 19.2Z" fill="white"/>
+      <path d="M16 12.8L19.2 16L16 19.2L12.8 16Z" fill="white"/>
+      <path d="M19.6 16L22.8 12.8L26 16L22.8 19.2Z" fill="white"/>
+      <path d="M16 19.6L19.2 22.8L16 26L12.8 22.8Z" fill="white"/>
+    </svg>
+  );
+}
+
+function BaseLogo({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#0052FF"/>
+      {/* Stem */}
+      <rect x="9.5" y="7" width="4" height="19" rx="2" fill="white"/>
+      {/* Bowl — clockwise arc from top-left to bottom-left of bowl */}
+      <path
+        d="M13.5 13.5 A7 7 0 0 1 13.5 24.5"
+        stroke="white"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 /* ─── Chain registry ──────────────────────────────────────────── */
 
 const CHAINS = [
@@ -323,7 +357,6 @@ function WalletDropdown({
         {/* ── Header row ── */}
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
             <span className="text-[15px] font-bold" style={{ color: "var(--trade-text)" }}>Connected</span>
             {activeChain && (
               <span
@@ -388,11 +421,10 @@ function WalletDropdown({
                 borderLeft: isActive ? `2px solid ${chain.color}` : "2px solid transparent",
               }}
             >
-              {/* Color dot */}
-              <span
-                className="h-2 w-2 rounded-full flex-shrink-0"
-                style={{ background: chain.color, opacity: isActive ? 1 : 0.3 }}
-              />
+              {/* Chain logo */}
+              <span className="flex-shrink-0" style={{ opacity: isActive ? 1 : 0.45 }}>
+                {chain.id === 56 ? <BnbLogo size={20} /> : <BaseLogo size={20} />}
+              </span>
               <span
                 className="flex-1 text-left text-[13px]"
                 style={{
@@ -418,8 +450,8 @@ function WalletDropdown({
           onClick={onAddFunds}
           className="w-full flex items-center gap-3 px-5 py-4 hover:opacity-70 transition-opacity"
         >
-          <Plus className="h-4 w-4 flex-shrink-0" style={{ color: "#f0b90b" }} />
-          <span className="text-[13px] font-semibold" style={{ color: "#f0b90b" }}>Add Funds</span>
+          <Plus className="h-4 w-4 flex-shrink-0" style={{ color: "color-mix(in oklab, var(--trade-text) 55%, transparent)" }} />
+          <span className="text-[13px] font-semibold" style={{ color: "color-mix(in oklab, var(--trade-text) 70%, transparent)" }}>Add Funds</span>
         </button>
 
         {divider}
@@ -429,8 +461,8 @@ function WalletDropdown({
           onClick={onDisconnect}
           className="w-full flex items-center gap-3 px-5 py-4 hover:opacity-70 transition-opacity"
         >
-          <LogOut className="h-4 w-4 flex-shrink-0" style={{ color: "#f87171" }} />
-          <span className="text-[13px] font-semibold" style={{ color: "#f87171" }}>Disconnect</span>
+          <LogOut className="h-4 w-4 flex-shrink-0" style={{ color: "color-mix(in oklab, var(--trade-text) 55%, transparent)" }} />
+          <span className="text-[13px] font-semibold" style={{ color: "color-mix(in oklab, var(--trade-text) 70%, transparent)" }}>Disconnect</span>
         </button>
 
       </div>
