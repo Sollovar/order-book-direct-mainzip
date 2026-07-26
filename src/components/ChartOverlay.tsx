@@ -110,7 +110,7 @@ function CandleChart({ candles, currentPrice }: { candles: Candle[]; currentPric
         {candles.map((c, i) => {
           const x = PL + i * candleW + candleW / 2;
           const up = c.c >= c.o;
-          const col = up ? "#19D18A" : "#E05B57";
+          const col = up ? "#22c55e" : "#ef4444";
           const bTop = toY(Math.max(c.o, c.c));
           const bBot = toY(Math.min(c.o, c.c));
           const bH = Math.max(1, bBot - bTop);
@@ -150,7 +150,7 @@ function CandleChart({ candles, currentPrice }: { candles: Candle[]; currentPric
           fontFamily="sans-serif" fontWeight="600">
           BTCUSDT · 1D · Aster
         </text>
-        <text x={PL + 6} y={PT - 1} fill="#19D18A" fontSize={9.5} fontFamily="monospace">
+        <text x={PL + 6} y={PT - 1} fill="#22c55e" fontSize={9.5} fontFamily="monospace">
           {currentPrice.toFixed(1)}{"  0.0 (0.00%)"}
         </text>
       </svg>
@@ -407,28 +407,28 @@ export function ChartOverlay({
           {
             label: "Markets",
             icon: (active: boolean) => (
-              <BarChart2 className={`h-[18px] w-[18px] ${active ? "text-[#EFCFA7]" : "text-trade-text/40"}`} />
+              <BarChart2 className={`h-[18px] w-[18px] ${active ? "text-[#f0b90b]" : "text-trade-text/40"}`} />
             ),
           },
           {
             label: "Trade",
             icon: (active: boolean) => (
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="flex-shrink-0">
-                <circle cx="6.5" cy="9" r="5.5" fill="currentColor" className={active ? "text-[#EFCFA7]" : "text-trade-text/40"} />
-                <circle cx="11.5" cy="9" r="5.5" fill="currentColor" fillOpacity="0.65" className={active ? "text-[#EFCFA7]" : "text-trade-text/40"} />
+                <circle cx="6.5" cy="9" r="5.5" fill="currentColor" className={active ? "text-[#f0b90b]" : "text-trade-text/40"} />
+                <circle cx="11.5" cy="9" r="5.5" fill="currentColor" fillOpacity="0.65" className={active ? "text-[#f0b90b]" : "text-trade-text/40"} />
               </svg>
             ),
           },
           {
             label: "Portfolio",
             icon: (active: boolean) => (
-              <PieChart className={`h-[18px] w-[18px] ${active ? "text-[#EFCFA7]" : "text-trade-text/40"}`} />
+              <PieChart className={`h-[18px] w-[18px] ${active ? "text-[#f0b90b]" : "text-trade-text/40"}`} />
             ),
           },
           {
             label: "Account",
             icon: (active: boolean) => (
-              <UserCircle className={`h-[18px] w-[18px] ${active ? "text-[#EFCFA7]" : "text-trade-text/40"}`} />
+              <UserCircle className={`h-[18px] w-[18px] ${active ? "text-[#f0b90b]" : "text-trade-text/40"}`} />
             ),
           },
         ].map(({ label, icon }) => {
@@ -443,7 +443,7 @@ export function ChartOverlay({
               className="flex items-center gap-2 transition-opacity active:opacity-60"
             >
               {icon(active)}
-              <span className={`text-[14px] font-medium tracking-tight ${active ? "text-[#EFCFA7]" : "text-trade-text/40"}`}>
+              <span className={`text-[14px] font-medium tracking-tight ${active ? "text-[#f0b90b]" : "text-trade-text/40"}`}>
                 {label}
               </span>
             </button>

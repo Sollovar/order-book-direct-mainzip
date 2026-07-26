@@ -74,7 +74,7 @@ function PriceAlertSheet({
               {pair.symbol}
               <span
                 className="text-[11px] font-semibold px-1.5 py-0.5 rounded"
-                style={{ backgroundColor: "rgba(239,207,167,0.12)", color: "#EFCFA7" }}
+                style={{ backgroundColor: "rgba(240,185,11,0.12)", color: "#f0b90b" }}
               >
                 {pair.lev}
               </span>
@@ -117,7 +117,7 @@ function PriceAlertSheet({
                   direction === "above"
                     ? "rgba(34,197,94,0.12)"
                     : "rgba(128,128,128,0.08)",
-                color: direction === "above" ? "#19D18A" : "rgba(128,128,128,0.6)",
+                color: direction === "above" ? "#22c55e" : "rgba(128,128,128,0.6)",
                 border:
                   direction === "above"
                     ? "1px solid rgba(34,197,94,0.25)"
@@ -178,7 +178,7 @@ function PriceAlertSheet({
               handleAdd();
             }}
             className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-bold transition-all active:scale-[0.98]"
-            style={{ backgroundColor: "#EFCFA7", color: "#0A0A0B" }}
+            style={{ backgroundColor: "#f0b90b", color: "#000" }}
           >
             <BellPlus className="h-4 w-4" />
             Set Alert
@@ -293,9 +293,9 @@ function PairRow({
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
           {hasAlert ? (
-            <Bell className="h-3.5 w-3.5 text-[#EFCFA7]" />
+            <Bell className="h-3.5 w-3.5 text-[#f0b90b]" />
           ) : isFavorite ? (
-            <Star className="h-3.5 w-3.5 text-[#EFCFA7] fill-[#EFCFA7]" />
+            <Star className="h-3.5 w-3.5 text-[#f0b90b] fill-[#f0b90b]" />
           ) : (
             <Star className="h-3.5 w-3.5 text-trade-text/30" />
           )}
@@ -471,7 +471,7 @@ export function PairSelectorPanel({
               onClick={() => setFilter(f)}
               className={`flex-shrink-0 pb-2.5 text-[13px] font-medium border-b-2 transition-colors ${
                 filter === f
-                  ? "border-[#EFCFA7] text-trade-text"
+                  ? "border-[#f0b90b] text-trade-text"
                   : "border-transparent text-trade-text-muted"
               }`}
             >

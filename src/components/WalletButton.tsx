@@ -108,7 +108,7 @@ function WalletSheet({
           {/* Title + active chain badge */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-[#19D18A] flex-shrink-0" />
+              <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
               <span className="text-[18px] font-bold text-trade-text">Connected</span>
             </div>
             {activeChain && (
@@ -137,7 +137,7 @@ function WalletSheet({
                 aria-label="Copy address"
               >
                 {copied
-                  ? <Check className="h-3.5 w-3.5 text-[#19D18A]" />
+                  ? <Check className="h-3.5 w-3.5 text-[#22c55e]" />
                   : <Copy className="h-3.5 w-3.5 text-trade-text/50" />}
               </button>
             </div>
@@ -194,7 +194,7 @@ function WalletSheet({
           <button
             onClick={onAddFunds}
             className="w-full py-3.5 rounded-2xl text-[15px] font-bold flex items-center justify-center gap-2 active:opacity-70 transition-opacity"
-            style={{ background: "rgba(239,207,167,0.12)", color: "#EFCFA7" }}
+            style={{ background: "rgba(240,185,11,0.12)", color: "#f0b90b" }}
           >
             <Plus className="h-4 w-4" />
             Add Funds
@@ -206,7 +206,7 @@ function WalletSheet({
           <button
             onClick={onDisconnect}
             className="w-full py-3.5 rounded-2xl text-[15px] font-bold flex items-center justify-center gap-2 active:opacity-70 transition-opacity"
-            style={{ background: "rgba(224,91,87,0.12)", color: "#E05B57" }}
+            style={{ background: "rgba(220,38,38,0.12)", color: "#f87171" }}
           >
             <LogOut className="h-4 w-4" />
             Disconnect
@@ -362,7 +362,7 @@ function WalletDropdown({
             aria-label="Copy address"
           >
             {copied
-              ? <Check className="h-3.5 w-3.5 text-[#19D18A]" />
+              ? <Check className="h-3.5 w-3.5 text-[#22c55e]" />
               : <Copy className="h-3.5 w-3.5" style={{ color: "color-mix(in oklab, var(--trade-text) 50%, transparent)" }} />}
           </button>
         </div>
@@ -516,7 +516,7 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
       return (
         <button
           onClick={login}
-          className="w-full rounded-full bg-[#EFCFA7] text-[#0A0A0B] py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all"
+          className="w-full rounded-full bg-[#f0b90b] text-[#1a1200] py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all"
         >
           <Wallet className="h-4 w-4" />
           Connect Wallet
@@ -526,7 +526,7 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
     return (
       <button
         onClick={login}
-        className="flex items-center gap-1.5 rounded-full bg-[#EFCFA7] text-[#0A0A0B] pl-2.5 pr-3.5 py-1.5 text-[13px] font-bold active:brightness-90 transition-all shadow-sm"
+        className="flex items-center gap-1.5 rounded-full bg-[#f0b90b] text-[#1a1200] pl-2.5 pr-3.5 py-1.5 text-[13px] font-bold active:brightness-90 transition-all shadow-sm"
       >
         <Wallet className="h-3.5 w-3.5" />
         Connect
@@ -537,7 +537,7 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
   /* ── Authenticated ── */
   if (fullWidth) {
     return (
-      <button className="w-full rounded-full bg-[#EFCFA7] text-[#0A0A0B] py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all">
+      <button className="w-full rounded-full bg-[#f0b90b] text-[#1a1200] py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all">
         Place Order
       </button>
     );
@@ -550,7 +550,7 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
       <button
         ref={buttonRef}
         onClick={() => setSheetOpen(true)}
-        className="flex items-center gap-1.5 rounded-full bg-trade-surface border border-[#EFCFA7]/30 pl-2.5 pr-3 py-1.5 text-[13px] font-semibold text-[#EFCFA7] active:opacity-70 transition-all"
+        className="flex items-center gap-1.5 rounded-full bg-trade-surface border border-[#f0b90b]/30 pl-2.5 pr-3 py-1.5 text-[13px] font-semibold text-[#f0b90b] active:opacity-70 transition-all"
       >
         <Wallet className="h-3.5 w-3.5 flex-shrink-0" />
         {truncate(address ?? "Connected")}

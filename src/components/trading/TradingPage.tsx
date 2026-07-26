@@ -163,8 +163,8 @@ const NOTIF_MOCK: Notif[] = [
 ];
 
 const NOTIF_META: Record<NotifType, { icon: React.ElementType; color: string; bg: string }> = {
-  fill:    { icon: CheckCircle2, color: "#19D18A", bg: "rgba(25,209,138,0.12)"   },
-  funding: { icon: Zap,          color: "#EFCFA7", bg: "rgba(239,207,167,0.12)"  },
+  fill:    { icon: CheckCircle2, color: "#22c55e", bg: "rgba(34,197,94,0.12)"   },
+  funding: { icon: Zap,          color: "#f0b90b", bg: "rgba(240,185,11,0.12)"  },
   alert:   { icon: AlertCircle,  color: "#ef4444", bg: "rgba(239,68,68,0.12)"   },
   system:  { icon: Bell,         color: "#8b8b8b", bg: "rgba(139,139,139,0.12)" },
   reward:  { icon: Gift,         color: "#a855f7", bg: "rgba(168,85,247,0.12)"  },
@@ -243,7 +243,7 @@ function NotificationsDropdown({
             <p className="text-[17px] font-bold leading-tight flex items-center gap-2" style={{ color: "var(--trade-text)" }}>
               Notifications
               {unread > 0 && (
-                <span className="inline-flex items-center justify-center h-4 px-1.5 rounded-full text-[9px] font-bold text-black" style={{ backgroundColor: "#EFCFA7", minWidth: 16 }}>
+                <span className="inline-flex items-center justify-center h-4 px-1.5 rounded-full text-[9px] font-bold text-black" style={{ backgroundColor: "#f0b90b", minWidth: 16 }}>
                   {unread}
                 </span>
               )}
@@ -273,8 +273,8 @@ function NotificationsDropdown({
         <div className="max-h-[540px] overflow-y-auto scrollbar-hidden">
           {notifs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 gap-2">
-              <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(239,207,167,0.10)" }}>
-                <Bell className="h-4 w-4" style={{ color: "#EFCFA7" }} />
+              <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,185,11,0.10)" }}>
+                <Bell className="h-4 w-4" style={{ color: "#f0b90b" }} />
               </div>
               <p className="text-[12px]" style={{ color: "var(--trade-text-muted)" }}>No notifications</p>
             </div>
@@ -287,8 +287,8 @@ function NotificationsDropdown({
                 className="flex items-start gap-3 px-5 py-3.5"
                 style={{
                   borderTop: i > 0 ? "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" : undefined,
-                  borderLeft: n.unread ? "2px solid #EFCFA7" : "2px solid transparent",
-                  background: n.unread ? "rgba(239,207,167,0.03)" : "transparent",
+                  borderLeft: n.unread ? "2px solid #f0b90b" : "2px solid transparent",
+                  background: n.unread ? "rgba(240,185,11,0.03)" : "transparent",
                 }}
               >
                 <span className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: meta.bg }}>
@@ -332,7 +332,7 @@ function DesktopToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () =
       aria-checked={enabled}
     >
       <span className="absolute inset-0 rounded-full transition-colors duration-200"
-        style={{ backgroundColor: enabled ? "#EFCFA7" : "rgba(128,128,128,0.25)" }} />
+        style={{ backgroundColor: enabled ? "#f0b90b" : "rgba(128,128,128,0.25)" }} />
       <span className="absolute top-[2.5px] rounded-full bg-white shadow-sm transition-all duration-200"
         style={{ width: 14, height: 14, left: enabled ? 17 : 3 }} />
     </button>
@@ -485,10 +485,10 @@ function SettingsDropdown({
                     className="w-full flex items-center justify-between px-5 py-3.5 hover:opacity-70 transition-opacity"
                     style={{ borderTop: "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" }}
                   >
-                    <span className="text-[13px]" style={{ color: active ? "#EFCFA7" : "var(--trade-text)", fontWeight: active ? 600 : 400 }}>
+                    <span className="text-[13px]" style={{ color: active ? "#f0b90b" : "var(--trade-text)", fontWeight: active ? 600 : 400 }}>
                       {lang}
                     </span>
-                    {active && <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "#EFCFA7" }} />}
+                    {active && <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "#f0b90b" }} />}
                   </button>
                 );
               })}
@@ -550,7 +550,7 @@ function TopNav({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
         >
           <Bell className="w-4 h-4" />
           {/* unread dot */}
-          <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-[#EFCFA7]" />
+          <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-[#f0b90b]" />
         </button>
 
         {/* Settings */}

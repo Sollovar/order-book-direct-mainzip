@@ -162,7 +162,7 @@ function RootShell({ children }: { children: ReactNode }) {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #EFCFA7;
+            background: #f0b90b;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -197,10 +197,10 @@ function RootShell({ children }: { children: ReactNode }) {
           <div className="al-ring">
             {/* Spinning gold arc */}
             <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="36" cy="36" r="32" stroke="rgba(239,207,167,0.15)" strokeWidth="3.5" />
+              <circle cx="36" cy="36" r="32" stroke="rgba(240,185,11,0.15)" strokeWidth="3.5" />
               <path
                 d="M36 4 A32 32 0 0 1 68 36"
-                stroke="#EFCFA7"
+                stroke="#f0b90b"
                 strokeWidth="3.5"
                 strokeLinecap="round"
               />
@@ -285,9 +285,9 @@ function RootComponent() {
           "farcaster",
         ],
         appearance: {
-          // Match the app's trade-card surface: #0A0A0B in dark, #ffffff in light
-          theme: isDark ? "#0A0A0B" : "#ffffff",
-          accentColor: "#EFCFA7",
+          // Match the app's trade-card surface: #0f0f0f in dark, #ffffff in light
+          theme: isDark ? "#0f0f0f" : "#ffffff",
+          accentColor: "#f0b90b",
         },
         defaultChain: bsc,
         supportedChains: [bsc, base],

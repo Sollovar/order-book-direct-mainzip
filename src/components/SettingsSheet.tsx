@@ -20,7 +20,7 @@ function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
     >
       <span
         className="absolute inset-0 rounded-full transition-colors duration-200"
-        style={{ backgroundColor: enabled ? "#EFCFA7" : "rgba(128,128,128,0.25)" }}
+        style={{ backgroundColor: enabled ? "#f0b90b" : "rgba(128,128,128,0.25)" }}
       />
       <span
         className="absolute top-[3px] rounded-full bg-white shadow-sm transition-all duration-200"
@@ -98,11 +98,11 @@ function LanguageSheet({
               >
                 <span
                   className="text-[15px] text-left"
-                  style={{ color: active ? "#EFCFA7" : "var(--color-trade-text, white)", fontWeight: active ? 600 : 400 }}
+                  style={{ color: active ? "#f0b90b" : "var(--color-trade-text, white)", fontWeight: active ? 600 : 400 }}
                 >
                   {lang}
                 </span>
-                {active && <Check className="h-4 w-4 flex-shrink-0" style={{ color: "#EFCFA7" }} />}
+                {active && <Check className="h-4 w-4 flex-shrink-0" style={{ color: "#f0b90b" }} />}
               </button>
             );
           })}
