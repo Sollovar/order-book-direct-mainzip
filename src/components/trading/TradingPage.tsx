@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { WalletButton } from "../WalletButton";
 import {
   ChevronDown,
+  ChevronRight,
   Star,
   Maximize2,
   Settings,
@@ -27,6 +28,13 @@ import {
   Search,
   Wallet,
   Bell,
+  X,
+  Check,
+  Volume2,
+  Zap,
+  AlertCircle,
+  Gift,
+  CheckCircle2,
 } from "lucide-react";
 
 /* -------------------- Mock data -------------------- */
@@ -131,10 +139,358 @@ function Panel({ children, className = "" }: { children: React.ReactNode; classN
   );
 }
 
+/* -------------------- Notification types -------------------- */
+
+type NotifType = "fill" | "funding" | "alert" | "system" | "reward";
+interface Notif {
+  id: number;
+  type: NotifType;
+  title: string;
+  body: string;
+  time: string;
+  unread: boolean;
+}
+
+const NOTIF_MOCK: Notif[] = [
+  { id: 1, type: "fill",    title: "Order Filled",        body: "BTCUSDT Buy 0.01 BTC @ 66,007.4 USDT",              time: "2m ago",  unread: true  },
+  { id: 2, type: "funding", title: "Funding Rate",        body: "BTCUSDT next funding: +0.0076% in 00:39:58",         time: "1h ago",  unread: true  },
+  { id: 3, type: "alert",   title: "Price Alert",         body: "BTC crossed your alert at $66,000",                  time: "2h ago",  unread: true  },
+  { id: 4, type: "system",  title: "New Market",          body: "SOLUSD Perp is now available to trade",              time: "5h ago",  unread: false },
+  { id: 5, type: "fill",    title: "Order Cancelled",     body: "ETHUSDT Limit Sell 0.5 ETH @ 3,240 expired",         time: "8h ago",  unread: false },
+  { id: 6, type: "reward",  title: "Referral Reward",     body: "You earned 12.50 USDT from a referral trade",        time: "1d ago",  unread: false },
+  { id: 7, type: "alert",   title: "Liquidation Warning", body: "Your ETHUSDT position is near liquidation price",    time: "2d ago",  unread: false },
+];
+
+const NOTIF_META: Record<NotifType, { icon: React.ElementType; color: string; bg: string }> = {
+  fill:    { icon: CheckCircle2, color: "#22c55e", bg: "rgba(34,197,94,0.12)"   },
+  funding: { icon: Zap,          color: "#f0b90b", bg: "rgba(240,185,11,0.12)"  },
+  alert:   { icon: AlertCircle,  color: "#ef4444", bg: "rgba(239,68,68,0.12)"   },
+  system:  { icon: Bell,         color: "#8b8b8b", bg: "rgba(139,139,139,0.12)" },
+  reward:  { icon: Gift,         color: "#a855f7", bg: "rgba(168,85,247,0.12)"  },
+};
+
+/* -------------------- Shared dropdown shell -------------------- */
+
+function useDropdownAnchor(
+  anchorRef: React.RefObject<HTMLButtonElement | null>,
+  onClose: () => void,
+  dropdownRef: React.RefObject<HTMLDivElement | null>,
+) {
+  const [pos, setPos] = useState({ top: 0, right: 0 });
+
+  useEffect(() => {
+    function place() {
+      const btn = anchorRef.current;
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      setPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [anchorRef]);
+
+  useEffect(() => {
+    function onDown(e: MouseEvent) {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        anchorRef.current  && !anchorRef.current.contains(e.target as Node)
+      ) onClose();
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [onClose, anchorRef, dropdownRef]);
+
+  return pos;
+}
+
+/* -------------------- Notifications dropdown -------------------- */
+
+function NotificationsDropdown({
+  anchorRef,
+  onClose,
+}: {
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+}) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const pos = useDropdownAnchor(anchorRef, onClose, dropdownRef);
+  const [notifs, setNotifs] = useState<Notif[]>(NOTIF_MOCK);
+
+  const unread = notifs.filter((n) => n.unread).length;
+  const markAllRead = () => setNotifs((p) => p.map((n) => ({ ...n, unread: false })));
+  const dismiss = (id: number) => setNotifs((p) => p.filter((n) => n.id !== id));
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="fixed z-[9999] w-80"
+      style={{ top: pos.top, right: pos.right }}
+    >
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{
+          background: "var(--trade-card)",
+          border: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)",
+          boxShadow: "0 24px 60px -12px rgba(0,0,0,0.6)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-end justify-between px-4 pt-4 pb-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--trade-text-muted)" }}>Inbox</p>
+            <p className="text-[16px] font-bold leading-tight flex items-center gap-2" style={{ color: "var(--trade-text)" }}>
+              Notifications
+              {unread > 0 && (
+                <span className="inline-flex items-center justify-center h-4 px-1.5 rounded-full text-[9px] font-bold text-black" style={{ backgroundColor: "#f0b90b", minWidth: 16 }}>
+                  {unread}
+                </span>
+              )}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 pb-0.5">
+            {unread > 0 && (
+              <button onClick={markAllRead} className="text-[11px] transition-opacity hover:opacity-70" style={{ color: "var(--trade-text-muted)" }}>
+                Mark all read
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity"
+              style={{ background: "var(--trade-surface)" }}
+              aria-label="Close"
+            >
+              <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
+            </button>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="px-3 pb-3 space-y-1.5 max-h-[420px] overflow-y-auto scrollbar-hidden">
+          {notifs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-2">
+              <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(240,185,11,0.10)" }}>
+                <Bell className="h-4 w-4" style={{ color: "#f0b90b" }} />
+              </div>
+              <p className="text-[12px]" style={{ color: "var(--trade-text-muted)" }}>No notifications</p>
+            </div>
+          ) : notifs.map((n) => {
+            const meta = NOTIF_META[n.type];
+            const Icon = meta.icon;
+            return (
+              <div
+                key={n.id}
+                className="flex items-start gap-2.5 rounded-xl px-2.5 py-2.5"
+                style={{
+                  background: n.unread ? "rgba(240,185,11,0.05)" : "rgba(255,255,255,0.02)",
+                  border: n.unread ? "1px solid rgba(240,185,11,0.12)" : "1px solid transparent",
+                }}
+              >
+                <span className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: meta.bg }}>
+                  <Icon className="h-3.5 w-3.5" style={{ color: meta.color }} />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[12px] font-semibold" style={{ color: n.unread ? "var(--trade-text)" : "color-mix(in oklab, var(--trade-text) 70%, transparent)" }}>
+                      {n.title}
+                    </span>
+                    <span className="text-[10px] flex-shrink-0" style={{ color: "var(--trade-text-muted)" }}>{n.time}</span>
+                  </div>
+                  <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "var(--trade-text-muted)" }}>{n.body}</p>
+                </div>
+                <button onClick={() => dismiss(n.id)} className="flex-shrink-0 mt-0.5 hover:opacity-50 transition-opacity" aria-label="Dismiss">
+                  <X className="h-3 w-3" style={{ color: "color-mix(in oklab, var(--trade-text) 30%, transparent)" }} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------- Settings dropdown -------------------- */
+
+const LANGUAGES = [
+  "English", "Deutsch", "Español (Latinoamérica)", "日本語", "한국어",
+  "Polski", "Português (Brasil)", "Русский", "Türkçe", "简体中文", "繁體中文",
+];
+
+function DesktopToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      className="relative flex-shrink-0 transition-all duration-200"
+      style={{ width: 34, height: 19 }}
+      role="switch"
+      aria-checked={enabled}
+    >
+      <span className="absolute inset-0 rounded-full transition-colors duration-200"
+        style={{ backgroundColor: enabled ? "#f0b90b" : "rgba(128,128,128,0.25)" }} />
+      <span className="absolute top-[2.5px] rounded-full bg-white shadow-sm transition-all duration-200"
+        style={{ width: 14, height: 14, left: enabled ? 17 : 3 }} />
+    </button>
+  );
+}
+
+function SettingsDropdown({
+  anchorRef,
+  dark,
+  onToggleDark,
+  onClose,
+}: {
+  anchorRef: React.RefObject<HTMLButtonElement | null>;
+  dark: boolean;
+  onToggleDark: () => void;
+  onClose: () => void;
+}) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const pos = useDropdownAnchor(anchorRef, onClose, dropdownRef);
+  const [fillSound, setFillSound] = useState(false);
+  const [alertSound, setAlertSound] = useState(true);
+  const [language, setLanguage] = useState("English");
+  const [langOpen, setLangOpen] = useState(false);
+
+  const rowStyle = {
+    borderTop: "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)",
+  };
+
+  const rows = [
+    {
+      Icon: dark ? Moon : Sun,
+      label: "Theme",
+      sub: dark ? "Dark mode" : "Light mode",
+      right: <DesktopToggle enabled={dark} onToggle={onToggleDark} />,
+      onClick: undefined as (() => void) | undefined,
+    },
+    {
+      Icon: Globe,
+      label: "Language",
+      sub: undefined as string | undefined,
+      right: (
+        <span className="flex items-center gap-1 text-[12px]" style={{ color: "var(--trade-text-muted)" }}>
+          {language}
+          <ChevronRight className="h-3 w-3 opacity-50" />
+        </span>
+      ),
+      onClick: () => setLangOpen(true),
+    },
+    {
+      Icon: Volume2,
+      label: "Fill Sounds",
+      sub: "Play sound when an order fills",
+      right: <DesktopToggle enabled={fillSound} onToggle={() => setFillSound((v) => !v)} />,
+      onClick: undefined,
+    },
+    {
+      Icon: Bell,
+      label: "Price Alert Sound",
+      sub: "Play sound when a price alert fires",
+      right: <DesktopToggle enabled={alertSound} onToggle={() => setAlertSound((v) => !v)} />,
+      onClick: undefined,
+    },
+  ];
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="fixed z-[9999] w-72"
+      style={{ top: pos.top, right: pos.right }}
+    >
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{
+          background: "var(--trade-card)",
+          border: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)",
+          boxShadow: "0 24px 60px -12px rgba(0,0,0,0.6)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-end justify-between px-4 pt-4 pb-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--trade-text-muted)" }}>Preferences</p>
+            <p className="text-[16px] font-bold leading-tight" style={{ color: "var(--trade-text)" }}>Settings</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity mb-0.5"
+            style={{ background: "var(--trade-surface)" }}
+            aria-label="Close"
+          >
+            <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
+          </button>
+        </div>
+
+        {/* Rows */}
+        <div className="px-4 pb-4">
+          {rows.map(({ Icon, label, sub, right, onClick }, i) => (
+            <div
+              key={label}
+              className={`flex items-center gap-3 py-3 ${onClick ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
+              style={i > 0 ? rowStyle : {}}
+              onClick={onClick}
+            >
+              <Icon className="h-[17px] w-[17px] flex-shrink-0" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium leading-tight" style={{ color: "var(--trade-text)" }}>{label}</p>
+                {sub && <p className="text-[10px] mt-0.5" style={{ color: "var(--trade-text-muted)" }}>{sub}</p>}
+              </div>
+              {right}
+            </div>
+          ))}
+        </div>
+
+        {/* Language picker — slides in over the settings panel */}
+        {langOpen && (
+          <div className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col" style={{ background: "var(--trade-card)", zIndex: 1 }}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 pt-4 pb-3">
+              <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--trade-text-muted)" }}>Language</p>
+              <button
+                onClick={() => setLangOpen(false)}
+                className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity"
+                style={{ background: "var(--trade-surface)" }}
+                aria-label="Back"
+              >
+                <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
+              </button>
+            </div>
+            {/* List */}
+            <div className="overflow-y-auto flex-1 scrollbar-hidden pb-2">
+              {LANGUAGES.map((lang) => {
+                const active = lang === language;
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => { setLanguage(lang); setLangOpen(false); }}
+                    className="w-full flex items-center justify-between px-4 py-3 hover:opacity-70 transition-opacity"
+                    style={{ borderTop: "1px solid color-mix(in oklab, var(--trade-text) 5%, transparent)" }}
+                  >
+                    <span className="text-[13px]" style={{ color: active ? "#f0b90b" : "var(--trade-text)", fontWeight: active ? 600 : 400 }}>
+                      {lang}
+                    </span>
+                    {active && <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "#f0b90b" }} />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* -------------------- Top nav -------------------- */
 
 function TopNav({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   const items = ["Trade", "Portfolio", "More"];
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const bellRef = useRef<HTMLButtonElement>(null);
+  const settingsRef = useRef<HTMLButtonElement>(null);
+
   return (
     <header className="h-11 shrink-0 flex items-center justify-between px-3 border-b border-border/70 bg-background">
       <div className="flex items-center gap-4">
@@ -164,13 +520,46 @@ function TopNav({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
         >
           {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
+
         <WalletButton />
-        <button className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
+
+        {/* Bell — notifications */}
+        <button
+          ref={bellRef}
+          onClick={() => { setNotifOpen((v) => !v); setSettingsOpen(false); }}
+          className="relative w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors"
+          aria-label="Notifications"
+        >
           <Bell className="w-4 h-4" />
+          {/* unread dot */}
+          <span className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-[#f0b90b]" />
         </button>
-        <button className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
+
+        {/* Settings */}
+        <button
+          ref={settingsRef}
+          onClick={() => { setSettingsOpen((v) => !v); setNotifOpen(false); }}
+          className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors"
+          aria-label="Settings"
+        >
           <Settings className="w-4 h-4" />
         </button>
+
+        {/* Dropdowns — inline in DOM so they inherit .aster-desktop.dark CSS vars */}
+        {notifOpen && (
+          <NotificationsDropdown
+            anchorRef={bellRef}
+            onClose={() => setNotifOpen(false)}
+          />
+        )}
+        {settingsOpen && (
+          <SettingsDropdown
+            anchorRef={settingsRef}
+            dark={dark}
+            onToggleDark={() => { onToggle(); }}
+            onClose={() => setSettingsOpen(false)}
+          />
+        )}
       </div>
     </header>
   );
