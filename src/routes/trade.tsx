@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChartOverlay } from "../components/ChartOverlay";
 import { LadderHistoryPanel } from "../components/LadderOrderSheet";
-import { WalletButton } from "../components/WalletButton";
+import { WalletButton, MobileWalletMenu } from "../components/WalletButton";
 import { PairSelectorPanel } from "../components/PairSelectorPanel";
 import { NotificationsSheet, type Notification } from "../components/NotificationsSheet";
 import { SettingsSheet } from "../components/SettingsSheet";
@@ -107,6 +107,7 @@ function Index() {
   const [orderType, setOrderType] = useState("Limit");
   const [orderTypeSheetOpen, setOrderTypeSheetOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [walletMenuOpen, setWalletMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [bookVisible, setBookVisible] = useState(true);
@@ -879,6 +880,7 @@ function Index() {
             <button
               key={label}
               onClick={() => {
+                if (label === "Account") { setWalletMenuOpen(true); return; }
                 setNavTab(label);
                 if (label === "Markets") setChartOpen(true);
               }}
@@ -892,6 +894,9 @@ function Index() {
           );
         })}
       </nav>
+
+      {/* Mobile wallet menu — triggered by Account nav tab */}
+      <MobileWalletMenu open={walletMenuOpen} onClose={() => setWalletMenuOpen(false)} />
 
       {/* Chart overlay — opens when Markets nav tab is tapped */}
       <ChartOverlay
