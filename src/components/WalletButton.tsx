@@ -2,40 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { usePrivy, useWallets, useAddFunds } from "@privy-io/react-auth";
 import { Wallet, Copy, LogOut, Check, X, Plus, ChevronRight, Loader } from "lucide-react";
 
-/* ─── Chain logos ────────────────────────────────────────────── */
-
-function BnbLogo({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="16" fill="#F0B90B"/>
-      {/* 5-diamond BNB pattern */}
-      <path d="M16 6L19.2 9.2L16 12.4L12.8 9.2Z" fill="white"/>
-      <path d="M6 16L9.2 12.8L12.4 16L9.2 19.2Z" fill="white"/>
-      <path d="M16 12.8L19.2 16L16 19.2L12.8 16Z" fill="white"/>
-      <path d="M19.6 16L22.8 12.8L26 16L22.8 19.2Z" fill="white"/>
-      <path d="M16 19.6L19.2 22.8L16 26L12.8 22.8Z" fill="white"/>
-    </svg>
-  );
-}
-
-function BaseLogo({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="16" fill="#0052FF"/>
-      {/* Stem */}
-      <rect x="9.5" y="7" width="4" height="19" rx="2" fill="white"/>
-      {/* Bowl — clockwise arc from top-left to bottom-left of bowl */}
-      <path
-        d="M13.5 13.5 A7 7 0 0 1 13.5 24.5"
-        stroke="white"
-        strokeWidth="4"
-        fill="none"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 /* ─── Chain registry ──────────────────────────────────────────── */
 
 const CHAINS = [
@@ -43,10 +9,10 @@ const CHAINS = [
     id: 56,
     name: "BNB Chain",
     shortName: "BSC",
-    // Simple colored circle used as icon
     color: "#F0B90B",
     bg: "rgba(240,185,11,0.15)",
     caip2: "eip155:56",
+    logo: "https://cryptologos.cc/logos/bnb-bnb-logo.png",
   },
   {
     id: 8453,
@@ -55,6 +21,7 @@ const CHAINS = [
     color: "#0052FF",
     bg: "rgba(0,82,255,0.15)",
     caip2: "eip155:8453",
+    logo: "https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8712%20(1).png",
   },
 ] as const;
 
@@ -194,13 +161,14 @@ function WalletSheet({
                       border: isActive ? `1px solid ${chain.color}40` : "1px solid transparent",
                     }}
                   >
-                    {/* Chain icon dot */}
-                    <span
-                      className="h-7 w-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-black"
-                      style={{ background: chain.bg, color: chain.color }}
-                    >
-                      {chain.shortName[0]}
-                    </span>
+                    {/* Chain logo */}
+                    <img
+                      src={chain.logo}
+                      alt={chain.name}
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 rounded-full flex-shrink-0 object-cover"
+                    />
 
                     <span
                       className="flex-1 text-left text-[14px] font-semibold"
@@ -422,9 +390,14 @@ function WalletDropdown({
               }}
             >
               {/* Chain logo */}
-              <span className="flex-shrink-0" style={{ opacity: isActive ? 1 : 0.45 }}>
-                {chain.id === 56 ? <BnbLogo size={20} /> : <BaseLogo size={20} />}
-              </span>
+              <img
+                src={chain.logo}
+                alt={chain.name}
+                width={20}
+                height={20}
+                className="h-5 w-5 rounded-full flex-shrink-0 object-cover"
+                style={{ opacity: isActive ? 1 : 0.45 }}
+              />
               <span
                 className="flex-1 text-left text-[13px]"
                 style={{
