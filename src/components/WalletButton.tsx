@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { usePrivy, useWallets, useAddFunds } from "@privy-io/react-auth";
 import { Wallet, Copy, LogOut, Check, X, Plus, ChevronRight, Loader } from "lucide-react";
 
@@ -240,7 +239,7 @@ function WalletDropdown({
   const [switching, setSwitching] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Position the dropdown below the anchor button
+  // Position the dropdown fixed below the anchor button
   const [pos, setPos] = useState({ top: 0, right: 0 });
 
   useEffect(() => {
@@ -249,7 +248,7 @@ function WalletDropdown({
       if (!btn) return;
       const rect = btn.getBoundingClientRect();
       setPos({
-        top: rect.bottom + 8 + window.scrollY,
+        top: rect.bottom + 8,
         right: window.innerWidth - rect.right,
       });
     }
@@ -293,21 +292,35 @@ function WalletDropdown({
 
   const activeChain = chainById(chainId);
 
-  const dropdown = (
+  /*
+   * Rendered inline in the DOM tree (NOT a portal) so this element is always
+   * a descendant of the page's theme wrapper (.aster-desktop.dark etc.) and
+   * inherits the exact same CSS custom properties as the rest of the page —
+   * matching the mobile WalletSheet colours precisely.
+   * `position: fixed` keeps it visually anchored near the button.
+   */
+  return (
     <div
       ref={dropdownRef}
       className="fixed z-[9999] w-72"
       style={{ top: pos.top, right: pos.right }}
     >
-      {/* Sheet — bg-trade-card matches the mobile WalletSheet texture exactly */}
-      <div className="bg-trade-card rounded-2xl shadow-2xl border border-trade-text/8 overflow-hidden">
+      {/* Panel — bg-trade-card is identical to the mobile WalletSheet surface */}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{
+          background: "var(--trade-card)",
+          border: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)",
+          boxShadow: "0 24px 60px -12px rgba(0,0,0,0.6)",
+        }}
+      >
         <div className="px-4 pt-4 pb-4 space-y-4">
 
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#22c55e] flex-shrink-0" />
-              <span className="text-[15px] font-bold text-trade-text">Connected</span>
+              <span className="text-[15px] font-bold" style={{ color: "var(--trade-text)" }}>Connected</span>
             </div>
             <div className="flex items-center gap-2">
               {activeChain && (
@@ -320,39 +333,41 @@ function WalletDropdown({
               )}
               <button
                 onClick={onClose}
-                className="h-7 w-7 flex items-center justify-center rounded-full bg-trade-surface hover:opacity-70 transition-opacity"
+                className="h-7 w-7 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity"
+                style={{ background: "var(--trade-surface)" }}
                 aria-label="Close"
               >
-                <X className="h-[13px] w-[13px] text-trade-text/60" />
+                <X className="h-[13px] w-[13px]" style={{ color: "color-mix(in oklab, var(--trade-text) 60%, transparent)" }} />
               </button>
             </div>
           </div>
 
           {/* Address card */}
           <div>
-            <p className="text-[11px] text-trade-text-muted font-medium mb-1.5">Wallet Address</p>
+            <p className="text-[11px] font-medium mb-1.5" style={{ color: "var(--trade-text-muted)" }}>Wallet Address</p>
             <div
               className="rounded-xl px-3 py-2.5 flex items-start justify-between gap-2"
               style={{ background: "rgba(255,255,255,0.04)" }}
             >
-              <p className="text-[12px] font-mono font-semibold text-trade-text break-all leading-relaxed">
+              <p className="text-[12px] font-mono font-semibold break-all leading-relaxed" style={{ color: "var(--trade-text)" }}>
                 {address ?? "No address"}
               </p>
               <button
                 onClick={copy}
-                className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-trade-surface hover:opacity-70 transition-opacity mt-0.5"
+                className="h-7 w-7 flex-shrink-0 flex items-center justify-center rounded-lg hover:opacity-70 transition-opacity mt-0.5"
+                style={{ background: "var(--trade-surface)" }}
                 aria-label="Copy address"
               >
                 {copied
                   ? <Check className="h-3 w-3 text-[#22c55e]" />
-                  : <Copy className="h-3 w-3 text-trade-text/50" />}
+                  : <Copy className="h-3 w-3" style={{ color: "color-mix(in oklab, var(--trade-text) 50%, transparent)" }} />}
               </button>
             </div>
           </div>
 
           {/* Chain selector */}
           <div>
-            <p className="text-[11px] text-trade-text-muted font-medium mb-1.5">Network</p>
+            <p className="text-[11px] font-medium mb-1.5" style={{ color: "var(--trade-text-muted)" }}>Network</p>
             <div className="space-y-1.5">
               {CHAINS.map((chain) => {
                 const isActive = chain.id === chainId;
@@ -381,11 +396,11 @@ function WalletDropdown({
                       {chain.name}
                     </span>
                     {isLoading ? (
-                      <Loader className="h-3.5 w-3.5 animate-spin text-trade-text-muted" />
+                      <Loader className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--trade-text-muted)" }} />
                     ) : isActive ? (
                       <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: chain.color }} />
                     ) : (
-                      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-trade-text-muted" />
+                      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "var(--trade-text-muted)" }} />
                     )}
                   </button>
                 );
@@ -393,7 +408,7 @@ function WalletDropdown({
             </div>
           </div>
 
-          <div className="border-t border-trade-text/8" />
+          <div style={{ borderTop: "1px solid color-mix(in oklab, var(--trade-text) 8%, transparent)" }} />
 
           {/* Add Funds */}
           <button
@@ -419,8 +434,6 @@ function WalletDropdown({
       </div>
     </div>
   );
-
-  return typeof document !== "undefined" ? createPortal(dropdown, document.body) : null;
 }
 
 /* ─── Main export ─────────────────────────────────────────────── */
