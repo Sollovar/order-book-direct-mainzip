@@ -1,29 +1,42 @@
 # AsterDex
 
-A perpetuals trading exchange interface built with TanStack Start, React 19, TypeScript, and Tailwind CSS. Features wallet authentication via Privy, on-chain trading on BSC and Base, and a real-time order book UI.
+A perpetuals DEX (decentralized exchange) trading UI built with TanStack Start, React, TypeScript, and Tailwind CSS.
 
 ## Stack
 
-- **Framework**: TanStack Start (SSR) + TanStack Router
-- **UI**: React 19, Tailwind CSS v4, Radix UI primitives, shadcn/ui components
-- **Auth/Wallet**: Privy (`@privy-io/react-auth`) — App ID is hardcoded in `src/routes/__root.tsx`
-- **Chains**: BNB Smart Chain (BSC) + Base via `viem`
-- **Build**: Vite 8 + Bun
+- **Framework**: TanStack Start (SSR) + Vite
+- **UI**: React 19, Tailwind CSS v4, Radix UI, shadcn/ui components
+- **Auth / Wallets**: Privy (`@privy-io/react-auth`) — App ID is hardcoded in `src/routes/__root.tsx`
+- **Chains**: BNB Chain (BSC) and Base (EVM)
+- **Package manager**: Bun
 
 ## Running the app
 
 ```sh
 bun install
-bun run dev
+bun run dev   # starts on port 5000
 ```
 
-The dev server starts on port 5000.
+The Replit workflow `Start application` runs `bun run dev` and serves on port 5000.
 
-## Key routes
+## Project structure
 
-- `/` — Landing page
-- `/trade` — Trading interface (order book, pair selector, chart overlay)
+```
+src/
+  routes/          # TanStack Start file-based routes
+  components/      # Reusable UI components (trading, wallet, sheets, ui/)
+  hooks/           # Custom React hooks
+  lib/             # Utilities and helpers
+  styles.css       # Global styles + Tailwind imports
+  server.ts        # SSR server entry
+```
+
+## Notes
+
+- Privy App ID is hardcoded — no environment secrets required to run locally.
+- A minor SSR hydration mismatch exists on the landing page chart (random data); cosmetic only.
+- Privy Solana warning is expected — Solana connectors are not wired up in this build.
 
 ## User preferences
 
-(none yet)
+<!-- Add user preferences here as they are stated -->
