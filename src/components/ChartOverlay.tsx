@@ -3,23 +3,16 @@ import { createPortal } from "react-dom";
 import {
   Star,
   ChevronDown,
-  Sun,
-  Moon,
   BarChart2,
   UserCircle,
   PieChart,
   Link2,
   Search,
-  Wallet,
-  Bell,
-  Settings,
   Menu,
 } from "lucide-react";
 import { PairSelectorPanel } from "./PairSelectorPanel";
 import { LadderHistoryPanel } from "./LadderOrderSheet";
 import { WalletButton } from "./WalletButton";
-import { NotificationsSheet } from "./NotificationsSheet";
-import { SettingsSheet } from "./SettingsSheet";
 
 /* ─── Seeded PRNG ────────────────────────────────────── */
 function seededRand(seed: number) {
@@ -177,7 +170,6 @@ function CandleChart({ candles, currentPrice }: { candles: Candle[]; currentPric
 export interface ChartOverlayProps {
   open: boolean;
   theme: "light" | "dark";
-  toggleTheme: () => void;
   countdown: number;
   navTab: string;
   setNavTab: (t: string) => void;
@@ -189,7 +181,6 @@ export interface ChartOverlayProps {
 export function ChartOverlay({
   open,
   theme,
-  toggleTheme,
   countdown,
   navTab,
   setNavTab,
@@ -200,9 +191,6 @@ export function ChartOverlay({
   const [timeframe, setTimeframe] = useState("1D");
   const [bottomTab, setBottomTab] = useState("Open Orders");
   const [pairsOpen, setPairsOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
   const currentPrice = 63934.3;
 
   const fmtCountdown = (s: number) => {
@@ -232,34 +220,6 @@ export function ChartOverlay({
         <div className="flex items-center gap-2">
           {/* Connect / wallet — handled by Privy */}
           <WalletButton />
-          {/* Notification */}
-          <button
-            className="h-8 w-8 rounded-full border border-trade-text/15 bg-trade-surface/50 flex items-center justify-center active:bg-trade-surface transition-colors"
-            aria-label="Notifications"
-            onClick={() => setNotifOpen(true)}
-          >
-            <Bell className="h-[15px] w-[15px] text-trade-text/70" />
-          </button>
-          {/* Settings */}
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="h-8 w-8 rounded-full border border-trade-text/15 bg-trade-surface/50 flex items-center justify-center active:bg-trade-surface transition-colors"
-            aria-label="Settings"
-          >
-            <Settings className="h-[15px] w-[15px] text-trade-text/70" />
-          </button>
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="h-8 w-8 rounded-full border border-trade-text/15 bg-trade-surface/50 flex items-center justify-center active:bg-trade-surface transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-[15px] w-[15px] text-trade-text/70" />
-            ) : (
-              <Moon className="h-[15px] w-[15px] text-trade-text/70" />
-            )}
-          </button>
           {/* Hamburger */}
           <button
             onClick={onOpenMenu}
@@ -494,17 +454,6 @@ export function ChartOverlay({
       {/* Pair selector panel */}
       <PairSelectorPanel open={pairsOpen} onClose={() => setPairsOpen(false)} />
 
-      {/* Notifications Sheet */}
-      {notifOpen && typeof document !== "undefined" && createPortal(
-        <NotificationsSheet onClose={() => setNotifOpen(false)} theme={theme} />,
-        document.body
-      )}
-
-      {/* Settings Sheet */}
-      {settingsOpen && typeof document !== "undefined" && createPortal(
-        <SettingsSheet onClose={() => setSettingsOpen(false)} theme={theme} toggleTheme={toggleTheme} />,
-        document.body
-      )}
     </div>
   );
 }

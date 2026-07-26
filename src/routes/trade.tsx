@@ -307,37 +307,6 @@ function Index() {
         <div className="flex items-center gap-2">
           {/* Connect / wallet — handled by Privy */}
           <WalletButton />
-          {/* Notification */}
-          <button
-            onClick={() => setNotifOpen(true)}
-            className="relative h-8 w-8 rounded-full border border-trade-text/15 bg-trade-surface/50 flex items-center justify-center active:bg-trade-surface transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell className="h-[15px] w-[15px] text-trade-text/70" />
-            {alertNotifications.some((n) => n.unread) && (
-              <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-[#ef4444] border border-trade-bg" />
-            )}
-          </button>
-          {/* Settings */}
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="h-8 w-8 rounded-full border border-trade-text/15 bg-trade-surface/50 flex items-center justify-center active:bg-trade-surface transition-colors"
-            aria-label="Settings"
-          >
-            <Settings className="h-[15px] w-[15px] text-trade-text/70" />
-          </button>
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="h-8 w-8 rounded-full border border-trade-text/15 bg-trade-surface/50 flex items-center justify-center active:bg-trade-surface transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-[15px] w-[15px] text-trade-text/70" />
-            ) : (
-              <Moon className="h-[15px] w-[15px] text-trade-text/70" />
-            )}
-          </button>
           {/* Hamburger */}
           <button
             onClick={() => setMenuOpen(true)}
@@ -928,7 +897,6 @@ function Index() {
       <ChartOverlay
         open={chartOpen}
         theme={theme}
-        toggleTheme={toggleTheme}
         countdown={countdown}
         navTab={navTab}
         setNavTab={(t) => {
@@ -941,7 +909,14 @@ function Index() {
 
       {/* Mobile Menu Bottom Sheet */}
       {menuOpen && typeof document !== "undefined" && createPortal(
-        <MobileMenuSheet onClose={() => setMenuOpen(false)} theme={theme} />,
+        <MobileMenuSheet
+          onClose={() => setMenuOpen(false)}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onOpenNotif={() => { setMenuOpen(false); setNotifOpen(true); }}
+          onOpenSettings={() => { setMenuOpen(false); setSettingsOpen(true); }}
+          hasUnreadNotif={alertNotifications.some((n) => n.unread)}
+        />,
         document.body
       )}
 
@@ -1109,7 +1084,21 @@ const PRODUCT_ITEMS = [
 
 const COLLAPSIBLE_SECTIONS = ["Protocol", "Company", "Legal & Privacy"];
 
-function MobileMenuSheet({ onClose, theme }: { onClose: () => void; theme: "light" | "dark" }) {
+function MobileMenuSheet({
+  onClose,
+  theme,
+  toggleTheme,
+  onOpenNotif,
+  onOpenSettings,
+  hasUnreadNotif,
+}: {
+  onClose: () => void;
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+  onOpenNotif: () => void;
+  onOpenSettings: () => void;
+  hasUnreadNotif: boolean;
+}) {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   return (
@@ -1201,6 +1190,55 @@ function MobileMenuSheet({ onClose, theme }: { onClose: () => void; theme: "ligh
 
           {/* Divider */}
           <div className="border-t border-trade-text/8 mt-4 mb-5" />
+
+          {/* Settings & Notifications row */}
+          <div className="flex items-center gap-3 mb-3">
+            <button
+              onClick={onOpenSettings}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-trade-surface active:opacity-60 transition-opacity"
+            >
+              <Settings className="h-4 w-4 text-trade-text/70" />
+              <span className="text-[14px] font-medium text-trade-text">Settings</span>
+            </button>
+            <button
+              onClick={onOpenNotif}
+              className="relative flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-trade-surface active:opacity-60 transition-opacity"
+            >
+              <Bell className="h-4 w-4 text-trade-text/70" />
+              <span className="text-[14px] font-medium text-trade-text">Notifications</span>
+              {hasUnreadNotif && (
+                <span className="absolute top-2 right-3 h-2 w-2 rounded-full bg-[#ef4444]" />
+              )}
+            </button>
+          </div>
+
+          {/* Light / Dark theme toggle */}
+          <div className="flex items-center rounded-xl bg-trade-surface p-1 mb-5">
+            {(["Light", "Dark"] as const).map((mode) => {
+              const active = (mode === "Light" && theme === "light") || (mode === "Dark" && theme === "dark");
+              return (
+                <button
+                  key={mode}
+                  onClick={() => {
+                    if ((mode === "Light" && theme !== "light") || (mode === "Dark" && theme !== "dark")) {
+                      toggleTheme();
+                    }
+                  }}
+                  className="flex-1 py-2 rounded-lg text-[14px] font-medium transition-all duration-200"
+                  style={{
+                    color: active ? "var(--trade-text)" : "var(--trade-text-muted)",
+                    background: active ? "var(--trade-card)" : "transparent",
+                    boxShadow: active ? "0 1px 4px rgba(0,0,0,0.25)" : "none",
+                  }}
+                >
+                  {mode}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-trade-text/8 mb-5" />
 
           {/* Social icons */}
           <div className="flex items-center justify-between px-1">
