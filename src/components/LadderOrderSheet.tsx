@@ -251,18 +251,20 @@ function LadderDetailSheet({
           </div>
 
           {/* Cancel all button */}
-          {hasPending ? (
-            <button
-              onClick={onCancelAll}
-              className="text-[14px] text-trade-text-muted active:opacity-50 transition-opacity"
-            >
-              Cancel Order
-            </button>
-          ) : (
-            <span className="text-[14px] text-trade-text/30">
-              All levels settled
-            </span>
-          )}
+          <div className="flex justify-center">
+            {hasPending ? (
+              <button
+                onClick={onCancelAll}
+                className="text-[14px] text-trade-text-muted active:opacity-50 transition-opacity"
+              >
+                Cancel All
+              </button>
+            ) : (
+              <span className="text-[14px] text-trade-text/30">
+                All levels settled
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
