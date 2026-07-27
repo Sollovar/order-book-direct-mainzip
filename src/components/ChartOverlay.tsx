@@ -388,8 +388,8 @@ export function ChartOverlay({
             ))}
           </div>
 
-          {/* Timeframe row */}
-          <div className="flex items-center justify-between px-3 py-2 bg-trade-surface/30">
+          {/* Timeframe row — only visible on Chart tab */}
+          {chartTab === "Chart" && <div className="flex items-center justify-between px-3 py-2 bg-trade-surface/30">
             <div className="flex items-center gap-4">
               {timeframes.map(tf => (
                 <button
