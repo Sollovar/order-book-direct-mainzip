@@ -278,9 +278,9 @@ function PairRow({
         />
       )}
 
-      {/* ── Sticky symbol cell ── */}
+      {/* ── Symbol cell ── */}
       <div
-        className="sticky left-0 z-10 flex items-center gap-2 bg-trade-card w-[148px] flex-shrink-0 px-4 py-3"
+        className="flex-1 min-w-0 flex items-center gap-2 bg-trade-card px-4 py-3"
       >
         {/* Star / alert icon — tappable, stops row-select propagation */}
         <button
@@ -316,25 +316,17 @@ function PairRow({
         </div>
       </div>
 
-      {/* ── Scrollable data cells ── */}
-      <div className="flex flex-col items-end text-right w-[108px] flex-shrink-0 py-3 pr-3">
+      {/* ── Data cells ── */}
+      <div className="flex flex-col items-end text-right w-[100px] flex-shrink-0 py-3 pr-3">
         <span className="text-[12px] text-trade-text">{p.vol}</span>
         <span className="text-[11px] text-trade-text-muted">{p.oi}</span>
       </div>
 
-      <div className="flex flex-col items-end text-right w-[90px] flex-shrink-0 py-3 pr-3">
+      <div className="flex flex-col items-end text-right w-[90px] flex-shrink-0 py-3 pr-4">
         <span className="text-[12px] text-trade-text">{p.price}</span>
         <span className={`text-[11px] font-medium ${p.up ? "text-trade-bid" : "text-trade-ask"}`}>
           {p.change}
         </span>
-      </div>
-
-      <div className="flex flex-col items-end text-right w-[80px] flex-shrink-0 py-3 pr-3">
-        <span className="text-[12px] text-trade-text">{p.liquidity}</span>
-      </div>
-
-      <div className="flex flex-col items-end text-right w-[80px] flex-shrink-0 py-3 pr-4">
-        <span className="text-[12px] text-trade-text">{p.marketCap}</span>
       </div>
     </div>
   );
@@ -480,9 +472,9 @@ export function PairSelectorPanel({
           ))}
         </div>
 
-        {/* Pairs list — horizontally scrollable, symbol column sticky */}
-        <div className="flex-1 overflow-y-auto overflow-x-auto no-scrollbar" style={{ overscrollBehaviorX: "contain" }}>
-          <div style={{ minWidth: 520 }}>
+        {/* Pairs list — vertically scrollable only, no horizontal overflow */}
+        <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div>
 
             {/* Hold-to-alert hint */}
             <div className="flex items-center gap-1.5 px-4 py-2 bg-trade-surface/50">
@@ -494,27 +486,18 @@ export function PairSelectorPanel({
 
             {/* Column headers */}
             <div className="flex items-end bg-trade-card">
-              {/* Sticky symbol header */}
-              <div
-                className="sticky left-0 z-10 bg-trade-card w-[148px] flex-shrink-0 px-4 pb-2 pt-1"
-              >
+              <div className="flex-1 min-w-0 px-4 pb-2 pt-1">
                 <span className="text-[11px] text-trade-text-muted">Symbol</span>
               </div>
-              <div className="w-[108px] flex-shrink-0 pr-3 pb-2 pt-1 text-right">
+              <div className="w-[100px] flex-shrink-0 pr-3 pb-2 pt-1 text-right">
                 <span className="text-[11px] text-trade-text-muted">Volume</span>
                 <br />
                 <span className="text-[11px] text-trade-text-muted">Open interest</span>
               </div>
-              <div className="w-[90px] flex-shrink-0 pr-3 pb-2 pt-1 text-right">
+              <div className="w-[90px] flex-shrink-0 pr-4 pb-2 pt-1 text-right">
                 <span className="text-[11px] text-trade-text-muted">Price</span>
                 <br />
                 <span className="text-[11px] text-trade-text-muted">24h change</span>
-              </div>
-              <div className="w-[80px] flex-shrink-0 pr-3 pb-2 pt-1 text-right">
-                <span className="text-[11px] text-trade-text-muted">Liquidity</span>
-              </div>
-              <div className="w-[80px] flex-shrink-0 pr-4 pb-2 pt-1 text-right">
-                <span className="text-[11px] text-trade-text-muted">Mkt Cap</span>
               </div>
             </div>
 
