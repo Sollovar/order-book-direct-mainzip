@@ -524,6 +524,16 @@ function Index() {
               {orderType} <span className="text-[8px] leading-none">▼</span>
             </button>
 
+            {/* Buy / Sell toggle */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <button className="rounded-md py-2.5 text-[13px] font-semibold bg-trade-ask/15 text-trade-ask active:opacity-70 transition-opacity">
+                Sell
+              </button>
+              <button className="rounded-md py-2.5 text-[13px] font-semibold bg-trade-bid/15 text-trade-bid active:opacity-70 transition-opacity">
+                Buy
+              </button>
+            </div>
+
             {/* Price box — Limit only */}
             {orderType === "Limit" && (
               <div className="rounded-md bg-trade-surface p-2 flex items-center justify-between">
