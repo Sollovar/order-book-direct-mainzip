@@ -202,12 +202,11 @@ function LadderDetailSheet({
           <p className="text-[12px] text-trade-text-muted font-medium mb-3">Child Orders</p>
 
           {/* Child order list */}
-          <div className="space-y-2 mb-6">
+          <div className="mb-6">
             {order.children.map((child) => (
               <div
                 key={child.id}
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl"
-                style={{ backgroundColor: "var(--trade-surface, rgba(255,255,255,0.04))" }}
+                className="flex items-center gap-3 py-3 border-b border-trade-text/5 last:border-0"
               >
                 {/* Level badge */}
                 <span
@@ -230,20 +229,19 @@ function LadderDetailSheet({
 
                 {/* Status / cancel */}
                 {child.status === "filled" && (
-                  <span className="text-[11px] font-semibold text-[#22c55e] px-2 py-0.5 rounded-md bg-[#16a34a]/15">
+                  <span className="text-[11px] font-semibold text-[#22c55e]">
                     Filled
                   </span>
                 )}
                 {child.status === "cancelled" && (
-                  <span className="text-[11px] font-semibold text-trade-text/40 px-2 py-0.5 rounded-md bg-trade-text/8">
+                  <span className="text-[11px] text-trade-text/40">
                     Cancelled
                   </span>
                 )}
                 {child.status === "pending" && (
                   <button
                     onClick={() => onCancelChild(child.id)}
-                    className="text-[11px] font-semibold text-[#f87171] px-2.5 py-1 rounded-lg active:opacity-60 transition-opacity"
-                    style={{ background: "rgba(220,38,38,0.12)" }}
+                    className="text-[11px] text-trade-text-muted active:opacity-50 transition-opacity"
                   >
                     Cancel
                   </button>
@@ -252,24 +250,18 @@ function LadderDetailSheet({
             ))}
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-trade-text/8 mb-5" />
-
           {/* Cancel all button */}
           {hasPending ? (
             <button
               onClick={onCancelAll}
-              className="w-full py-3.5 rounded-2xl text-[15px] font-bold transition-opacity active:opacity-70"
-              style={{ background: "rgba(220,38,38,0.14)", color: "#f87171" }}
+              className="text-[14px] text-trade-text-muted active:opacity-50 transition-opacity"
             >
               Cancel Order
             </button>
           ) : (
-            <div className="w-full py-3.5 rounded-2xl text-[15px] font-bold text-center text-trade-text/30"
-              style={{ background: "rgba(255,255,255,0.03)" }}
-            >
+            <span className="text-[14px] text-trade-text/30">
               All levels settled
-            </div>
+            </span>
           )}
         </div>
       </div>
