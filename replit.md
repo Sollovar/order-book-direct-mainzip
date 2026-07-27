@@ -1,42 +1,35 @@
 # AsterDex
 
-A perpetuals trading exchange UI built with TanStack Start, React, TypeScript, and Tailwind CSS. Originally built with [Lovable](https://lovable.dev).
+A crypto trading UI built with TanStack Start, React 19, Tailwind CSS v4, and Privy wallet auth. Supports BSC and Base chains.
 
 ## Stack
 
-- **Framework**: TanStack Start (SSR) + React 19
-- **Auth / Wallets**: Privy (`@privy-io/react-auth`) — App ID hardcoded in `src/routes/__root.tsx`
-- **Chains**: BNB Smart Chain (BSC) + Base via `viem`
-- **UI**: Radix UI primitives + shadcn/ui components, Tailwind CSS v4
-- **State**: TanStack Query
-- **Charts**: Recharts
+- **Framework**: TanStack Start (SSR) + TanStack Router
+- **UI**: React 19, Tailwind CSS v4, Radix UI, shadcn/ui components
+- **Auth/Wallet**: Privy (`@privy-io/react-auth`) — hardcoded app ID `cms0pzb0200dw0bldfjr80r0g`
+- **Chains**: BNB Smart Chain (default), Base
+- **Package manager**: Bun
 
-## Running the app
+## Running
 
 ```sh
 bun install
-bun run dev        # starts on port 5000
+bun run dev   # starts Vite dev server on port 5000
 ```
 
-The Replit workflow `Start application` runs `bun run dev` automatically.
+The "Start application" workflow handles this automatically on Replit.
 
-## Project structure
+## Key files
 
-```
-src/
-  components/      # UI components (trading panel, order book, wallet button, etc.)
-  routes/          # TanStack file-based routes (__root.tsx, index.tsx, /trade, etc.)
-  hooks/           # Custom React hooks
-  styles.css       # Global styles
-  router.tsx       # Router setup
-  server.ts        # SSR entry (wraps Nitro)
-  start.ts         # Client entry
-```
+- `src/routes/__root.tsx` — root layout, Privy provider, theme logic
+- `src/routes/trade.tsx` — `/trade` route
+- `src/components/trading/TradingPage.tsx` — main trading UI (order book, chart, order form)
+- `src/components/WalletButton.tsx` — wallet connect button
+- `vite.config.ts` — Vite + TanStack Start config via `@lovable.dev/vite-tanstack-config`
 
 ## Notes
 
-- The Privy App ID is hardcoded (`cms0pzb0200dw0bldfjr80r0g`) — no env var needed to run.
-- There is a minor SSR hydration mismatch warning in the console (non-blocking, cosmetic only).
-- This project is connected to Lovable — avoid force-pushing or rewriting published git history.
+- Order book data is currently **mocked** (static arrays in `TradingPage.tsx`)
+- To use your own Privy account, replace the `appId` in `src/routes/__root.tsx`
 
 ## User preferences
