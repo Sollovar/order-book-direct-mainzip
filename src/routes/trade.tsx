@@ -106,6 +106,8 @@ function Index() {
   const tabs = ["Open Orders", "Ladder History", "Order History", "Trade History"];
   const [orderType, setOrderType] = useState("Limit");
   const [orderTypeSheetOpen, setOrderTypeSheetOpen] = useState(false);
+  const [orderSide, setOrderSide] = useState("Buy");
+  const [sideSheetOpen, setSideSheetOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [walletMenuOpen, setWalletMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -524,15 +526,13 @@ function Index() {
               {orderType} <span className="text-[8px] leading-none">▼</span>
             </button>
 
-            {/* Buy / Sell toggle */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <button className="rounded-md py-2.5 text-[13px] font-semibold bg-trade-ask/15 text-trade-ask active:opacity-70 transition-opacity">
-                Sell
-              </button>
-              <button className="rounded-md py-2.5 text-[13px] font-semibold bg-trade-bid/15 text-trade-bid active:opacity-70 transition-opacity">
-                Buy
-              </button>
-            </div>
+            {/* Buy / Sell selector */}
+            <button
+              onClick={() => setSideSheetOpen(true)}
+              className="w-full rounded-md bg-trade-surface py-2 flex items-center justify-center gap-1 text-[13px]"
+            >
+              {orderSide} <span className="text-[8px] leading-none">▼</span>
+            </button>
 
             {/* Price box — Limit only */}
             {orderType === "Limit" && (
@@ -973,6 +973,60 @@ function Index() {
       )}
 
       {/* Order Type Bottom Sheet — rendered via portal to escape stacking contexts */}
+      {sideSheetOpen && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 flex flex-col justify-end" style={{ zIndex: 9999 }}>
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+            onClick={() => setSideSheetOpen(false)}
+          />
+          <div className="relative bg-trade-card rounded-t-3xl pb-10 shadow-2xl">
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="h-[4px] w-9 rounded-full bg-trade-text/20" />
+            </div>
+            <div className="flex items-center justify-between px-5 pt-1 pb-4">
+              <div>
+                <p className="text-[11px] text-trade-text-muted uppercase tracking-widest font-medium">Select</p>
+                <p className="text-[18px] font-bold text-trade-text leading-tight">Order Side</p>
+              </div>
+              <button
+                onClick={() => setSideSheetOpen(false)}
+                className="h-8 w-8 flex items-center justify-center rounded-full bg-trade-text/8 active:scale-95 transition-transform"
+              >
+                <X className="h-[15px] w-[15px] text-trade-text/70" />
+              </button>
+            </div>
+            <div className="px-4 grid grid-cols-2 gap-3 pb-2">
+              {[{ label: "Buy", desc: "Long position" }, { label: "Sell", desc: "Short position" }].map(({ label, desc }) => {
+                const active = orderSide === label;
+                return (
+                  <button
+                    key={label}
+                    onClick={() => { setOrderSide(label); setSideSheetOpen(false); }}
+                    className={`relative flex flex-col items-start text-left rounded-2xl px-4 py-4 transition-all active:scale-[0.97] ${
+                      active
+                        ? "ring-1 ring-[#f0b90b]/70"
+                        : "bg-trade-text/5 ring-1 ring-transparent"
+                    }`}
+                    style={active ? { backgroundColor: "rgba(240,185,11,0.12)" } : undefined}
+                  >
+                    {active && (
+                      <span className="absolute top-3 right-3 h-[18px] w-[18px] rounded-full flex items-center justify-center" style={{ backgroundColor: "#f0b90b" }}>
+                        <Check className="h-[10px] w-[10px] text-black" strokeWidth={3} />
+                      </span>
+                    )}
+                    <span className={`text-[14px] font-semibold mb-0.5 ${active ? "text-trade-text" : "text-trade-text/80"}`}>
+                      {label}
+                    </span>
+                    <span className="text-[11px] text-trade-text-muted leading-snug">{desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {orderTypeSheetOpen && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 flex flex-col justify-end" style={{ zIndex: 9999 }}>
           {/* Backdrop */}
