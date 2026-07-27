@@ -1,13 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-} from "recharts";
 import { ChartOverlay } from "../components/ChartOverlay";
 import { LadderHistoryPanel } from "../components/LadderOrderSheet";
 import { WalletButton, MobileWalletMenu } from "../components/WalletButton";
@@ -96,88 +89,6 @@ const bids: Row[] = [
   { price: "66,002.3", size: "170.87K", pct: 55 },
 ];
 
-// ── Full order book (matches reference design) ─────────────────────────────
-const obBids = [
-  { total: "167.34K", price: "64,838.1" },
-  { total: "262.85K", price: "64,837.9" },
-  { total: "282.95K", price: "64,837.2" },
-  { total: "473.44K", price: "64,836.8" },
-  { total: "498.40K", price: "64,836.6" },
-  { total: "523.36K", price: "64,836.5" },
-  { total: "543.46K", price: "64,835.9" },
-  { total: "600.32K", price: "64,835.2" },
-  { total: "620.42K", price: "64,835.0" },
-  { total: "790.80K", price: "64,832.9" },
-  { total: "813.62K", price: "64,831.5" },
-  { total: "814.27K", price: "64,831.4" },
-  { total: "886.23K", price: "64,830.9" },
-  { total: "890.84K", price: "64,828.9" },
-];
-
-const obAsks = [
-  { price: "64,838.2", total: "35.33K" },
-  { price: "64,839.8", total: "36.30K" },
-  { price: "64,840.8", total: "57.31K" },
-  { price: "64,840.9", total: "77.02K" },
-  { price: "64,841.0", total: "101.99K" },
-  { price: "64,841.1", total: "126.95K" },
-  { price: "64,841.6", total: "147.31K" },
-  { price: "64,841.7", total: "196.72K" },
-  { price: "64,841.8", total: "228.30K" },
-  { price: "64,842.2", total: "435.73K" },
-  { price: "64,843.3", total: "970.69K" },
-  { price: "64,843.8", total: "1.16M" },
-  { price: "64,845.2", total: "1.19M" },
-  { price: "64,845.3", total: "1.21M" },
-];
-
-// ── Trades (matches reference design) ─────────────────────────────────────
-const tradesData = [
-  { price: "64,831.5", size: "3047.1", time: "18:10:39", side: "sell" },
-  { price: "64,831.6", size: "259.4",  time: "18:10:39", side: "buy"  },
-  { price: "64,831.5", size: "2398.8", time: "18:10:37", side: "sell" },
-  { price: "64,831.6", size: "129.7",  time: "18:10:37", side: "buy"  },
-  { price: "64,831.5", size: "2723.0", time: "18:10:35", side: "sell" },
-  { price: "64,831.5", size: "2658.1", time: "18:10:33", side: "sell" },
-  { price: "64,841.5", size: "129.7",  time: "18:10:32", side: "buy"  },
-  { price: "64,841.4", size: "2593.7", time: "18:10:30", side: "sell" },
-  { price: "64,843.8", size: "2399.3", time: "18:10:27", side: "buy"  },
-  { price: "64,843.9", size: "129.7",  time: "18:10:27", side: "buy"  },
-  { price: "64,835.0", size: "1296.7", time: "18:10:23", side: "buy"  },
-  { price: "64,835.0", size: "1037.4", time: "18:10:22", side: "buy"  },
-  { price: "64,835.1", size: "129.7",  time: "18:10:22", side: "buy"  },
-];
-
-// ── Depth chart data ───────────────────────────────────────────────────────
-const depthData = [
-  { price: 63271, bid: 30000000 },
-  { price: 63400, bid: 29200000 },
-  { price: 63550, bid: 28500000 },
-  { price: 63700, bid: 27600000 },
-  { price: 63850, bid: 26500000 },
-  { price: 64000, bid: 24800000 },
-  { price: 64150, bid: 23000000 },
-  { price: 64300, bid: 21000000 },
-  { price: 64450, bid: 18500000 },
-  { price: 64580, bid: 15500000 },
-  { price: 64680, bid: 12000000 },
-  { price: 64760, bid: 8500000  },
-  { price: 64810, bid: 4500000  },
-  { price: 64831, bid: 0, ask: 0 },
-  { price: 64855, ask: 9000000  },
-  { price: 64900, ask: 19000000 },
-  { price: 64950, ask: 23000000 },
-  { price: 65050, ask: 26000000 },
-  { price: 65200, ask: 27500000 },
-  { price: 65400, ask: 28500000 },
-  { price: 65600, ask: 29200000 },
-  { price: 65800, ask: 29700000 },
-  { price: 66000, ask: 30000000 },
-  { price: 66200, ask: 30000000 },
-  { price: 66392, ask: 30000000 },
-];
-
-
 function Index() {
   const [tab, setTab] = useState("Open Orders");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -202,7 +113,6 @@ function Index() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [bookVisible, setBookVisible] = useState(true);
   const [bookFilter, setBookFilter] = useState<"both" | "bids" | "asks">("both");
-  const [marketTab, setMarketTab] = useState<"Chart" | "Order Book" | "Trades" | "Depth" | "Details">("Order Book");
   const [tickSize, setTickSize] = useState("0.1");
   const [tickSheetOpen, setTickSheetOpen] = useState(false);
   const [ladderPriceStart, setLadderPriceStart] = useState("");
@@ -493,108 +403,6 @@ function Index() {
           </div>
         )}
       </div>
-
-      {/* ── Market Data Panel: Chart / Order Book / Trades / Depth / Details ── */}
-      <section className="mx-1 mt-1 rounded-3xl bg-trade-card shadow-2xl overflow-hidden">
-        {/* Tab bar */}
-        <div className="flex border-b border-trade-text/5 px-2">
-          {(["Chart", "Order Book", "Trades", "Depth", "Details"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setMarketTab(t)}
-              className={`py-3 px-2 text-[13px] whitespace-nowrap transition-colors ${
-                marketTab === t
-                  ? "text-trade-text border-b-2 border-trade-text -mb-px font-medium"
-                  : "text-trade-text-muted"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {/* Order Book */}
-        {marketTab === "Order Book" && (
-          <div className="px-3 pb-3">
-            {/* Sub-header */}
-            <div className="flex items-center justify-between py-2">
-              <button className="flex flex-col gap-[3px]" aria-label="Book view">
-                <div className="flex gap-[3px]">
-                  <div className="h-[4px] w-[4px] rounded-[1px] bg-trade-bid" />
-                  <div className="h-[4px] w-[4px] rounded-[1px] bg-trade-ask" />
-                </div>
-                <div className="flex gap-[3px]">
-                  <div className="h-[4px] w-[4px] rounded-[1px] bg-trade-bid" />
-                  <div className="h-[4px] w-[4px] rounded-[1px] bg-trade-ask" />
-                </div>
-              </button>
-              <div className="flex items-center gap-1.5 text-[12px] text-trade-text/70">
-                <span>0.1</span>
-                <span className="text-[8px] leading-none">▼</span>
-                <span className="text-trade-text-muted ml-1">USDT</span>
-                <span className="text-[8px] leading-none">▼</span>
-              </div>
-            </div>
-
-            {/* Column headers */}
-            <div className="grid grid-cols-4 text-[11px] text-trade-text-muted pb-1 border-b border-trade-text/5">
-              <span className="text-left">Total (USDT)</span>
-              <span className="text-right">Price (USDT)</span>
-              <span className="text-left pl-3">Price (USDT)</span>
-              <span className="text-right">Total (USDT)</span>
-            </div>
-
-            {/* Rows */}
-            <div className="mt-[3px] space-y-[3px]">
-              {obBids.map((bid, i) => {
-                const ask = obAsks[i];
-                return (
-                  <div key={i} className="grid grid-cols-4 text-[12px] leading-[18px]">
-                    <span className="text-trade-text/65 text-left">{bid.total}</span>
-                    <span className="text-trade-bid text-right">{bid.price}</span>
-                    <span className="text-trade-ask text-left pl-3">{ask.price}</span>
-                    <span className="text-trade-text/65 text-right">{ask.total}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Trades */}
-        {marketTab === "Trades" && (
-          <div className="px-3 pb-3">
-            {/* Column headers */}
-            <div className="grid grid-cols-3 text-[11px] text-trade-text-muted py-2 border-b border-trade-text/5">
-              <span className="text-left">Price(USDT)</span>
-              <span className="text-center">Size(USDT)</span>
-              <span className="text-right">Time</span>
-            </div>
-            {/* Rows */}
-            <div className="mt-[3px] space-y-[3px]">
-              {tradesData.map((tr, i) => (
-                <div key={i} className="grid grid-cols-3 text-[12px] leading-[20px]">
-                  <span className={tr.side === "buy" ? "text-trade-bid" : "text-trade-ask"}>
-                    {tr.price}
-                  </span>
-                  <span className="text-center text-trade-text/80">{tr.size}</span>
-                  <span className="text-right text-trade-text-muted">{tr.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Depth */}
-        {marketTab === "Depth" && <DepthChart />}
-
-        {/* Chart / Details placeholder */}
-        {(marketTab === "Chart" || marketTab === "Details") && (
-          <div className="flex items-center justify-center py-14">
-            <span className="text-trade-text-muted text-[13px]">Coming soon</span>
-          </div>
-        )}
-      </section>
 
       {/* Main trading card */}
       <section className="mx-1 rounded-3xl bg-trade-card shadow-2xl px-5 pt-3 pb-5">
@@ -1279,70 +1087,6 @@ function Index() {
         document.body
       )}
 
-    </div>
-  );
-}
-
-/* ── Depth Chart ─────────────────────────────────────────────────────────── */
-
-function DepthChart() {
-  return (
-    <div className="pb-2 pt-1">
-      <ResponsiveContainer width="100%" height={270}>
-        <AreaChart data={depthData} margin={{ top: 8, right: 48, bottom: 4, left: 0 }}>
-          <defs>
-            <linearGradient id="bidFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00c076" stopOpacity={0.45} />
-              <stop offset="100%" stopColor="#00c076" stopOpacity={0.06} />
-            </linearGradient>
-            <linearGradient id="askFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f04f5a" stopOpacity={0.45} />
-              <stop offset="100%" stopColor="#f04f5a" stopOpacity={0.06} />
-            </linearGradient>
-          </defs>
-          <XAxis
-            dataKey="price"
-            type="number"
-            domain={[63271, 66392]}
-            ticks={[63271, 64831, 66392]}
-            tickFormatter={(v: number) =>
-              v === 63271 ? "63,270.8" : v === 64831 ? "64,831.5" : "66,392.3"
-            }
-            tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-            scale="linear"
-          />
-          <YAxis
-            orientation="right"
-            tickFormatter={(v: number) => `${Math.round(v / 1_000_000)}M`}
-            ticks={[10_000_000, 20_000_000, 30_000_000, 40_000_000, 50_000_000]}
-            domain={[0, 52_000_000]}
-            tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-            width={38}
-          />
-          <Area
-            type="stepBefore"
-            dataKey="bid"
-            stroke="#00c076"
-            strokeWidth={1.5}
-            fill="url(#bidFill)"
-            connectNulls={false}
-            isAnimationActive={false}
-          />
-          <Area
-            type="stepAfter"
-            dataKey="ask"
-            stroke="#f04f5a"
-            strokeWidth={1.5}
-            fill="url(#askFill)"
-            connectNulls={false}
-            isAnimationActive={false}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
     </div>
   );
 }
