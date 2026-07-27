@@ -427,7 +427,7 @@ export function ChartOverlay({
                 </svg>
               </button>
             </div>
-          </div>
+          </div>}
 
           {/* Chart area */}
           {chartTab === "Chart" && (
