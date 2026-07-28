@@ -329,21 +329,82 @@ function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-trade-border px-4 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-xs text-trade-text-muted md:flex-row">
-          <div className="flex items-center gap-2">
-            <div
-              className="grid h-6 w-6 place-items-center rounded text-trade-primary-text text-xs font-bold"
-              style={{ background: "var(--trade-primary)" }}
-            >
-              A
+      <footer className="border-t border-trade-border mt-8">
+        {/* Top section */}
+        <div className="mx-auto max-w-6xl px-6 pt-14 pb-10 grid grid-cols-2 gap-10 md:grid-cols-4">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
+            <div className="flex items-center gap-2.5">
+              <img
+                src="https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8707.png"
+                alt="AsterDex"
+                className="h-8 w-8 object-contain"
+              />
+              <span className="font-bold text-base tracking-tight">AsterDex</span>
             </div>
-            <span>© {new Date().getFullYear()} AsterDex. All rights reserved.</span>
+            <p className="text-sm text-trade-text-muted leading-relaxed max-w-[220px]">
+              The on-chain perpetuals exchange built for serious traders.
+            </p>
+            {/* Social icons */}
+            <div className="flex items-center gap-3 mt-1">
+              {[
+                { label: "X / Twitter", path: "M4 4l16 16M4 20L20 4" },
+                { label: "Discord", path: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" },
+                { label: "Telegram", path: "M12 19l9 2-9-18-9 18 9-2zm0 0v-8" },
+              ].map(({ label, path }) => (
+                <a
+                  key={label}
+                  href="#"
+                  aria-label={label}
+                  className="h-8 w-8 rounded-lg border border-trade-border flex items-center justify-center text-trade-text-muted transition hover:border-trade-primary hover:text-trade-primary"
+                  style={{ "--trade-primary": "var(--trade-primary)" } as React.CSSProperties}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--trade-primary)"; (e.currentTarget as HTMLElement).style.color = "var(--trade-primary)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = ""; (e.currentTarget as HTMLElement).style.color = ""; }}
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <path d={path} />
+                  </svg>
+                </a>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-5">
-            <a href="#" className="hover:text-trade-text transition">Docs</a>
-            <a href="#" className="hover:text-trade-text transition">Terms</a>
-            <a href="#" className="hover:text-trade-text transition">Privacy</a>
+
+          {/* Product */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-trade-text-muted">Product</p>
+            {["Trade", "Markets", "Portfolio", "Leaderboard", "API Docs"].map(l => (
+              <a key={l} href="#" className="text-sm text-trade-text-muted transition-colors hover:text-trade-text">{l}</a>
+            ))}
+          </div>
+
+          {/* Company */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-trade-text-muted">Company</p>
+            {["About", "Blog", "Careers", "Brand Kit", "Contact"].map(l => (
+              <a key={l} href="#" className="text-sm text-trade-text-muted transition-colors hover:text-trade-text">{l}</a>
+            ))}
+          </div>
+
+          {/* Legal */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-trade-text-muted">Legal</p>
+            {["Terms of Service", "Privacy Policy", "Risk Disclosure", "Cookie Policy"].map(l => (
+              <a key={l} href="#" className="text-sm text-trade-text-muted transition-colors hover:text-trade-text">{l}</a>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-trade-border" />
+
+        {/* Bottom bar */}
+        <div className="mx-auto max-w-6xl px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-trade-text-muted">
+            © {new Date().getFullYear()} AsterDex. All rights reserved. Trading involves risk.
+          </p>
+          <div className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--trade-primary)" }} />
+            <span className="text-xs font-medium" style={{ color: "var(--trade-primary)" }}>All systems operational</span>
           </div>
         </div>
       </footer>
@@ -415,61 +476,43 @@ function TerminalPreview() {
       className="mt-14 mx-2 md:mx-auto md:max-w-4xl animate-fade-in"
       style={{ animationDelay: "300ms", animationFillMode: "backwards" }}
     >
-      <div
-        className="relative overflow-hidden rounded-2xl border border-trade-border bg-trade-card shadow-2xl"
-        style={{
-          boxShadow:
-            "0 30px 80px -20px color-mix(in oklab, var(--trade-primary) 30%, transparent)",
-        }}
-      >
-        <div className="flex items-center justify-between border-b border-trade-border px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--trade-ask)" }} />
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--trade-primary)" }} />
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--trade-bid)" }} />
-            <span className="ml-3 text-xs text-trade-text-muted">BTCUSDT · Perp</span>
+      <div className="flex items-center justify-between px-1 mb-2">
+        <span className="text-xs text-trade-text-muted font-medium">BTCUSDT · Perp</span>
+        <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: "var(--trade-primary)" }}>
+          <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--trade-primary)" }} />
+          Live
+        </span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr]">
+        {/* Order book */}
+        <div>
+          <div className="grid grid-cols-3 text-[10px] uppercase tracking-wider text-trade-text-muted mb-2 px-1">
+            <span>Price</span>
+            <span className="text-right">Size</span>
+            <span className="text-right">Total</span>
           </div>
-          <span className="text-xs text-trade-text-muted">Live</span>
+          <div className="space-y-0.5">
+            {asks.map((r, i) => (
+              <BookRow key={"a" + i} row={r} side="ask" />
+            ))}
+          </div>
+          <div className="my-2 flex items-center justify-center gap-2 py-2 text-sm font-semibold">
+            <span style={{ color: "var(--trade-primary)" }}>{mid.toFixed(1)}</span>
+            {dirRef.current === "up" ? (
+              <TrendingUp className="h-3.5 w-3.5" style={{ color: "var(--trade-primary)" }} />
+            ) : (
+              <TrendingDown className="h-3.5 w-3.5" style={{ color: "var(--trade-primary)" }} />
+            )}
+          </div>
+          <div className="space-y-0.5">
+            {bids.map((r, i) => (
+              <BookRow key={"b" + i} row={r} side="bid" />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.1fr]">
-          {/* Order book */}
-          <div className="p-4">
-            <div className="grid grid-cols-3 text-[10px] uppercase tracking-wider text-trade-text-muted mb-2">
-              <span>Price</span>
-              <span className="text-right">Size</span>
-              <span className="text-right">Total</span>
-            </div>
-            <div className="space-y-0.5">
-              {asks.map((r, i) => (
-                <BookRow key={"a" + i} row={r} side="ask" />
-              ))}
-            </div>
-            <div className="my-2 flex items-center justify-center gap-2 rounded-md bg-trade-surface py-2 text-sm font-semibold">
-              <span
-                style={{
-                  color:
-                    dirRef.current === "up" ? "var(--trade-bid)" : "var(--trade-ask)",
-                }}
-              >
-                {mid.toFixed(1)}
-              </span>
-              {dirRef.current === "up" ? (
-                <TrendingUp className="h-3.5 w-3.5" style={{ color: "var(--trade-bid)" }} />
-              ) : (
-                <TrendingDown className="h-3.5 w-3.5" style={{ color: "var(--trade-ask)" }} />
-              )}
-            </div>
-            <div className="space-y-0.5">
-              {bids.map((r, i) => (
-                <BookRow key={"b" + i} row={r} side="bid" />
-              ))}
-            </div>
-          </div>
-          {/* Chart mock */}
-          <div className="relative border-t border-trade-border p-4 md:border-l md:border-t-0">
-            <MiniChart />
-            <div className="pointer-events-none absolute inset-0 rounded-2xl" />
-          </div>
+        {/* Chart mock */}
+        <div className="relative mt-4 md:mt-0 md:pl-4">
+          <MiniChart />
         </div>
       </div>
     </div>
@@ -477,14 +520,14 @@ function TerminalPreview() {
 }
 
 function BookRow({ row, side }: { row: { p: number; s: number; pct: number }; side: "ask" | "bid" }) {
-  const color = side === "ask" ? "var(--trade-ask)" : "var(--trade-bid)";
+  const opacity = side === "ask" ? "0.12" : "0.08";
   return (
     <div className="relative grid grid-cols-3 items-center px-2 py-1 text-xs font-mono">
       <div
-        className="absolute inset-y-0 right-0 opacity-15"
-        style={{ width: `${row.pct}%`, background: color }}
+        className="absolute inset-y-0 right-0"
+        style={{ width: `${row.pct}%`, background: `rgba(240,185,11,${opacity})` }}
       />
-      <span className="relative z-10" style={{ color }}>
+      <span className="relative z-10" style={{ color: "var(--trade-primary)" }}>
         {row.p.toFixed(1)}
       </span>
       <span className="relative z-10 text-right">{row.s.toFixed(2)}K</span>
