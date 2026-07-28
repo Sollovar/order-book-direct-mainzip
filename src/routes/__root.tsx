@@ -207,9 +207,7 @@ function RootShell({ children }: { children: ReactNode }) {
             </svg>
             {/* Logo mark */}
             <div className="al-logo">
-              <div className="al-logo-inner">
-                <span>A</span>
-              </div>
+              <img src="https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8707.png" alt="AsterDex" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: '50%' }} />
             </div>
           </div>
           <p className="al-label">AsterDex</p>
