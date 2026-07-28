@@ -103,12 +103,7 @@ function Landing() {
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-trade-bg/70 border-b border-trade-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div
-              className="grid h-8 w-8 place-items-center rounded-lg text-trade-primary-text font-bold"
-              style={{ background: "var(--trade-primary)" }}
-            >
-              A
-            </div>
+            <img src="https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8707.png" alt="AsterDex" className="h-8 w-8 object-contain" />
             <span className="font-semibold tracking-tight">AsterDex</span>
           </div>
           <nav className="hidden md:flex items-center gap-7 text-sm text-trade-text-muted">
