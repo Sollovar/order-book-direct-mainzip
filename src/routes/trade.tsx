@@ -940,6 +940,8 @@ function Index() {
         }}
         onOpenChart={() => setChartOpen(true)}
         onOpenMenu={() => setMenuOpen(true)}
+        selectedPair={selectedPair}
+        onSelectPair={(pair) => setSelectedPair(pair)}
       />
 
       {/* Mobile Menu Bottom Sheet */}

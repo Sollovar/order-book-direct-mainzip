@@ -96,10 +96,94 @@ import {
   Link2,
   Search,
   Menu,
+  X,
+  Check,
 } from "lucide-react";
 import { PairSelectorPanel } from "./PairSelectorPanel";
 import { LadderHistoryPanel } from "./LadderOrderSheet";
 import { WalletButton, MobileWalletMenu } from "./WalletButton";
+import { PAIRS, type Pair } from "../lib/pairs";
+
+/* ─── Precision helpers ─────────────────────────────────────────────────────── */
+
+function getPrecisionOptions(priceStr: string): string[] {
+  const clean = priceStr.replace(/[,\s]/g, "");
+  const num = parseFloat(clean);
+  if (!isFinite(num) || num <= 0) return ["0.1", "1", "10", "50", "100"];
+  const dotIdx = clean.indexOf(".");
+  const decimals = dotIdx === -1 ? 0 : clean.length - dotIdx - 1;
+  const tick = decimals === 0 ? 1 : Math.pow(10, -decimals);
+  return [1, 10, 100, 500, 1000].map((m) => {
+    const val = tick * m;
+    if (val >= 1) return String(Math.round(val));
+    const dp = Math.max(0, Math.ceil(-Math.log10(val)));
+    return val.toFixed(dp);
+  });
+}
+
+function TickSizeSheet({
+  current,
+  options,
+  onSelect,
+  onClose,
+  theme,
+}: {
+  current: string;
+  options: string[];
+  onSelect: (v: string) => void;
+  onClose: () => void;
+  theme: "light" | "dark";
+}) {
+  return (
+    <div
+      className={`fixed inset-0 flex flex-col justify-end ${theme === "dark" ? "dark" : ""}`}
+      style={{ zIndex: 9999 }}
+    >
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={onClose} />
+      <div
+        className="relative bg-trade-card rounded-t-3xl shadow-2xl"
+        style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}
+      >
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="h-[4px] w-9 rounded-full bg-trade-text/20" />
+        </div>
+        <div className="flex items-center justify-between px-6 pt-2 pb-1">
+          <div>
+            <p className="text-[11px] text-trade-text-muted uppercase tracking-widest font-medium">Order Book</p>
+            <p className="text-[18px] font-bold text-trade-text leading-tight">Precision</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-trade-surface active:opacity-60 transition-opacity"
+            aria-label="Close"
+          >
+            <X className="h-[15px] w-[15px] text-trade-text/70" />
+          </button>
+        </div>
+        <div className="px-6 pt-2">
+          {options.map((v, i) => (
+            <button
+              key={v}
+              onClick={() => onSelect(v)}
+              className={`w-full flex items-center justify-between py-4 text-left active:opacity-60 transition-opacity ${
+                i < options.length - 1 ? "border-b border-trade-text/6" : ""
+              }`}
+            >
+              <span className={`text-[17px] ${current === v ? "text-trade-text font-semibold" : "text-trade-text/70"}`}>
+                {v}
+              </span>
+              {current === v && (
+                <span className="h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: "#f0b90b" }}>
+                  <Check className="h-[13px] w-[13px] text-black" strokeWidth={3} />
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ─── Seeded PRNG ────────────────────────────────────── */
 function seededRand(seed: number) {
@@ -262,6 +346,10 @@ export interface ChartOverlayProps {
   setNavTab: (t: string) => void;
   onOpenChart: () => void;
   onOpenMenu: () => void;
+  /** Currently selected trading pair (synced with the trade page) */
+  selectedPair?: Pair;
+  /** Called when the user picks a different pair from within this overlay */
+  onSelectPair?: (pair: Pair) => void;
 }
 
 /* ─── Main component ────────────────────────────────── */
@@ -273,13 +361,28 @@ export function ChartOverlay({
   setNavTab,
   onOpenChart,
   onOpenMenu,
+  selectedPair: externalPair,
+  onSelectPair,
 }: ChartOverlayProps) {
+  const activePair = externalPair ?? PAIRS[0];
+
   const [chartTab, setChartTab] = useState("Chart");
   const [timeframe, setTimeframe] = useState("1D");
   const [bottomTab, setBottomTab] = useState("Open Orders");
   const [pairsOpen, setPairsOpen] = useState(false);
   const [walletMenuOpen, setWalletMenuOpen] = useState(false);
   const currentPrice = 63934.3;
+
+  // Precision / tick-size state — derived from the active pair's price
+  const precisionOptions = getPrecisionOptions(activePair.price);
+  const [tickSize, setTickSize] = useState(() => getPrecisionOptions(activePair.price)[0]);
+  const [tickSheetOpen, setTickSheetOpen] = useState(false);
+
+  // When the pair changes, reset tickSize to the finest option for that pair
+  useEffect(() => {
+    const opts = getPrecisionOptions(activePair.price);
+    setTickSize((prev) => (opts.includes(prev) ? prev : opts[0]));
+  }, [activePair.price]);
 
   const fmtCountdown = (s: number) => {
     const h = Math.floor(s / 3600);
@@ -331,7 +434,7 @@ export function ChartOverlay({
                 onClick={() => setPairsOpen(true)}
                 className="flex items-center gap-2 active:opacity-70 transition-opacity"
               >
-                <span className="text-trade-text font-bold text-[17px] tracking-tight">BTCUSDT</span>
+                <span className="text-trade-text font-bold text-[17px] tracking-tight">{activePair.symbol}</span>
                 <ChevronDown className="h-3.5 w-3.5 text-trade-text/40" />
                 <span className="text-trade-ask text-[13px] font-medium">-1.32%</span>
               </button>
@@ -462,8 +565,12 @@ export function ChartOverlay({
                   </div>
                 </button>
                 <div className="flex items-center gap-1.5 text-[12px] text-trade-text/70">
-                  <span>0.1</span>
-                  <span className="text-[8px] leading-none">▼</span>
+                  <button
+                    onClick={() => setTickSheetOpen(true)}
+                    className="flex items-center gap-1 active:opacity-60 transition-opacity"
+                  >
+                    {tickSize} <span className="text-[8px] leading-none">▼</span>
+                  </button>
                   <span className="text-trade-text-muted ml-1">USDT</span>
                   <span className="text-[8px] leading-none">▼</span>
                 </div>
@@ -657,10 +764,29 @@ export function ChartOverlay({
       </nav>
 
       {/* Pair selector panel */}
-      <PairSelectorPanel open={pairsOpen} onClose={() => setPairsOpen(false)} />
+      <PairSelectorPanel
+        open={pairsOpen}
+        onClose={() => setPairsOpen(false)}
+        onSelect={(pair) => {
+          if (onSelectPair) onSelectPair(pair);
+          setPairsOpen(false);
+        }}
+      />
 
       {/* Mobile wallet menu — triggered by Account tab */}
       <MobileWalletMenu open={walletMenuOpen} onClose={() => setWalletMenuOpen(false)} />
+
+      {/* Tick Size Bottom Sheet */}
+      {tickSheetOpen && typeof document !== "undefined" && createPortal(
+        <TickSizeSheet
+          current={tickSize}
+          options={precisionOptions}
+          onSelect={(v) => { setTickSize(v); setTickSheetOpen(false); }}
+          onClose={() => setTickSheetOpen(false)}
+          theme={theme}
+        />,
+        document.body
+      )}
 
     </div>
   );

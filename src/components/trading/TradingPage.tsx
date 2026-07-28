@@ -64,6 +64,23 @@ const bids = [
   { p: "61,189.1", s: "79.97K", t: "184.54K" },
 ];
 
+/* -------------------- Precision helpers -------------------- */
+
+function getPrecisionOptions(priceStr: string): string[] {
+  const clean = priceStr.replace(/[,\s]/g, "");
+  const num = parseFloat(clean);
+  if (!isFinite(num) || num <= 0) return ["0.1", "1", "10", "50", "100"];
+  const dotIdx = clean.indexOf(".");
+  const decimals = dotIdx === -1 ? 0 : clean.length - dotIdx - 1;
+  const tick = decimals === 0 ? 1 : Math.pow(10, -decimals);
+  return [1, 10, 100, 500, 1000].map((m) => {
+    const val = tick * m;
+    if (val >= 1) return String(Math.round(val));
+    const dp = Math.max(0, Math.ceil(-Math.log10(val)));
+    return val.toFixed(dp);
+  });
+}
+
 /* -------------------- Layout -------------------- */
 
 export function TradingPage() {
@@ -73,6 +90,9 @@ export function TradingPage() {
     if (saved === "light") return false;
     return true; // "dark" or no preference → dark
   });
+
+  // Shared selected-pair price — lifted so OrderBookPanel can derive precision
+  const [selectedPairPrice, setSelectedPairPrice] = useState(pairOptions[1].price);
 
   // Keep <html> class + localStorage in sync so WalletSheet, Privy modal,
   // and --trade-* vars (which all key off `.dark` on <html>) stay correct.
@@ -115,10 +135,12 @@ export function TradingPage() {
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hidden">
         <div className="h-[calc(100vh-4.5rem)] min-h-0 shrink-0 grid grid-cols-[minmax(0,1fr)_23vw_23vw] gap-1 p-1">
           <div className="min-h-0 min-w-0 flex flex-col gap-1">
-            <Panel className="relative z-40 !overflow-visible"><MarketBar /></Panel>
+            <Panel className="relative z-40 !overflow-visible">
+              <MarketBar onPairPriceChange={setSelectedPairPrice} />
+            </Panel>
             <Panel className="flex-1"><ChartPanel /></Panel>
           </div>
-          <Panel><OrderBookPanel /></Panel>
+          <Panel><OrderBookPanel selectedPairPrice={selectedPairPrice} /></Panel>
           <Panel><OrderFormPanel /></Panel>
         </div>
         <div ref={activityRef} className="grid grid-cols-[minmax(0,1fr)_23vw_23vw] gap-1 px-1 pb-1 scroll-mt-0">
@@ -596,7 +618,7 @@ const pairOptions = [
   { symbol: "HYPEUSDT", price: "53.469", change: "-7.65%", funding: "0.0050%", volume: "$106,385,236", interest: "$14,050,088", high: "58.120", low: "52.840", icon: "H", iconClass: "bg-cyan-400" },
 ];
 
-function MarketBar() {
+function MarketBar({ onPairPriceChange }: { onPairPriceChange?: (price: string) => void }) {
   const [selectedPair, setSelectedPair] = useState(pairOptions[1]);
   const [isPairSelectorOpen, setIsPairSelectorOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -725,6 +747,7 @@ function MarketBar() {
                 key={pair.symbol}
                 onClick={() => {
                   setSelectedPair(pair);
+                  if (onPairPriceChange) onPairPriceChange(pair.price);
                   setIsPairSelectorOpen(false);
                   setSearchTerm("");
                 }}
@@ -990,8 +1013,6 @@ function Candles() {
 
 type BookView = "both" | "bids" | "asks";
 
-const PRECISION_OPTIONS = ["0.1", "1", "10", "50", "100"];
-
 function BookViewIcon({ view }: { view: BookView }) {
   const bidColor = "var(--bid)";
   const askColor = "var(--ask)";
@@ -1027,10 +1048,17 @@ function BookViewIcon({ view }: { view: BookView }) {
   );
 }
 
-function OrderBookPanel() {
+function OrderBookPanel({ selectedPairPrice }: { selectedPairPrice?: string }) {
   const [bookView, setBookView] = useState<BookView>("both");
-  const [precision, setPrecision] = useState("0.1");
+  const precisionOptions = getPrecisionOptions(selectedPairPrice ?? "61,203.7");
+  const [precision, setPrecision] = useState(() => getPrecisionOptions(selectedPairPrice ?? "61,203.7")[0]);
   const [precisionOpen, setPrecisionOpen] = useState(false);
+
+  // When the pair changes, keep precision valid for the new options
+  useEffect(() => {
+    const opts = getPrecisionOptions(selectedPairPrice ?? "61,203.7");
+    setPrecision((prev) => (opts.includes(prev) ? prev : opts[0]));
+  }, [selectedPairPrice]);
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -1075,7 +1103,7 @@ function OrderBookPanel() {
                   <div className="px-3 pt-2.5 pb-1 text-[9px] uppercase tracking-widest text-muted-foreground/60 font-semibold select-none">
                     Precision
                   </div>
-                  {PRECISION_OPTIONS.map((opt) => (
+                  {precisionOptions.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => { setPrecision(opt); setPrecisionOpen(false); }}
