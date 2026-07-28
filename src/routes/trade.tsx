@@ -310,9 +310,7 @@ function Index() {
     >
       {/* Top nav */}
       <header className="flex items-center justify-between px-3 pt-4 pb-3">
-        <div className="h-8 w-8 rounded-full border border-trade-text/15 flex items-center justify-center">
-          <div className="h-4 w-4 rounded-full border-2 border-trade-text/70 border-t-transparent rotate-45" />
-        </div>
+        <img src="/logo.png" alt="Logo" className="h-8 w-8 object-contain" />
         <div className="flex items-center gap-2">
           {/* Connect / wallet — handled by Privy */}
           <WalletButton />
