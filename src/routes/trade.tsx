@@ -119,7 +119,13 @@ function Index() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [bookVisible, setBookVisible] = useState(true);
   const [bookFilter, setBookFilter] = useState<"both" | "bids" | "asks">("both");
-  const [tickSize, setTickSize] = useState("0.1");
+  // Selected pair — defaults to BTC (index 0 in PAIRS)
+  const [selectedPair, setSelectedPair] = useState(() => PAIRS[0]);
+
+  // Precision options derived from the pair's price magnitude
+  const precisionOptions = getPrecisionOptions(selectedPair.price);
+
+  const [tickSize, setTickSize] = useState(() => getPrecisionOptions(PAIRS[0].price)[0]);
   const [tickSheetOpen, setTickSheetOpen] = useState(false);
   const [ladderPriceStart, setLadderPriceStart] = useState("");
   const [ladderPriceEnd, setLadderPriceEnd] = useState("");
@@ -150,6 +156,12 @@ function Index() {
   const alertsRef = useRef(alerts);
   const simPricesRef = useRef<Record<string, number>>({});
   const alertNotifIdRef = useRef(10000); // start above mock IDs
+
+  // When the pair changes, reset tickSize to the finest option for that pair
+  useEffect(() => {
+    const opts = getPrecisionOptions(selectedPair.price);
+    setTickSize((prev) => (opts.includes(prev) ? prev : opts[0]));
+  }, [selectedPair]);
 
   // Keep alertsRef in sync so the interval can read current alerts without a stale closure
   useEffect(() => {
@@ -334,10 +346,13 @@ function Index() {
             onClick={() => setPairsOpen(true)}
             className="flex items-center gap-2 active:opacity-70 transition-opacity"
           >
-            <div className="h-7 w-7 rounded-full bg-[#f7931a] flex items-center justify-center text-white font-bold text-[13px] shadow-sm">
-              ₿
+            <div
+              className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[13px] shadow-sm"
+              style={{ backgroundColor: selectedPair.color }}
+            >
+              {selectedPair.base.charAt(0)}
             </div>
-            <span className="text-trade-text font-semibold text-[15px] tracking-tight">BTC</span>
+            <span className="text-trade-text font-semibold text-[15px] tracking-tight">{selectedPair.base}</span>
             <span className="text-[9px] text-trade-text/50 leading-none">▼</span>
           </button>
 
@@ -347,8 +362,8 @@ function Index() {
               onClick={() => setStatsOpen((o) => !o)}
               className="flex items-center gap-2 active:opacity-70 transition-opacity"
             >
-              <span className="text-trade-text font-medium text-[15px]">66,007.4</span>
-              <span className="text-trade-ask text-[13px] font-medium">-0.52%</span>
+              <span className="text-trade-text font-medium text-[15px]">{selectedPair.price}</span>
+              <span className={`text-[13px] font-medium ${selectedPair.up ? "text-trade-bid" : "text-trade-ask"}`}>{selectedPair.change}</span>
               <span
                 className={`text-[9px] text-trade-text/50 leading-none transition-transform duration-200 inline-block ${statsOpen ? "rotate-180" : ""}`}
               >
@@ -821,6 +836,7 @@ function Index() {
       <PairSelectorPanel
         open={pairsOpen}
         onClose={() => setPairsOpen(false)}
+        onSelect={(pair) => setSelectedPair(pair)}
         alerts={alerts}
         onAddAlert={addAlert}
         onRemoveAlert={removeAlert}
@@ -969,6 +985,7 @@ function Index() {
       {tickSheetOpen && typeof document !== "undefined" && createPortal(
         <TickSizeSheet
           current={tickSize}
+          options={precisionOptions}
           onSelect={(v) => { setTickSize(v); setTickSheetOpen(false); }}
           onClose={() => setTickSheetOpen(false)}
           theme={theme}
@@ -1388,15 +1405,46 @@ function MobileMenuSheet({
 
 /* ─── Tick Size Bottom Sheet ────────────────────────────────────────────────── */
 
-const TICK_SIZES = ["0.1", "1", "10", "50", "100"];
+/* ─── Precision helpers ─────────────────────────────────────────────────────── */
+
+/**
+ * Derive 5 order-book precision options from a pair's price string.
+ *
+ * Algorithm:
+ *   1. Count the decimal places naturally shown in the price (e.g. "61,203.7" → 1 decimal).
+ *   2. That gives the finest meaningful tick (0.1 for BTC, 0.00001 for DOGE, etc.).
+ *   3. Return five steps: tick × [1, 10, 100, 500, 1000].
+ *
+ * This keeps BTC at exactly ["0.1","1","10","50","100"] (unchanged) while
+ * auto-scaling for any low-price pair with many decimal places.
+ */
+function getPrecisionOptions(priceStr: string): string[] {
+  const clean = priceStr.replace(/[,\s]/g, "");
+  const num = parseFloat(clean);
+  if (!isFinite(num) || num <= 0) return ["0.1", "1", "10", "50", "100"];
+
+  const dotIdx = clean.indexOf(".");
+  const decimals = dotIdx === -1 ? 0 : clean.length - dotIdx - 1;
+  const tick = decimals === 0 ? 1 : Math.pow(10, -decimals);
+
+  return [1, 10, 100, 500, 1000].map((m) => {
+    const val = tick * m;
+    if (val >= 1) return String(Math.round(val));
+    // Use enough decimal places to represent the value exactly
+    const dp = Math.max(0, Math.ceil(-Math.log10(val)));
+    return val.toFixed(dp);
+  });
+}
 
 function TickSizeSheet({
   current,
+  options,
   onSelect,
   onClose,
   theme,
 }: {
   current: string;
+  options: string[];
   onSelect: (v: string) => void;
   onClose: () => void;
   theme: "light" | "dark";
@@ -1419,34 +1467,42 @@ function TickSizeSheet({
           <div className="h-[4px] w-9 rounded-full bg-trade-text/20" />
         </div>
 
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 h-8 w-8 flex items-center justify-center rounded-full bg-trade-surface active:opacity-60 transition-opacity"
-          aria-label="Close"
-        >
-          <X className="h-[15px] w-[15px] text-trade-text/70" />
-        </button>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-2 pb-1">
+          <div>
+            <p className="text-[11px] text-trade-text-muted uppercase tracking-widest font-medium">Order Book</p>
+            <p className="text-[18px] font-bold text-trade-text leading-tight">Precision</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-trade-surface active:opacity-60 transition-opacity"
+            aria-label="Close"
+          >
+            <X className="h-[15px] w-[15px] text-trade-text/70" />
+          </button>
+        </div>
 
         {/* Options */}
-        <div className="px-6 pt-3">
-          {TICK_SIZES.map((v, i) => (
+        <div className="px-6 pt-2">
+          {options.map((v, i) => (
             <button
               key={v}
               onClick={() => onSelect(v)}
               className={`w-full flex items-center justify-between py-4 text-left active:opacity-60 transition-opacity ${
-                i < TICK_SIZES.length - 1 ? "border-b border-trade-text/6" : ""
+                i < options.length - 1 ? "border-b border-trade-text/6" : ""
               }`}
             >
               <span
                 className={`text-[17px] ${
-                  current === v ? "text-trade-text font-medium" : "text-trade-text/70"
+                  current === v ? "text-trade-text font-semibold" : "text-trade-text/70"
                 }`}
               >
                 {v}
               </span>
               {current === v && (
-                <Check className="h-[18px] w-[18px] text-trade-text" strokeWidth={2.5} />
+                <span className="h-6 w-6 rounded-full flex items-center justify-center" style={{ backgroundColor: "#f0b90b" }}>
+                  <Check className="h-[13px] w-[13px] text-black" strokeWidth={3} />
+                </span>
               )}
             </button>
           ))}

@@ -8,6 +8,7 @@ import { loadFavorites, saveFavorites } from "../lib/alerts";
 interface PairSelectorPanelProps {
   open: boolean;
   onClose: () => void;
+  onSelect?: (pair: Pair) => void;
   alerts?: PriceAlert[];
   onAddAlert?: (symbol: string, direction: "above" | "below", price: number) => void;
   onRemoveAlert?: (id: string) => void;
@@ -337,6 +338,7 @@ function PairRow({
 export function PairSelectorPanel({
   open,
   onClose,
+  onSelect,
   alerts = [],
   onAddAlert,
   onRemoveAlert,
@@ -514,7 +516,7 @@ export function PairSelectorPanel({
                 p={p}
                 hasAlert={alerts.some((a) => a.symbol === p.symbol)}
                 isFavorite={favorites.includes(p.symbol)}
-                onSelect={onClose}
+                onSelect={() => { onSelect?.(p); onClose(); }}
                 onLongPress={(pair) => setAlertPair(pair)}
                 onToggleFavorite={toggleFavorite}
               />
