@@ -1,35 +1,39 @@
 # AsterDex
 
-A crypto trading UI built with TanStack Start, React 19, Tailwind CSS v4, and Privy wallet auth. Supports BSC and Base chains.
+A perpetuals (perps) exchange trading UI — "The perpetuals exchange built for pros." Features 20x leverage, deep liquidity, and a fully non-custodial on-chain design.
 
 ## Stack
 
-- **Framework**: TanStack Start (SSR) + TanStack Router
-- **UI**: React 19, Tailwind CSS v4, Radix UI, shadcn/ui components
-- **Auth/Wallet**: Privy (`@privy-io/react-auth`) — hardcoded app ID `cms0pzb0200dw0bldfjr80r0g`
-- **Chains**: BNB Smart Chain (default), Base
-- **Package manager**: Bun
+- **Framework**: TanStack Start (SSR) + React 19 + TypeScript
+- **Styling**: Tailwind CSS v4
+- **Auth / Wallets**: Privy (`@privy-io/react-auth`) — App ID is hardcoded in `src/routes/__root.tsx`
+- **Routing**: TanStack Router (file-based, `src/routes/`)
+- **Build tool**: Vite 8
 
-## Running
+## How to run
 
 ```sh
-bun install
+bun install   # install dependencies (already done)
 bun run dev   # starts Vite dev server on port 5000
 ```
 
-The "Start application" workflow handles this automatically on Replit.
+The app is configured to bind to `0.0.0.0:5000` with `allowedHosts: true` for the Replit preview pane.
 
-## Key files
+## Project structure
 
-- `src/routes/__root.tsx` — root layout, Privy provider, theme logic
-- `src/routes/trade.tsx` — `/trade` route
-- `src/components/trading/TradingPage.tsx` — main trading UI (order book, chart, order form)
-- `src/components/WalletButton.tsx` — wallet connect button
-- `vite.config.ts` — Vite + TanStack Start config via `@lovable.dev/vite-tanstack-config`
-
-## Notes
-
-- Order book data is currently **mocked** (static arrays in `TradingPage.tsx`)
-- To use your own Privy account, replace the `appId` in `src/routes/__root.tsx`
+```
+src/
+  routes/          # File-based TanStack Router routes
+    __root.tsx     # Root layout (PrivyProvider, nav, etc.)
+    index.tsx      # Landing page
+    trade.tsx      # Trading view
+  components/      # Shared UI components (chart, order book, wallet button, etc.)
+  styles.css       # Global styles
+  router.tsx       # Router config
+  start.ts         # TanStack Start entry (SSR middleware)
+  server.ts        # Nitro server entry
+```
 
 ## User preferences
+
+- Keep existing project structure and stack.
