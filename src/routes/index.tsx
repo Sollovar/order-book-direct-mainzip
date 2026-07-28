@@ -55,7 +55,11 @@ function Landing() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme") as "light" | "dark" | null;
+    // Clear any inline bg set by the trade page so the landing page theme shows immediately
+    document.documentElement.style.backgroundColor = "";
+    document.body.style.backgroundColor = "";
+
+    const stored = localStorage.getItem("asterdex-theme") as "light" | "dark" | null;
     const sys = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     const initial = stored ?? sys;
     setTheme(initial);
@@ -64,7 +68,7 @@ function Landing() {
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("theme")) {
+      if (!localStorage.getItem("asterdex-theme")) {
         const next = e.matches ? "dark" : "light";
         setTheme(next);
         document.documentElement.classList.toggle("dark", next === "dark");
@@ -77,7 +81,7 @@ function Landing() {
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    localStorage.setItem("theme", next);
+    localStorage.setItem("asterdex-theme", next);
     document.documentElement.classList.toggle("dark", next === "dark");
   };
 
