@@ -150,13 +150,7 @@ function Landing() {
             style={{ animationDelay: "60ms", animationFillMode: "backwards" }}
           >
             The perpetuals exchange{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage:
-                  "linear-gradient(120deg, var(--trade-bid), var(--trade-primary), var(--trade-ask))",
-              }}
-            >
+            <span style={{ color: "var(--trade-primary)" }}>
               built for pros.
             </span>
           </h1>
@@ -181,7 +175,8 @@ function Landing() {
             </Link>
             <a
               href="#features"
-              className="inline-flex items-center gap-2 rounded-xl border border-trade-border bg-trade-surface px-5 py-3 text-sm font-semibold hover:bg-trade-border transition"
+              className="inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition hover:opacity-80"
+              style={{ borderColor: "var(--trade-primary)", color: "var(--trade-primary)" }}
             >
               Explore Features
             </a>
@@ -209,10 +204,8 @@ function Landing() {
               className="rounded-2xl border border-trade-border bg-trade-card p-5 text-left"
             >
               <div
-                className="text-2xl font-bold md:text-3xl bg-clip-text text-transparent"
-                style={{
-                  backgroundImage: "linear-gradient(120deg, var(--trade-bid), var(--trade-primary))",
-                }}
+                className="text-2xl font-bold md:text-3xl"
+                style={{ color: "var(--trade-primary)" }}
               >
                 {s.k}
               </div>
@@ -419,7 +412,7 @@ function TerminalPreview() {
 
   return (
     <div
-      className="mx-auto mt-14 max-w-4xl animate-fade-in"
+      className="mt-14 mx-2 md:mx-auto md:max-w-4xl animate-fade-in"
       style={{ animationDelay: "300ms", animationFillMode: "backwards" }}
     >
       <div
