@@ -210,7 +210,6 @@ function RootShell({ children }: { children: ReactNode }) {
               <img src="https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8707.png" alt="AsterDex" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: '50%' }} />
             </div>
           </div>
-          <p className="al-label">AsterDex</p>
         </div>
         {/* Runs synchronously right after the loader div exists — before any paint */}
         <script dangerouslySetInnerHTML={{ __html: `
