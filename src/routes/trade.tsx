@@ -79,6 +79,9 @@ const asks: Row[] = [
   { price: "66,007.7", size: "24.95K", pct: 12 },
   { price: "66,007.6", size: "24.95K", pct: 12 },
   { price: "66,007.5", size: "231.29K", pct: 72 },
+  { price: "66,009.0", size: "45.23K", pct: 18 },
+  { price: "66,009.8", size: "188.44K", pct: 58 },
+  { price: "66,010.5", size: "312.10K", pct: 85 },
 ];
 
 const bids: Row[] = [
@@ -87,6 +90,9 @@ const bids: Row[] = [
   { price: "66,003.0", size: "392.38K", pct: 96 },
   { price: "66,002.9", size: "14.45K", pct: 10 },
   { price: "66,002.3", size: "170.87K", pct: 55 },
+  { price: "66,001.8", size: "88.92K", pct: 32 },
+  { price: "66,000.5", size: "245.60K", pct: 68 },
+  { price: "65,999.1", size: "411.30K", pct: 97 },
 ];
 
 function Index() {
@@ -129,6 +135,7 @@ function Index() {
   const [postOnly, setPostOnly] = useState(false);
   const [expiryEnabled, setExpiryEnabled] = useState(false);
   const [expiryMinutes, setExpiryMinutes] = useState("");
+  const [ladderSellNotice, setLadderSellNotice] = useState(false);
 
   // ── Price alerts (persisted to localStorage) ──────────────────────────────
   const [alerts, setAlerts] = useState<PriceAlert[]>(() => loadAlerts());
@@ -427,7 +434,7 @@ function Index() {
             {/* Asks — hidden when bids-only */}
             {bookFilter !== "bids" && (
               <div className="mt-1 space-y-[3px]">
-                {asks.map((r, i) => (
+                {asks.slice(0, orderType === "Ladder" ? 8 : 5).map((r, i) => (
                   <BookRow key={i} row={r} side="ask" />
                 ))}
               </div>
@@ -444,7 +451,7 @@ function Index() {
             {/* Bids — hidden when asks-only */}
             {bookFilter !== "asks" && (
               <div className="space-y-[3px]">
-                {bids.map((r, i) => (
+                {bids.slice(0, orderType === "Ladder" ? 8 : 5).map((r, i) => (
                   <BookRow key={i} row={r} side="bid" />
                 ))}
               </div>
@@ -1058,14 +1065,26 @@ function Index() {
             <div className="px-4 grid grid-cols-2 gap-3 pb-2">
               {ORDER_TYPES.map(({ label, desc }) => {
                 const active = orderType === label;
+                const isLadder = label === "Ladder";
+                const ladderLocked = isLadder && orderSide === "Buy";
                 return (
                   <button
                     key={label}
-                    onClick={() => { setOrderType(label); setOrderTypeSheetOpen(false); }}
+                    onClick={() => {
+                      if (ladderLocked) {
+                        setLadderSellNotice(true);
+                        return;
+                      }
+                      setLadderSellNotice(false);
+                      setOrderType(label);
+                      setOrderTypeSheetOpen(false);
+                    }}
                     className={`relative flex flex-col items-start text-left rounded-2xl px-4 py-4 transition-all active:scale-[0.97] ${
                       active
                         ? "ring-1 ring-[#f0b90b]/70"
-                        : "bg-trade-text/5 ring-1 ring-transparent"
+                        : ladderLocked
+                          ? "bg-trade-text/5 ring-1 ring-transparent opacity-50"
+                          : "bg-trade-text/5 ring-1 ring-transparent"
                     }`}
                     style={active ? { backgroundColor: "rgba(240,185,11,0.12)" } : undefined}
                   >
@@ -1082,6 +1101,22 @@ function Index() {
                 );
               })}
             </div>
+            {/* Sell-only notice for Ladder */}
+            {ladderSellNotice && (
+              <div className="mx-4 mb-4 mt-1 rounded-2xl px-4 py-3 flex items-start gap-3" style={{ backgroundColor: "rgba(240,185,11,0.10)", border: "1px solid rgba(240,185,11,0.25)" }}>
+                <span className="text-[#f0b90b] text-[15px] leading-none mt-0.5">⚠</span>
+                <div className="flex-1">
+                  <p className="text-[12px] font-semibold text-trade-text leading-snug">Ladder is Sell-only</p>
+                  <p className="text-[11px] text-trade-text-muted mt-0.5 leading-snug">Switch to <strong className="text-trade-text">Sell</strong> side first, then select Ladder.</p>
+                </div>
+                <button
+                  onClick={() => { setSideSheetOpen(false); setOrderTypeSheetOpen(false); setOrderSide("Sell"); setLadderSellNotice(false); setOrderType("Ladder"); }}
+                  className="text-[11px] font-semibold text-[#f0b90b] active:opacity-60 transition-opacity whitespace-nowrap mt-0.5"
+                >
+                  Switch →
+                </button>
+              </div>
+            )}
           </div>
         </div>,
         document.body
