@@ -115,7 +115,7 @@
   --trade-surface: oklch(0 0 0 / 5%);
   --trade-ask: oklch(0.62 0.2 22);
   --trade-bid: oklch(0.72 0.2 155);
-  --trade-primary: oklch(0.85 0.05 80);
+  --trade-primary: #f0b90b;
   --trade-primary-text: oklch(0.2 0 0);
 }
 
@@ -161,7 +161,7 @@
   --trade-surface:      #1D1D1E;
   --trade-ask:          #E05B57;
   --trade-bid:          #19D18A;
-  --trade-primary:      #EFCFA7;
+  --trade-primary:      #f0b90b;
   --trade-primary-text: #0A0A0B;
 }
 
