@@ -81,6 +81,18 @@ function getPrecisionOptions(priceStr: string): string[] {
   });
 }
 
+/* -------------------- Price helpers -------------------- */
+
+function formatLivePrice(value: number, originalPrice: string): string {
+  const clean = originalPrice.replace(/,/g, "");
+  const dotIdx = clean.indexOf(".");
+  const decimals = dotIdx === -1 ? 0 : clean.length - dotIdx - 1;
+  const fixed = value.toFixed(decimals);
+  const [intPart, decPart] = fixed.split(".");
+  const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return decPart !== undefined ? `${withCommas}.${decPart}` : withCommas;
+}
+
 /* -------------------- Layout -------------------- */
 
 export function TradingPage() {
@@ -91,8 +103,13 @@ export function TradingPage() {
     return true; // "dark" or no preference → dark
   });
 
-  // Shared selected-pair price — lifted so OrderBookPanel can derive precision
+  // Shared selected-pair state — lifted so OrderBookPanel + title can use it
   const [selectedPairPrice, setSelectedPairPrice] = useState(pairOptions[1].price);
+  const [selectedPairSymbol, setSelectedPairSymbol] = useState(pairOptions[1].symbol);
+
+  // ── Live price ticker for browser tab title ──────────────────────────────
+  const titlePriceRef = useRef<number>(parseFloat(pairOptions[1].price.replace(/,/g, "")));
+  const [titlePrice, setTitlePrice] = useState(pairOptions[1].price);
 
   // Keep <html> class + localStorage in sync so WalletSheet, Privy modal,
   // and --trade-* vars (which all key off `.dark` on <html>) stay correct.
@@ -129,6 +146,28 @@ export function TradingPage() {
     return () => window.removeEventListener("keydown", handleArrowDown);
   }, []);
 
+  // Reset ticker ref + state when pair changes
+  useEffect(() => {
+    const numeric = parseFloat(selectedPairPrice.replace(/,/g, ""));
+    titlePriceRef.current = numeric;
+    setTitlePrice(selectedPairPrice);
+  }, [selectedPairPrice]);
+
+  // Drift ±0.05 % every 1.5 s for live-feeling tab title
+  useEffect(() => {
+    const id = setInterval(() => {
+      titlePriceRef.current *= 1 + (Math.random() - 0.5) * 0.001;
+      setTitlePrice(formatLivePrice(titlePriceRef.current, selectedPairPrice));
+    }, 1500);
+    return () => clearInterval(id);
+  }, [selectedPairPrice]);
+
+  // Keep document.title in sync — "61,387.6 | BTCUSDT | AsterDex"
+  useEffect(() => {
+    document.title = `${titlePrice} | ${selectedPairSymbol} | AsterDex`;
+    return () => { document.title = "AsterDex — The On-Chain Perpetuals Exchange"; };
+  }, [titlePrice, selectedPairSymbol]);
+
   return (
     <div className={`aster-desktop ${dark ? "dark" : ""} h-screen w-screen flex flex-col bg-background text-foreground text-[12px] overflow-hidden`}>
       <TopNav dark={dark} onToggle={() => setDark((d) => !d)} />
@@ -136,7 +175,10 @@ export function TradingPage() {
         <div className="h-[calc(100vh-4.5rem)] min-h-0 shrink-0 grid grid-cols-[minmax(0,1fr)_23vw_23vw] gap-1 p-1">
           <div className="min-h-0 min-w-0 flex flex-col gap-1">
             <Panel className="relative z-40 !overflow-visible">
-              <MarketBar onPairPriceChange={setSelectedPairPrice} />
+              <MarketBar
+                onPairPriceChange={setSelectedPairPrice}
+                onPairSymbolChange={setSelectedPairSymbol}
+              />
             </Panel>
             <Panel className="flex-1"><ChartPanel /></Panel>
           </div>
@@ -618,7 +660,7 @@ const pairOptions = [
   { symbol: "HYPEUSDT", price: "53.469", change: "-7.65%", funding: "0.0050%", volume: "$106,385,236", interest: "$14,050,088", high: "58.120", low: "52.840", icon: "H", iconClass: "bg-cyan-400" },
 ];
 
-function MarketBar({ onPairPriceChange }: { onPairPriceChange?: (price: string) => void }) {
+function MarketBar({ onPairPriceChange, onPairSymbolChange }: { onPairPriceChange?: (price: string) => void; onPairSymbolChange?: (symbol: string) => void }) {
   const [selectedPair, setSelectedPair] = useState(pairOptions[1]);
   const [isPairSelectorOpen, setIsPairSelectorOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -748,6 +790,7 @@ function MarketBar({ onPairPriceChange }: { onPairPriceChange?: (price: string) 
                 onClick={() => {
                   setSelectedPair(pair);
                   if (onPairPriceChange) onPairPriceChange(pair.price);
+                  if (onPairSymbolChange) onPairSymbolChange(pair.symbol);
                   setIsPairSelectorOpen(false);
                   setSearchTerm("");
                 }}

@@ -122,6 +122,10 @@ function Index() {
   // Selected pair — defaults to BTC (index 0 in PAIRS)
   const [selectedPair, setSelectedPair] = useState(() => PAIRS[0]);
 
+  // ── Live price ticker for browser tab title ──────────────────────────────
+  const titlePriceRef = useRef<number>(parseFloat(PAIRS[0].price.replace(/,/g, "")));
+  const [titlePrice, setTitlePrice] = useState(PAIRS[0].price);
+
   // Precision options derived from the pair's price magnitude
   const precisionOptions = getPrecisionOptions(selectedPair.price);
 
@@ -157,11 +161,29 @@ function Index() {
   const simPricesRef = useRef<Record<string, number>>({});
   const alertNotifIdRef = useRef(10000); // start above mock IDs
 
-  // When the pair changes, reset tickSize to the finest option for that pair
+  // When the pair changes, reset tickSize + live price ref
   useEffect(() => {
     const opts = getPrecisionOptions(selectedPair.price);
     setTickSize((prev) => (opts.includes(prev) ? prev : opts[0]));
+    const numeric = parseFloat(selectedPair.price.replace(/,/g, ""));
+    titlePriceRef.current = numeric;
+    setTitlePrice(selectedPair.price);
   }, [selectedPair]);
+
+  // Drift price ±0.05 % every 1.5 s for a live-feeling tab title
+  useEffect(() => {
+    const id = setInterval(() => {
+      titlePriceRef.current *= 1 + (Math.random() - 0.5) * 0.001;
+      setTitlePrice(formatLivePrice(titlePriceRef.current, selectedPair.price));
+    }, 1500);
+    return () => clearInterval(id);
+  }, [selectedPair]);
+
+  // Keep document.title in sync — format: "66,007.4 | BTC | AsterDex"
+  useEffect(() => {
+    document.title = `${titlePrice} | ${selectedPair.base} | AsterDex`;
+    return () => { document.title = "AsterDex — The On-Chain Perpetuals Exchange"; };
+  }, [titlePrice, selectedPair.base]);
 
   // Keep alertsRef in sync so the interval can read current alerts without a stale closure
   useEffect(() => {
@@ -1406,6 +1428,22 @@ function MobileMenuSheet({
 }
 
 /* ─── Tick Size Bottom Sheet ────────────────────────────────────────────────── */
+
+/* ─── Price helpers ─────────────────────────────────────────────────────────── */
+
+/**
+ * Format a numeric price value preserving the decimal-place count of the
+ * original price string and adding thousand-separating commas.
+ */
+function formatLivePrice(value: number, originalPrice: string): string {
+  const clean = originalPrice.replace(/,/g, "");
+  const dotIdx = clean.indexOf(".");
+  const decimals = dotIdx === -1 ? 0 : clean.length - dotIdx - 1;
+  const fixed = value.toFixed(decimals);
+  const [intPart, decPart] = fixed.split(".");
+  const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return decPart !== undefined ? `${withCommas}.${decPart}` : withCommas;
+}
 
 /* ─── Precision helpers ─────────────────────────────────────────────────────── */
 
