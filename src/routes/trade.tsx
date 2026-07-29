@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "../hooks/use-theme";
 import { createPortal } from "react-dom";
 import { ChartOverlay } from "../components/ChartOverlay";
 import { LadderHistoryPanel } from "../components/LadderOrderSheet";
@@ -97,8 +98,8 @@ const bids: Row[] = [
 
 function Index() {
   const [tab, setTab] = useState("Open Orders");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [hasManualOverride, setHasManualOverride] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [statsOpen, setStatsOpen] = useState(false);
   const [navTab, setNavTab] = useState("Trade");
   const [chartOpen, setChartOpen] = useState(false);
@@ -276,49 +277,6 @@ function Index() {
     { label: "Ladder", desc: "Split entries" },
   ];
 
-  useEffect(() => {
-    const saved = localStorage.getItem("asterdex-theme");
-    if (saved === "light" || saved === "dark") {
-      setTheme(saved);
-      setHasManualOverride(true);
-      return;
-    }
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    setTheme(media.matches ? "dark" : "light");
-
-    const listener = (event: MediaQueryListEvent) => {
-      setTheme(event.matches ? "dark" : "light");
-    };
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
-  }, []);
-
-  useEffect(() => {
-    if (hasManualOverride) {
-      localStorage.setItem("asterdex-theme", theme);
-    }
-  }, [theme, hasManualOverride]);
-
-  // Keep html/body background in sync so safe-area gaps match the theme
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-      root.style.backgroundColor = "#0A0A0B";
-      document.body.style.backgroundColor = "#0A0A0B";
-    } else {
-      root.classList.remove("dark");
-      root.style.backgroundColor = "#F3F3F3";
-      document.body.style.backgroundColor = "#F3F3F3";
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-    setHasManualOverride(true);
-  };
-
   // Funding countdown ticker
   useEffect(() => {
     countdownRef.current = setInterval(() => {
@@ -338,6 +296,7 @@ function Index() {
 
   return (
     <div
+      suppressHydrationWarning
       className={`min-h-screen bg-trade-bg text-trade-text font-sans text-[13px] pb-20 ${
         theme === "dark" ? "dark" : ""
       }`}
@@ -933,8 +892,8 @@ function Index() {
               key={label}
               onClick={() => {
                 if (label === "Account") { setWalletMenuOpen(true); return; }
+                if (label === "Markets") { navigate({ to: "/markets" }); return; }
                 setNavTab(label);
-                if (label === "Markets") setChartOpen(true);
               }}
               className="flex items-center gap-2 transition-opacity active:opacity-60"
             >
