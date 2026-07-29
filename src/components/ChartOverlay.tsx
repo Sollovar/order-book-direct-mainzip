@@ -447,16 +447,20 @@ export function ChartOverlay({
 
           {/* Pair header */}
           <div className="px-3 pt-3 pb-2.5 bg-trade-surface/30">
-            {/* Row 1: symbol + view-mode toggle */}
+            {/* Row 1: symbol (hidden in pairs mode) + view-mode toggle */}
             <div className="flex items-center justify-between mb-2">
-              <button
-                onClick={() => setPairsOpen(true)}
-                className="flex items-center gap-2 active:opacity-70 transition-opacity"
-              >
-                <span className="text-trade-text font-bold text-[17px] tracking-tight">{activePair.symbol}</span>
-                <ChevronDown className="h-3.5 w-3.5 text-trade-text/40" />
-                <span className="text-trade-ask text-[13px] font-medium">-1.32%</span>
-              </button>
+              {viewMode === "chart" ? (
+                <button
+                  onClick={() => setPairsOpen(true)}
+                  className="flex items-center gap-2 active:opacity-70 transition-opacity"
+                >
+                  <span className="text-trade-text font-bold text-[17px] tracking-tight">{activePair.symbol}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-trade-text/40" />
+                  <span className="text-trade-ask text-[13px] font-medium">-1.32%</span>
+                </button>
+              ) : (
+                <div />
+              )}
               {/* Chart / Pairs icon toggle */}
               <div className="flex items-center gap-0.5 rounded-lg bg-trade-surface/70 p-0.5">
                 <button
@@ -484,35 +488,37 @@ export function ChartOverlay({
               </div>
             </div>
 
-            {/* Row 2: price + stats */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-1 mb-0.5">
-                  <span className="text-trade-text-muted text-[11px]">Index price</span>
-                  <ChevronDown className="h-2.5 w-2.5 text-trade-text/30" />
+            {/* Row 2: price + stats — hidden in pairs mode */}
+            {viewMode === "chart" && (
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <span className="text-trade-text-muted text-[11px]">Index price</span>
+                    <ChevronDown className="h-2.5 w-2.5 text-trade-text/30" />
+                  </div>
+                  <div className="text-trade-text font-bold text-[26px] leading-none tracking-tight">
+                    {currentPrice.toLocaleString("en", { minimumFractionDigits: 1 })}
+                  </div>
+                  <div className="text-trade-text-muted text-[11px] mt-1.5">
+                    Last price 63,911.9
+                  </div>
                 </div>
-                <div className="text-trade-text font-bold text-[26px] leading-none tracking-tight">
-                  {currentPrice.toLocaleString("en", { minimumFractionDigits: 1 })}
-                </div>
-                <div className="text-trade-text-muted text-[11px] mt-1.5">
-                  Last price 63,911.9
+                <div className="text-right space-y-0.5">
+                  <div className="flex gap-3 justify-end text-[9px] text-trade-text-muted">
+                    <span>24h Vol (USDT)</span>
+                    <span>OI (USDT)</span>
+                  </div>
+                  <div className="flex gap-4 justify-end text-[10px]">
+                    <span className="text-trade-text/80 font-medium">850.72M</span>
+                    <span className="text-trade-text/80 font-medium">768.73M</span>
+                  </div>
+                  <div className="text-[9px] text-trade-text-muted">Funding (8h) / Countdown</div>
+                  <div className="text-[10px] text-trade-text/80 font-medium">
+                    0.0076% / {fmtCountdown(countdown)}
+                  </div>
                 </div>
               </div>
-              <div className="text-right space-y-0.5">
-                <div className="flex gap-3 justify-end text-[9px] text-trade-text-muted">
-                  <span>24h Vol (USDT)</span>
-                  <span>OI (USDT)</span>
-                </div>
-                <div className="flex gap-4 justify-end text-[10px]">
-                  <span className="text-trade-text/80 font-medium">850.72M</span>
-                  <span className="text-trade-text/80 font-medium">768.73M</span>
-                </div>
-                <div className="text-[9px] text-trade-text-muted">Funding (8h) / Countdown</div>
-                <div className="text-[10px] text-trade-text/80 font-medium">
-                  0.0076% / {fmtCountdown(countdown)}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* ── CHART VIEW ── */}
@@ -720,10 +726,10 @@ export function ChartOverlay({
                   {/* Top Gainers */}
                   <div className="px-3 pt-1 pb-2">
                     <div className="flex items-center gap-1.5 mb-2.5">
-                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(0,192,118,0.15)" }}>
-                        <TrendingUp className="h-3 w-3 text-[#00c076]" />
+                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
+                        <TrendingUp className="h-3 w-3 text-[#f0b90b]" />
                       </div>
-                      <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#00c076" }}>Top Gainers</span>
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Gainers</span>
                     </div>
                     <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
                       {gainers.map(pair => (
@@ -732,8 +738,8 @@ export function ChartOverlay({
                           onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
                           className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
                           style={{
-                            background: "rgba(0,192,118,0.07)",
-                            border: "1px solid rgba(0,192,118,0.18)",
+                            background: "rgba(255,255,255,0.04)",
+                            border: "1px solid rgba(255,255,255,0.08)",
                             minWidth: 104,
                           }}
                         >
@@ -747,7 +753,7 @@ export function ChartOverlay({
                             <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
                           </div>
                           <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                          <div className="text-[13px] font-bold tabular-nums" style={{ color: "#00c076" }}>{pair.change}</div>
+                          <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
                         </button>
                       ))}
                     </div>
@@ -756,10 +762,10 @@ export function ChartOverlay({
                   {/* Top Losers */}
                   <div className="px-3 pb-3">
                     <div className="flex items-center gap-1.5 mb-2.5">
-                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,79,90,0.15)" }}>
-                        <TrendingDown className="h-3 w-3 text-[#f04f5a]" />
+                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
+                        <TrendingDown className="h-3 w-3 text-[#f0b90b]" />
                       </div>
-                      <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#f04f5a" }}>Top Losers</span>
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Losers</span>
                     </div>
                     <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
                       {losers.map(pair => (
@@ -768,8 +774,8 @@ export function ChartOverlay({
                           onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
                           className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
                           style={{
-                            background: "rgba(240,79,90,0.07)",
-                            border: "1px solid rgba(240,79,90,0.18)",
+                            background: "rgba(255,255,255,0.04)",
+                            border: "1px solid rgba(255,255,255,0.08)",
                             minWidth: 104,
                           }}
                         >
@@ -783,7 +789,7 @@ export function ChartOverlay({
                             <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
                           </div>
                           <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                          <div className="text-[13px] font-bold tabular-nums" style={{ color: "#f04f5a" }}>{pair.change}</div>
+                          <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
                         </button>
                       ))}
                     </div>
