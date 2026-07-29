@@ -710,7 +710,8 @@ export function ChartOverlay({
                     value={pairsSearch}
                     onChange={e => setPairsSearch(e.target.value)}
                     placeholder="Search pairs…"
-                    className="flex-1 bg-transparent outline-none text-[13px] text-trade-text placeholder:text-trade-text-muted/60"
+                    className="flex-1 bg-transparent outline-none text-trade-text placeholder:text-trade-text-muted/60"
+                    style={{ fontSize: 16 }}
                   />
                   {pairsSearch && (
                     <button onClick={() => setPairsSearch("")} className="flex-shrink-0 active:opacity-60">
@@ -802,8 +803,8 @@ export function ChartOverlay({
 
               {/* All pairs list */}
               <div className="pb-3">
-                {/* Column header */}
-                <div className="grid grid-cols-[1fr_auto_auto] gap-3 px-4 pt-2 pb-1.5 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold">
+                {/* Column header — sticky so it stays visible while scrolling */}
+                <div className="sticky top-0 z-10 grid grid-cols-[1fr_auto_auto] gap-3 px-4 pt-2 pb-1.5 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold bg-trade-card">
                   <span>Pair</span>
                   <span className="text-right">Price</span>
                   <span className="text-right w-14">24h</span>
@@ -856,8 +857,8 @@ export function ChartOverlay({
           )}
         </div>
 
-        {/* ── OPEN ORDERS — tiny side gap, slight rounding ── */}
-        <section className="rounded-3xl bg-trade-card shadow-2xl overflow-hidden">
+        {/* ── OPEN ORDERS — only shown in chart view ── */}
+        {viewMode === "chart" && <section className="rounded-3xl bg-trade-card shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between border-b border-trade-text/5 px-3">
             <div className="flex items-center justify-between flex-1">
               {bottomTabs.map(t => (
@@ -886,7 +887,7 @@ export function ChartOverlay({
               <div className="text-trade-text-muted text-[13px]">Please connect a wallet first</div>
             </div>
           )}
-        </section>
+        </section>}
 
       </div>
 
