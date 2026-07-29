@@ -892,7 +892,7 @@ function Index() {
               key={label}
               onClick={() => {
                 if (label === "Account") { setWalletMenuOpen(true); return; }
-                if (label === "Markets") { setChartOpen(true); setNavTab("Markets"); return; }
+                if (label === "Markets") { navigate({ to: "/markets" }); return; }
                 setNavTab(label);
               }}
               className="flex items-center gap-2 transition-opacity active:opacity-60"

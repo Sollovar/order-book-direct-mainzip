@@ -560,6 +560,16 @@ export interface ChartOverlayProps {
   selectedPair?: Pair;
   /** Called when the user picks a different pair from within this overlay */
   onSelectPair?: (pair: Pair) => void;
+  /**
+   * When true, renders as a normal page (min-h-screen) instead of a
+   * fixed full-screen overlay. Use this when embedding in a route.
+   */
+  asPage?: boolean;
+  /**
+   * Optional route navigation handler. When provided, bottom-nav taps
+   * for "Trade" / "Markets" call this instead of just updating navTab.
+   */
+  onNavigateTo?: (path: string) => void;
 }
 
 /* ─── Main component ────────────────────────────────── */
@@ -573,6 +583,8 @@ export function ChartOverlay({
   onOpenMenu,
   selectedPair: externalPair,
   onSelectPair,
+  asPage = false,
+  onNavigateTo,
 }: ChartOverlayProps) {
   const activePair = externalPair ?? PAIRS[0];
 
@@ -625,7 +637,8 @@ export function ChartOverlay({
 
   return (
     <div
-      className={`fixed inset-0 z-[70] flex flex-col bg-trade-bg text-trade-text font-sans text-[13px] overflow-y-auto pb-20 ${
+      suppressHydrationWarning
+      className={`${asPage ? "min-h-screen" : "fixed inset-0 z-[70]"} flex flex-col bg-trade-bg text-trade-text font-sans text-[13px] overflow-y-auto pb-20 ${
         theme === "dark" ? "dark" : ""
       }`}
     >
@@ -992,6 +1005,8 @@ export function ChartOverlay({
               key={label}
               onClick={() => {
                 if (label === "Account") { setWalletMenuOpen(true); return; }
+                if (onNavigateTo && label === "Trade") { onNavigateTo("/trade"); return; }
+                if (onNavigateTo && label === "Markets") { onNavigateTo("/markets"); return; }
                 setNavTab(label);
                 if (label === "Markets") onOpenChart();
               }}
