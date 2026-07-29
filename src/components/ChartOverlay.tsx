@@ -804,57 +804,98 @@ export function ChartOverlay({
                 </>
               )}
 
-              {/* All pairs list */}
-              <div className="pb-3">
-                {/* Column header — sticky so it stays visible while scrolling */}
-                <div className="sticky top-0 z-10 grid grid-cols-[1fr_auto_auto] gap-3 px-4 pt-2 pb-1.5 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold bg-trade-card">
-                  <span>Pair</span>
-                  <span className="text-right">Price</span>
-                  <span className="text-right w-14">24h</span>
-                </div>
-                {filteredPairs.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 gap-2">
-                    <Search className="h-7 w-7 text-trade-text/20" />
-                    <span className="text-[13px] text-trade-text-muted">No pairs found</span>
-                  </div>
-                ) : filteredPairs.map((pair, i) => (
-                  <button
-                    key={pair.symbol}
-                    onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
-                    className={`w-full grid grid-cols-[1fr_auto_auto] gap-3 items-center px-4 py-3 text-left active:bg-trade-text/5 transition-colors ${
-                      activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
-                    } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
-                  >
-                    {/* Pair info */}
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div
-                        className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm"
-                        style={{ backgroundColor: pair.color }}
-                      >
-                        {pair.base.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[13px] font-semibold text-trade-text leading-tight">{pair.base}</span>
-                          <span className="text-[9px] px-1 py-px rounded font-bold text-trade-text-muted/70" style={{ background: "rgba(255,255,255,0.07)" }}>{pair.lev}</span>
-                          {activePair.symbol === pair.symbol && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#f0b90b]" />
-                          )}
-                        </div>
-                        <span className="text-[10px] text-trade-text-muted/60">Vol {pair.vol}</span>
-                      </div>
-                    </div>
-                    {/* Price */}
-                    <span className="text-[13px] font-medium text-trade-text tabular-nums text-right">{pair.price}</span>
-                    {/* Change */}
-                    <span
-                      className="text-[12px] font-bold tabular-nums text-right w-14"
-                      style={{ color: pair.up ? "#00c076" : "#f04f5a" }}
+              {/* All pairs list — horizontal scroll, sticky Pair column */}
+              <div className="overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
+                <div style={{ minWidth: 560 }}>
+
+                  {/* Column headers — sticky vertically */}
+                  <div className="sticky top-0 z-20 flex items-center bg-trade-card border-b border-trade-text/8">
+                    {/* Pair — sticky left AND top (corner lock) */}
+                    <div
+                      className="sticky left-0 z-30 bg-trade-card flex-shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold"
+                      style={{ minWidth: 160 }}
                     >
-                      {pair.change}
-                    </span>
-                  </button>
-                ))}
+                      Pair
+                    </div>
+                    {/* Scrollable column headers */}
+                    <div className="flex items-center flex-1">
+                      <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: 96 }}>Price</span>
+                      <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: 76 }}>24h</span>
+                      <span className="text-right text-[10px] uppercase tracking-wider text-[#f0b90b]/70 font-semibold" style={{ minWidth: 88 }}>Liquidity</span>
+                      <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold pr-4" style={{ minWidth: 92 }}>Mkt Cap</span>
+                    </div>
+                  </div>
+
+                  {/* Rows */}
+                  {filteredPairs.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 gap-2">
+                      <Search className="h-7 w-7 text-trade-text/20" />
+                      <span className="text-[13px] text-trade-text-muted">No pairs found</span>
+                    </div>
+                  ) : filteredPairs.map((pair, i) => (
+                    <div
+                      key={pair.symbol}
+                      className={`flex items-center active:bg-trade-text/5 transition-colors ${
+                        activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
+                      } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
+                    >
+                      {/* Pair cell — sticky left */}
+                      <button
+                        onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
+                        className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-2.5 px-4 py-3 text-left"
+                        style={{
+                          minWidth: 160,
+                          background: activePair.symbol === pair.symbol
+                            ? "color-mix(in srgb, var(--trade-card) 90%, white 10%)"
+                            : "var(--trade-card, #141418)",
+                        }}
+                      >
+                        <div
+                          className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm"
+                          style={{ backgroundColor: pair.color }}
+                        >
+                          {pair.base.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[13px] font-semibold text-trade-text leading-tight">{pair.base}</span>
+                            <span className="text-[9px] px-1 py-px rounded font-bold text-trade-text-muted/70" style={{ background: "rgba(255,255,255,0.07)" }}>{pair.lev}</span>
+                            {activePair.symbol === pair.symbol && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#f0b90b] flex-shrink-0" />
+                            )}
+                          </div>
+                          <span className="text-[10px] text-trade-text-muted/60 truncate block">{pair.symbol}</span>
+                        </div>
+                      </button>
+
+                      {/* Scrollable data cells */}
+                      <button
+                        onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
+                        className="flex items-center flex-1 py-3"
+                      >
+                        {/* Price */}
+                        <span className="text-[12px] font-medium text-trade-text tabular-nums text-right" style={{ minWidth: 96 }}>
+                          {pair.price}
+                        </span>
+                        {/* 24h change */}
+                        <span
+                          className="text-[12px] font-bold tabular-nums text-right"
+                          style={{ minWidth: 76, color: pair.up ? "#00c076" : "#f04f5a" }}
+                        >
+                          {pair.change}
+                        </span>
+                        {/* Liquidity */}
+                        <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right" style={{ minWidth: 88 }}>
+                          {pair.liquidity}
+                        </span>
+                        {/* Market Cap */}
+                        <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right pr-4" style={{ minWidth: 92 }}>
+                          {pair.marketCap}
+                        </span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
