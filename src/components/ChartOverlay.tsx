@@ -88,7 +88,6 @@ const depthData = [
   { price: 66392, ask: 30000000 },
 ];
 import {
-  Star,
   ChevronDown,
   BarChart2,
   UserCircle,
@@ -98,6 +97,10 @@ import {
   Menu,
   X,
   Check,
+  LayoutList,
+  TrendingUp,
+  TrendingDown,
+  CandlestickChart,
 } from "lucide-react";
 import { PairSelectorPanel } from "./PairSelectorPanel";
 import { LadderHistoryPanel } from "./LadderOrderSheet";
@@ -371,7 +374,23 @@ export function ChartOverlay({
   const [bottomTab, setBottomTab] = useState("Open Orders");
   const [pairsOpen, setPairsOpen] = useState(false);
   const [walletMenuOpen, setWalletMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"chart" | "pairs">("chart");
+  const [pairsSearch, setPairsSearch] = useState("");
   const currentPrice = 63934.3;
+
+  // Compute top gainers & losers from the PAIRS list
+  const gainers = [...PAIRS]
+    .filter(p => p.up)
+    .sort((a, b) => parseFloat(b.change) - parseFloat(a.change))
+    .slice(0, 5);
+  const losers = [...PAIRS]
+    .filter(p => !p.up)
+    .sort((a, b) => parseFloat(a.change) - parseFloat(b.change))
+    .slice(0, 5);
+  const filteredPairs = PAIRS.filter(p =>
+    p.symbol.toLowerCase().includes(pairsSearch.toLowerCase()) ||
+    p.base.toLowerCase().includes(pairsSearch.toLowerCase())
+  );
 
   // Precision / tick-size state — derived from the active pair's price
   const precisionOptions = getPrecisionOptions(activePair.price);
@@ -428,7 +447,7 @@ export function ChartOverlay({
 
           {/* Pair header */}
           <div className="px-3 pt-3 pb-2.5 bg-trade-surface/30">
-            {/* Row 1: symbol + star */}
+            {/* Row 1: symbol + view-mode toggle */}
             <div className="flex items-center justify-between mb-2">
               <button
                 onClick={() => setPairsOpen(true)}
@@ -438,7 +457,31 @@ export function ChartOverlay({
                 <ChevronDown className="h-3.5 w-3.5 text-trade-text/40" />
                 <span className="text-trade-ask text-[13px] font-medium">-1.32%</span>
               </button>
-              <Star className="h-4.5 w-4.5 text-trade-text/25" />
+              {/* Chart / Pairs icon toggle */}
+              <div className="flex items-center gap-0.5 rounded-lg bg-trade-surface/70 p-0.5">
+                <button
+                  onClick={() => setViewMode("chart")}
+                  className={`h-7 w-7 flex items-center justify-center rounded-md transition-all duration-150 ${
+                    viewMode === "chart"
+                      ? "bg-[#f0b90b]/15 text-[#f0b90b]"
+                      : "text-trade-text/35 hover:text-trade-text/60"
+                  }`}
+                  aria-label="Chart view"
+                >
+                  <CandlestickChart className="h-[15px] w-[15px]" />
+                </button>
+                <button
+                  onClick={() => { setViewMode("pairs"); setPairsSearch(""); }}
+                  className={`h-7 w-7 flex items-center justify-center rounded-md transition-all duration-150 ${
+                    viewMode === "pairs"
+                      ? "bg-[#f0b90b]/15 text-[#f0b90b]"
+                      : "text-trade-text/35 hover:text-trade-text/60"
+                  }`}
+                  aria-label="Pairs list"
+                >
+                  <LayoutList className="h-[15px] w-[15px]" />
+                </button>
+              </div>
             </div>
 
             {/* Row 2: price + stats */}
@@ -472,208 +515,337 @@ export function ChartOverlay({
             </div>
           </div>
 
-          {/* Chart tab bar — "Chart" has filled pill style */}
-          <div className="flex items-center gap-1 px-3 pt-2.5 pb-0 overflow-x-auto bg-trade-surface/30">
-            {chartTabs.map(t => (
-              <button
-                key={t}
-                onClick={() => setChartTab(t)}
-                className={`flex-shrink-0 text-[13px] font-medium pb-2.5 px-2 transition-colors border-b-2 ${
-                  chartTab === t
-                    ? "text-trade-text border-trade-text"
-                    : "text-trade-text-muted border-transparent"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          {/* Timeframe row — only visible on Chart tab */}
-          {chartTab === "Chart" && <div className="flex items-center justify-between px-3 py-2 bg-trade-surface/30">
-            <div className="flex items-center gap-4">
-              {timeframes.map(tf => (
+          {/* ── CHART VIEW ── */}
+          {viewMode === "chart" && <>
+            {/* Chart tab bar */}
+            <div className="flex items-center gap-1 px-3 pt-2.5 pb-0 overflow-x-auto bg-trade-surface/30">
+              {chartTabs.map(t => (
                 <button
-                  key={tf}
-                  onClick={() => setTimeframe(tf)}
-                  className={`text-[13px] font-medium transition-colors ${
-                    timeframe === tf ? "text-trade-text" : "text-trade-text-muted"
+                  key={t}
+                  onClick={() => setChartTab(t)}
+                  className={`flex-shrink-0 text-[13px] font-medium pb-2.5 px-2 transition-colors border-b-2 ${
+                    chartTab === t
+                      ? "text-trade-text border-trade-text"
+                      : "text-trade-text-muted border-transparent"
                   }`}
                 >
-                  {tf}
+                  {t}
                 </button>
               ))}
-              <button className="text-trade-text-muted">
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-              <div className="w-px h-4 bg-trade-text/10 mx-1" />
-              {/* Layout icon */}
-              <button className="text-trade-text-muted">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
-                  <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
-                  <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
-                  <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
-                </svg>
-              </button>
-              {/* Candle icon */}
-              <button className="text-trade-text-muted">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <rect x="3" y="5" width="3" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
-                  <line x1="4.5" y1="2" x2="4.5" y2="5" stroke="currentColor" strokeWidth="1.3" />
-                  <line x1="4.5" y1="11" x2="4.5" y2="14" stroke="currentColor" strokeWidth="1.3" />
-                  <rect x="10" y="4" width="3" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
-                  <line x1="11.5" y1="1" x2="11.5" y2="4" stroke="currentColor" strokeWidth="1.3" />
-                  <line x1="11.5" y1="10" x2="11.5" y2="13" stroke="currentColor" strokeWidth="1.3" />
-                </svg>
-              </button>
             </div>
-          </div>}
 
-          {/* Chart area */}
-          {chartTab === "Chart" && (
-            <div className="relative bg-trade-surface/30" style={{ height: 310 }}>
-              <CandleChart candles={ALL_CANDLES.slice(-60)} currentPrice={currentPrice} />
-              <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-1.5 text-[10px] bg-trade-surface/30">
-                <span className="font-mono text-trade-text-muted">
-                  {new Date().toLocaleTimeString("en-GB", {
-                    hour: "2-digit", minute: "2-digit", second: "2-digit",
-                  })}{" "}UTC+1
-                </span>
-                <div className="flex items-center gap-3 text-trade-text-muted">
-                  <span>%</span>
-                  <span>log</span>
-                  <span className="text-trade-text font-medium">auto</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Order Book */}
-          {chartTab === "Order Book" && (
-            <div className="px-3 pb-4">
-              {/* Sub-header */}
-              <div className="flex items-center justify-between py-2">
-                <button className="flex flex-col gap-[3px]" aria-label="Book view">
-                  <div className="flex gap-[3px]">
-                    <div className="h-[4px] w-[4px] rounded-[1px] bg-[#00c076]" />
-                    <div className="h-[4px] w-[4px] rounded-[1px] bg-[#f04f5a]" />
-                  </div>
-                  <div className="flex gap-[3px]">
-                    <div className="h-[4px] w-[4px] rounded-[1px] bg-[#00c076]" />
-                    <div className="h-[4px] w-[4px] rounded-[1px] bg-[#f04f5a]" />
-                  </div>
-                </button>
-                <div className="flex items-center gap-1.5 text-[12px] text-trade-text/70">
+            {/* Timeframe row — only visible on Chart tab */}
+            {chartTab === "Chart" && <div className="flex items-center justify-between px-3 py-2 bg-trade-surface/30">
+              <div className="flex items-center gap-4">
+                {timeframes.map(tf => (
                   <button
-                    onClick={() => setTickSheetOpen(true)}
-                    className="flex items-center gap-1 active:opacity-60 transition-opacity"
+                    key={tf}
+                    onClick={() => setTimeframe(tf)}
+                    className={`text-[13px] font-medium transition-colors ${
+                      timeframe === tf ? "text-trade-text" : "text-trade-text-muted"
+                    }`}
                   >
-                    {tickSize} <span className="text-[8px] leading-none">▼</span>
+                    {tf}
                   </button>
-                  <span className="text-trade-text-muted ml-1">USDT</span>
-                  <span className="text-[8px] leading-none">▼</span>
+                ))}
+                <button className="text-trade-text-muted">
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                <div className="w-px h-4 bg-trade-text/10 mx-1" />
+                <button className="text-trade-text-muted">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
+                    <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
+                    <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
+                    <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
+                  </svg>
+                </button>
+                <button className="text-trade-text-muted">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <rect x="3" y="5" width="3" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
+                    <line x1="4.5" y1="2" x2="4.5" y2="5" stroke="currentColor" strokeWidth="1.3" />
+                    <line x1="4.5" y1="11" x2="4.5" y2="14" stroke="currentColor" strokeWidth="1.3" />
+                    <rect x="10" y="4" width="3" height="6" rx="0.5" stroke="currentColor" strokeWidth="1.3" />
+                    <line x1="11.5" y1="1" x2="11.5" y2="4" stroke="currentColor" strokeWidth="1.3" />
+                    <line x1="11.5" y1="10" x2="11.5" y2="13" stroke="currentColor" strokeWidth="1.3" />
+                  </svg>
+                </button>
+              </div>
+            </div>}
+
+            {/* Chart area */}
+            {chartTab === "Chart" && (
+              <div className="relative bg-trade-surface/30" style={{ height: 310 }}>
+                <CandleChart candles={ALL_CANDLES.slice(-60)} currentPrice={currentPrice} />
+                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-1.5 text-[10px] bg-trade-surface/30">
+                  <span className="font-mono text-trade-text-muted">
+                    {new Date().toLocaleTimeString("en-GB", {
+                      hour: "2-digit", minute: "2-digit", second: "2-digit",
+                    })}{" "}UTC+1
+                  </span>
+                  <div className="flex items-center gap-3 text-trade-text-muted">
+                    <span>%</span>
+                    <span>log</span>
+                    <span className="text-trade-text font-medium">auto</span>
+                  </div>
                 </div>
               </div>
-              {/* Column headers */}
-              <div className="grid grid-cols-4 text-[11px] text-trade-text-muted pb-1.5 border-b border-trade-text/8">
-                <span className="text-left">Total (USDT)</span>
-                <span className="text-right">Price (USDT)</span>
-                <span className="text-left pl-3">Price (USDT)</span>
-                <span className="text-right">Total (USDT)</span>
-              </div>
-              {/* Rows */}
-              <div className="mt-[3px] space-y-[3px]">
-                {obBids.map((bid, i) => {
-                  const ask = obAsks[i];
-                  return (
-                    <div key={i} className="grid grid-cols-4 text-[12px] leading-[19px]">
-                      <span className="text-trade-text/65 text-left">{bid.total}</span>
-                      <span className="text-[#00c076] text-right">{bid.price}</span>
-                      <span className="text-[#f04f5a] text-left pl-3">{ask.price}</span>
-                      <span className="text-trade-text/65 text-right">{ask.total}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Trades */}
-          {chartTab === "Trades" && (
-            <div className="px-3 pb-4">
-              {/* Column headers */}
-              <div className="grid grid-cols-3 text-[11px] text-trade-text-muted py-2 border-b border-trade-text/8">
-                <span className="text-left">Price(USDT)</span>
-                <span className="text-center">Size(USDT)</span>
-                <span className="text-right">Time</span>
-              </div>
-              {/* Rows */}
-              <div className="mt-[3px] space-y-[3px]">
-                {tradesData.map((tr, i) => (
-                  <div key={i} className="grid grid-cols-3 text-[12px] leading-[20px]">
-                    <span className={tr.side === "buy" ? "text-[#00c076]" : "text-[#f04f5a]"}>
-                      {tr.price}
-                    </span>
-                    <span className="text-center text-trade-text/80">{tr.size}</span>
-                    <span className="text-right text-trade-text-muted">{tr.time}</span>
+            {/* Order Book */}
+            {chartTab === "Order Book" && (
+              <div className="px-3 pb-4">
+                <div className="flex items-center justify-between py-2">
+                  <button className="flex flex-col gap-[3px]" aria-label="Book view">
+                    <div className="flex gap-[3px]">
+                      <div className="h-[4px] w-[4px] rounded-[1px] bg-[#00c076]" />
+                      <div className="h-[4px] w-[4px] rounded-[1px] bg-[#f04f5a]" />
+                    </div>
+                    <div className="flex gap-[3px]">
+                      <div className="h-[4px] w-[4px] rounded-[1px] bg-[#00c076]" />
+                      <div className="h-[4px] w-[4px] rounded-[1px] bg-[#f04f5a]" />
+                    </div>
+                  </button>
+                  <div className="flex items-center gap-1.5 text-[12px] text-trade-text/70">
+                    <button onClick={() => setTickSheetOpen(true)} className="flex items-center gap-1 active:opacity-60 transition-opacity">
+                      {tickSize} <span className="text-[8px] leading-none">▼</span>
+                    </button>
+                    <span className="text-trade-text-muted ml-1">USDT</span>
+                    <span className="text-[8px] leading-none">▼</span>
                   </div>
+                </div>
+                <div className="grid grid-cols-4 text-[11px] text-trade-text-muted pb-1.5 border-b border-trade-text/8">
+                  <span className="text-left">Total (USDT)</span>
+                  <span className="text-right">Price (USDT)</span>
+                  <span className="text-left pl-3">Price (USDT)</span>
+                  <span className="text-right">Total (USDT)</span>
+                </div>
+                <div className="mt-[3px] space-y-[3px]">
+                  {obBids.map((bid, i) => {
+                    const ask = obAsks[i];
+                    return (
+                      <div key={i} className="grid grid-cols-4 text-[12px] leading-[19px]">
+                        <span className="text-trade-text/65 text-left">{bid.total}</span>
+                        <span className="text-[#00c076] text-right">{bid.price}</span>
+                        <span className="text-[#f04f5a] text-left pl-3">{ask.price}</span>
+                        <span className="text-trade-text/65 text-right">{ask.total}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Trades */}
+            {chartTab === "Trades" && (
+              <div className="px-3 pb-4">
+                <div className="grid grid-cols-3 text-[11px] text-trade-text-muted py-2 border-b border-trade-text/8">
+                  <span className="text-left">Price(USDT)</span>
+                  <span className="text-center">Size(USDT)</span>
+                  <span className="text-right">Time</span>
+                </div>
+                <div className="mt-[3px] space-y-[3px]">
+                  {tradesData.map((tr, i) => (
+                    <div key={i} className="grid grid-cols-3 text-[12px] leading-[20px]">
+                      <span className={tr.side === "buy" ? "text-[#00c076]" : "text-[#f04f5a]"}>{tr.price}</span>
+                      <span className="text-center text-trade-text/80">{tr.size}</span>
+                      <span className="text-right text-trade-text-muted">{tr.time}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Depth */}
+            {chartTab === "Depth" && (
+              <div className="pb-2 pt-1">
+                <ResponsiveContainer width="100%" height={310}>
+                  <AreaChart data={depthData} margin={{ top: 8, right: 48, bottom: 4, left: 0 }}>
+                    <defs>
+                      <linearGradient id="mktBidFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#00c076" stopOpacity={0.45} />
+                        <stop offset="100%" stopColor="#00c076" stopOpacity={0.06} />
+                      </linearGradient>
+                      <linearGradient id="mktAskFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f04f5a" stopOpacity={0.45} />
+                        <stop offset="100%" stopColor="#f04f5a" stopOpacity={0.06} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="price" type="number" domain={[63271, 66392]}
+                      ticks={[63271, 64831, 66392]}
+                      tickFormatter={(v: number) => v === 63271 ? "63,270.8" : v === 64831 ? "64,831.5" : "66,392.3"}
+                      tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} axisLine={false} tickLine={false} scale="linear" />
+                    <YAxis orientation="right" tickFormatter={(v: number) => `${Math.round(v / 1_000_000)}M`}
+                      ticks={[10_000_000, 20_000_000, 30_000_000, 40_000_000, 50_000_000]} domain={[0, 52_000_000]}
+                      tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }} axisLine={false} tickLine={false} width={38} />
+                    <Area type="stepBefore" dataKey="bid" stroke="#00c076" strokeWidth={1.5} fill="url(#mktBidFill)" connectNulls={false} isAnimationActive={false} />
+                    <Area type="stepAfter" dataKey="ask" stroke="#f04f5a" strokeWidth={1.5} fill="url(#mktAskFill)" connectNulls={false} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Details */}
+            {chartTab === "Details" && (
+              <div className="flex items-center justify-center py-14">
+                <span className="text-trade-text-muted text-[13px]">Coming soon</span>
+              </div>
+            )}
+          </>}
+
+          {/* ── PAIRS VIEW ── */}
+          {viewMode === "pairs" && (
+            <div>
+              {/* Search bar */}
+              <div className="px-3 pt-3 pb-2">
+                <div className="flex items-center gap-2 h-9 rounded-xl bg-trade-surface/60 border border-trade-text/8 px-3">
+                  <Search className="h-3.5 w-3.5 text-trade-text-muted flex-shrink-0" />
+                  <input
+                    value={pairsSearch}
+                    onChange={e => setPairsSearch(e.target.value)}
+                    placeholder="Search pairs…"
+                    className="flex-1 bg-transparent outline-none text-[13px] text-trade-text placeholder:text-trade-text-muted/60"
+                  />
+                  {pairsSearch && (
+                    <button onClick={() => setPairsSearch("")} className="flex-shrink-0 active:opacity-60">
+                      <X className="h-3.5 w-3.5 text-trade-text-muted" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Gainers & Losers — only shown when not searching */}
+              {!pairsSearch && (
+                <>
+                  {/* Top Gainers */}
+                  <div className="px-3 pt-1 pb-2">
+                    <div className="flex items-center gap-1.5 mb-2.5">
+                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(0,192,118,0.15)" }}>
+                        <TrendingUp className="h-3 w-3 text-[#00c076]" />
+                      </div>
+                      <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#00c076" }}>Top Gainers</span>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                      {gainers.map(pair => (
+                        <button
+                          key={pair.symbol}
+                          onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
+                          className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
+                          style={{
+                            background: "rgba(0,192,118,0.07)",
+                            border: "1px solid rgba(0,192,118,0.18)",
+                            minWidth: 104,
+                          }}
+                        >
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <div
+                              className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0"
+                              style={{ backgroundColor: pair.color }}
+                            >
+                              {pair.base.charAt(0)}
+                            </div>
+                            <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
+                          </div>
+                          <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
+                          <div className="text-[13px] font-bold tabular-nums" style={{ color: "#00c076" }}>{pair.change}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Top Losers */}
+                  <div className="px-3 pb-3">
+                    <div className="flex items-center gap-1.5 mb-2.5">
+                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,79,90,0.15)" }}>
+                        <TrendingDown className="h-3 w-3 text-[#f04f5a]" />
+                      </div>
+                      <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "#f04f5a" }}>Top Losers</span>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                      {losers.map(pair => (
+                        <button
+                          key={pair.symbol}
+                          onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
+                          className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
+                          style={{
+                            background: "rgba(240,79,90,0.07)",
+                            border: "1px solid rgba(240,79,90,0.18)",
+                            minWidth: 104,
+                          }}
+                        >
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <div
+                              className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0"
+                              style={{ backgroundColor: pair.color }}
+                            >
+                              {pair.base.charAt(0)}
+                            </div>
+                            <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
+                          </div>
+                          <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
+                          <div className="text-[13px] font-bold tabular-nums" style={{ color: "#f04f5a" }}>{pair.change}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="mx-3 mb-1" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+                </>
+              )}
+
+              {/* All pairs list */}
+              <div className="pb-3">
+                {/* Column header */}
+                <div className="grid grid-cols-[1fr_auto_auto] gap-3 px-4 pt-2 pb-1.5 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold">
+                  <span>Pair</span>
+                  <span className="text-right">Price</span>
+                  <span className="text-right w-14">24h</span>
+                </div>
+                {filteredPairs.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 gap-2">
+                    <Search className="h-7 w-7 text-trade-text/20" />
+                    <span className="text-[13px] text-trade-text-muted">No pairs found</span>
+                  </div>
+                ) : filteredPairs.map((pair, i) => (
+                  <button
+                    key={pair.symbol}
+                    onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
+                    className={`w-full grid grid-cols-[1fr_auto_auto] gap-3 items-center px-4 py-3 text-left active:bg-trade-text/5 transition-colors ${
+                      activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
+                    } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
+                  >
+                    {/* Pair info */}
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div
+                        className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm"
+                        style={{ backgroundColor: pair.color }}
+                      >
+                        {pair.base.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[13px] font-semibold text-trade-text leading-tight">{pair.base}</span>
+                          <span className="text-[9px] px-1 py-px rounded font-bold text-trade-text-muted/70" style={{ background: "rgba(255,255,255,0.07)" }}>{pair.lev}</span>
+                          {activePair.symbol === pair.symbol && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#f0b90b]" />
+                          )}
+                        </div>
+                        <span className="text-[10px] text-trade-text-muted/60">Vol {pair.vol}</span>
+                      </div>
+                    </div>
+                    {/* Price */}
+                    <span className="text-[13px] font-medium text-trade-text tabular-nums text-right">{pair.price}</span>
+                    {/* Change */}
+                    <span
+                      className="text-[12px] font-bold tabular-nums text-right w-14"
+                      style={{ color: pair.up ? "#00c076" : "#f04f5a" }}
+                    >
+                      {pair.change}
+                    </span>
+                  </button>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Depth */}
-          {chartTab === "Depth" && (
-            <div className="pb-2 pt-1">
-              <ResponsiveContainer width="100%" height={310}>
-                <AreaChart data={depthData} margin={{ top: 8, right: 48, bottom: 4, left: 0 }}>
-                  <defs>
-                    <linearGradient id="mktBidFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#00c076" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#00c076" stopOpacity={0.06} />
-                    </linearGradient>
-                    <linearGradient id="mktAskFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f04f5a" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#f04f5a" stopOpacity={0.06} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="price"
-                    type="number"
-                    domain={[63271, 66392]}
-                    ticks={[63271, 64831, 66392]}
-                    tickFormatter={(v: number) =>
-                      v === 63271 ? "63,270.8" : v === 64831 ? "64,831.5" : "66,392.3"
-                    }
-                    tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                    scale="linear"
-                  />
-                  <YAxis
-                    orientation="right"
-                    tickFormatter={(v: number) => `${Math.round(v / 1_000_000)}M`}
-                    ticks={[10_000_000, 20_000_000, 30_000_000, 40_000_000, 50_000_000]}
-                    domain={[0, 52_000_000]}
-                    tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={38}
-                  />
-                  <Area type="stepBefore" dataKey="bid" stroke="#00c076" strokeWidth={1.5}
-                    fill="url(#mktBidFill)" connectNulls={false} isAnimationActive={false} />
-                  <Area type="stepAfter" dataKey="ask" stroke="#f04f5a" strokeWidth={1.5}
-                    fill="url(#mktAskFill)" connectNulls={false} isAnimationActive={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {/* Details placeholder */}
-          {chartTab === "Details" && (
-            <div className="flex items-center justify-center py-14">
-              <span className="text-trade-text-muted text-[13px]">Coming soon</span>
             </div>
           )}
         </div>
