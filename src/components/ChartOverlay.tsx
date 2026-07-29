@@ -377,7 +377,7 @@ function PairsView({
 
   return (
     <div
-      className="overflow-y-auto flex flex-col"
+      className="overflow-y-auto"
       style={{ maxHeight: "calc(100vh - 190px)", scrollbarWidth: "none" }}
     >
       {/* Search bar */}
@@ -507,10 +507,15 @@ function PairsView({
                 activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
               } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
             >
-              {/* Pair cell */}
+              {/* Pair cell — sticky left so it stays visible on horizontal scroll */}
               <div
-                className="flex-shrink-0 flex items-center gap-2.5 px-4 py-3"
-                style={{ minWidth: COL.pair }}
+                className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-2.5 px-4 py-3"
+                style={{
+                  minWidth: COL.pair,
+                  background: activePair.symbol === pair.symbol
+                    ? "color-mix(in srgb, var(--trade-card, #141418) 90%, white 10%)"
+                    : "var(--trade-card, #141418)",
+                }}
               >
                 <div className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm" style={{ backgroundColor: pair.color }}>
                   {pair.base.charAt(0)}
