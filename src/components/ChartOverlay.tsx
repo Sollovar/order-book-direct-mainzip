@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   AreaChart,
@@ -335,6 +335,208 @@ function CandleChart({ candles, currentPrice }: { candles: Candle[]; currentPric
           background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
           display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }}>TV</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─── PairsView ──────────────────────────────────────
+   Column headers live OUTSIDE the overflow-x-auto rows
+   container so sticky top-0 isn't blocked by an overflow
+   ancestor. Horizontal scroll is synced via refs.
+─────────────────────────────────────────────────────── */
+function PairsView({
+  pairsSearch,
+  setPairsSearch,
+  filteredPairs,
+  gainers,
+  losers,
+  activePair,
+  onSelectPair,
+}: {
+  pairsSearch: string;
+  setPairsSearch: (s: string) => void;
+  filteredPairs: Pair[];
+  gainers: Pair[];
+  losers: Pair[];
+  activePair: Pair;
+  onSelectPair: (pair: Pair) => void;
+}) {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const rowsRef = useRef<HTMLDivElement>(null);
+
+  // Sync header horizontal scroll when rows are scrolled
+  const onRowsScroll = useCallback(() => {
+    if (headerRef.current && rowsRef.current) {
+      headerRef.current.scrollLeft = rowsRef.current.scrollLeft;
+    }
+  }, []);
+
+  const COL = { pair: 160, price: 96, change: 76, liquidity: 88, mktCap: 92 };
+  const MIN_W = COL.pair + COL.price + COL.change + COL.liquidity + COL.mktCap + 16; // +16 for pr-4
+
+  return (
+    <div
+      className="overflow-y-auto flex flex-col"
+      style={{ maxHeight: "calc(100vh - 190px)", scrollbarWidth: "none" }}
+    >
+      {/* Search bar */}
+      <div className="px-3 pt-3 pb-2 flex-shrink-0">
+        <div className="flex items-center gap-2 h-9 rounded-xl bg-trade-surface/60 border border-trade-text/8 px-3">
+          <Search className="h-3.5 w-3.5 text-trade-text-muted flex-shrink-0" />
+          <input
+            value={pairsSearch}
+            onChange={e => setPairsSearch(e.target.value)}
+            placeholder="Search pairs…"
+            className="flex-1 bg-transparent outline-none text-trade-text placeholder:text-trade-text-muted/60"
+            style={{ fontSize: 16 }}
+          />
+          {pairsSearch && (
+            <button onClick={() => setPairsSearch("")} className="flex-shrink-0 active:opacity-60">
+              <X className="h-3.5 w-3.5 text-trade-text-muted" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Gainers & Losers — only shown when not searching */}
+      {!pairsSearch && (
+        <div className="flex-shrink-0">
+          {/* Top Gainers */}
+          <div className="px-3 pt-1 pb-2">
+            <div className="flex items-center gap-1.5 mb-2.5">
+              <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
+                <TrendingUp className="h-3 w-3 text-[#f0b90b]" />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Gainers</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+              {gainers.map(pair => (
+                <button
+                  key={pair.symbol}
+                  onClick={() => onSelectPair(pair)}
+                  className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 104 }}
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0" style={{ backgroundColor: pair.color }}>
+                      {pair.base.charAt(0)}
+                    </div>
+                    <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
+                  </div>
+                  <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
+                  <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Losers */}
+          <div className="px-3 pb-3">
+            <div className="flex items-center gap-1.5 mb-2.5">
+              <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
+                <TrendingDown className="h-3 w-3 text-[#f0b90b]" />
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Losers</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+              {losers.map(pair => (
+                <button
+                  key={pair.symbol}
+                  onClick={() => onSelectPair(pair)}
+                  className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 104 }}
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0" style={{ backgroundColor: pair.color }}>
+                      {pair.base.charAt(0)}
+                    </div>
+                    <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
+                  </div>
+                  <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
+                  <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mx-3 mb-1" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+        </div>
+      )}
+
+      {/* ── STICKY COLUMN HEADERS ──
+          Outside the rows overflow-x-auto so sticky top-0 works.
+          Scrolls horizontally in sync with the rows via JS ref.     */}
+      <div
+        ref={headerRef}
+        className="sticky top-0 z-20 overflow-x-hidden flex-shrink-0 bg-trade-card border-b border-trade-text/8"
+        style={{ scrollbarWidth: "none" }}
+      >
+        <div className="flex items-center" style={{ minWidth: MIN_W }}>
+          <div
+            className="flex-shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold"
+            style={{ minWidth: COL.pair }}
+          >
+            Pair
+          </div>
+          <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: COL.price }}>Price</span>
+          <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: COL.change }}>24h</span>
+          <span className="text-right text-[10px] uppercase tracking-wider text-[#f0b90b]/70 font-semibold" style={{ minWidth: COL.liquidity }}>Liquidity</span>
+          <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold pr-4" style={{ minWidth: COL.mktCap }}>Mkt Cap</span>
+        </div>
+      </div>
+
+      {/* ── SCROLLABLE ROWS ── */}
+      <div
+        ref={rowsRef}
+        className="overflow-x-auto pb-3"
+        style={{ scrollbarWidth: "none" }}
+        onScroll={onRowsScroll}
+      >
+        <div style={{ minWidth: MIN_W }}>
+          {filteredPairs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-2">
+              <Search className="h-7 w-7 text-trade-text/20" />
+              <span className="text-[13px] text-trade-text-muted">No pairs found</span>
+            </div>
+          ) : filteredPairs.map((pair, i) => (
+            <button
+              key={pair.symbol}
+              onClick={() => onSelectPair(pair)}
+              className={`w-full flex items-center active:bg-trade-text/5 transition-colors text-left ${
+                activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
+              } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
+            >
+              {/* Pair cell */}
+              <div
+                className="flex-shrink-0 flex items-center gap-2.5 px-4 py-3"
+                style={{ minWidth: COL.pair }}
+              >
+                <div className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm" style={{ backgroundColor: pair.color }}>
+                  {pair.base.charAt(0)}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[13px] font-semibold text-trade-text leading-tight">{pair.base}</span>
+                    <span className="text-[9px] px-1 py-px rounded font-bold text-trade-text-muted/70" style={{ background: "rgba(255,255,255,0.07)" }}>{pair.lev}</span>
+                    {activePair.symbol === pair.symbol && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#f0b90b] flex-shrink-0" />
+                    )}
+                  </div>
+                  <span className="text-[10px] text-trade-text-muted/60 truncate block">{pair.symbol}</span>
+                </div>
+              </div>
+              {/* Price */}
+              <span className="text-[12px] font-medium text-trade-text tabular-nums text-right" style={{ minWidth: COL.price }}>{pair.price}</span>
+              {/* 24h change */}
+              <span className="text-[12px] font-bold tabular-nums text-right" style={{ minWidth: COL.change, color: pair.up ? "#00c076" : "#f04f5a" }}>{pair.change}</span>
+              {/* Liquidity */}
+              <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right" style={{ minWidth: COL.liquidity }}>{pair.liquidity}</span>
+              {/* Market Cap */}
+              <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right pr-4" style={{ minWidth: COL.mktCap }}>{pair.marketCap}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -701,204 +903,17 @@ export function ChartOverlay({
 
           {/* ── PAIRS VIEW ── */}
           {viewMode === "pairs" && (
-            <div
-              className="overflow-y-auto"
-              style={{ maxHeight: "calc(100vh - 190px)", scrollbarWidth: "none" }}
-            >
-              {/* Search bar */}
-              <div className="px-3 pt-3 pb-2">
-                <div className="flex items-center gap-2 h-9 rounded-xl bg-trade-surface/60 border border-trade-text/8 px-3">
-                  <Search className="h-3.5 w-3.5 text-trade-text-muted flex-shrink-0" />
-                  <input
-                    value={pairsSearch}
-                    onChange={e => setPairsSearch(e.target.value)}
-                    placeholder="Search pairs…"
-                    className="flex-1 bg-transparent outline-none text-trade-text placeholder:text-trade-text-muted/60"
-                    style={{ fontSize: 16 }}
-                  />
-                  {pairsSearch && (
-                    <button onClick={() => setPairsSearch("")} className="flex-shrink-0 active:opacity-60">
-                      <X className="h-3.5 w-3.5 text-trade-text-muted" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Gainers & Losers — only shown when not searching */}
-              {!pairsSearch && (
-                <>
-                  {/* Top Gainers */}
-                  <div className="px-3 pt-1 pb-2">
-                    <div className="flex items-center gap-1.5 mb-2.5">
-                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
-                        <TrendingUp className="h-3 w-3 text-[#f0b90b]" />
-                      </div>
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Gainers</span>
-                    </div>
-                    <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                      {gainers.map(pair => (
-                        <button
-                          key={pair.symbol}
-                          onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
-                          className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
-                          style={{
-                            background: "rgba(255,255,255,0.04)",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                            minWidth: 104,
-                          }}
-                        >
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <div
-                              className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0"
-                              style={{ backgroundColor: pair.color }}
-                            >
-                              {pair.base.charAt(0)}
-                            </div>
-                            <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
-                          </div>
-                          <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                          <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Top Losers */}
-                  <div className="px-3 pb-3">
-                    <div className="flex items-center gap-1.5 mb-2.5">
-                      <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
-                        <TrendingDown className="h-3 w-3 text-[#f0b90b]" />
-                      </div>
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Losers</span>
-                    </div>
-                    <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                      {losers.map(pair => (
-                        <button
-                          key={pair.symbol}
-                          onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
-                          className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
-                          style={{
-                            background: "rgba(255,255,255,0.04)",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                            minWidth: 104,
-                          }}
-                        >
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <div
-                              className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0"
-                              style={{ backgroundColor: pair.color }}
-                            >
-                              {pair.base.charAt(0)}
-                            </div>
-                            <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
-                          </div>
-                          <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                          <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="mx-3 mb-1" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
-                </>
-              )}
-
-              {/* All pairs list — horizontal scroll, sticky Pair column */}
-              <div className="overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
-                <div style={{ minWidth: 560 }}>
-
-                  {/* Column headers — sticky vertically */}
-                  <div className="sticky top-0 z-20 flex items-center bg-trade-card border-b border-trade-text/8">
-                    {/* Pair — sticky left AND top (corner lock) */}
-                    <div
-                      className="sticky left-0 z-30 bg-trade-card flex-shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold"
-                      style={{ minWidth: 160 }}
-                    >
-                      Pair
-                    </div>
-                    {/* Scrollable column headers */}
-                    <div className="flex items-center flex-1">
-                      <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: 96 }}>Price</span>
-                      <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: 76 }}>24h</span>
-                      <span className="text-right text-[10px] uppercase tracking-wider text-[#f0b90b]/70 font-semibold" style={{ minWidth: 88 }}>Liquidity</span>
-                      <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold pr-4" style={{ minWidth: 92 }}>Mkt Cap</span>
-                    </div>
-                  </div>
-
-                  {/* Rows */}
-                  {filteredPairs.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 gap-2">
-                      <Search className="h-7 w-7 text-trade-text/20" />
-                      <span className="text-[13px] text-trade-text-muted">No pairs found</span>
-                    </div>
-                  ) : filteredPairs.map((pair, i) => (
-                    <div
-                      key={pair.symbol}
-                      className={`flex items-center active:bg-trade-text/5 transition-colors ${
-                        activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
-                      } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
-                    >
-                      {/* Pair cell — sticky left */}
-                      <button
-                        onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
-                        className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-2.5 px-4 py-3 text-left"
-                        style={{
-                          minWidth: 160,
-                          background: activePair.symbol === pair.symbol
-                            ? "color-mix(in srgb, var(--trade-card) 90%, white 10%)"
-                            : "var(--trade-card, #141418)",
-                        }}
-                      >
-                        <div
-                          className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm"
-                          style={{ backgroundColor: pair.color }}
-                        >
-                          {pair.base.charAt(0)}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[13px] font-semibold text-trade-text leading-tight">{pair.base}</span>
-                            <span className="text-[9px] px-1 py-px rounded font-bold text-trade-text-muted/70" style={{ background: "rgba(255,255,255,0.07)" }}>{pair.lev}</span>
-                            {activePair.symbol === pair.symbol && (
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#f0b90b] flex-shrink-0" />
-                            )}
-                          </div>
-                          <span className="text-[10px] text-trade-text-muted/60 truncate block">{pair.symbol}</span>
-                        </div>
-                      </button>
-
-                      {/* Scrollable data cells */}
-                      <button
-                        onClick={() => { onSelectPair?.(pair); setViewMode("chart"); }}
-                        className="flex items-center flex-1 py-3"
-                      >
-                        {/* Price */}
-                        <span className="text-[12px] font-medium text-trade-text tabular-nums text-right" style={{ minWidth: 96 }}>
-                          {pair.price}
-                        </span>
-                        {/* 24h change */}
-                        <span
-                          className="text-[12px] font-bold tabular-nums text-right"
-                          style={{ minWidth: 76, color: pair.up ? "#00c076" : "#f04f5a" }}
-                        >
-                          {pair.change}
-                        </span>
-                        {/* Liquidity */}
-                        <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right" style={{ minWidth: 88 }}>
-                          {pair.liquidity}
-                        </span>
-                        {/* Market Cap */}
-                        <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right pr-4" style={{ minWidth: 92 }}>
-                          {pair.marketCap}
-                        </span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <PairsView
+              pairsSearch={pairsSearch}
+              setPairsSearch={setPairsSearch}
+              filteredPairs={filteredPairs}
+              gainers={gainers}
+              losers={losers}
+              activePair={activePair}
+              onSelectPair={(pair) => { onSelectPair?.(pair); setViewMode("chart"); }}
+            />
           )}
+
         </div>
 
         {/* ── OPEN ORDERS — only shown in chart view ── */}
