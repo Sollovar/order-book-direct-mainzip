@@ -474,34 +474,34 @@ export function PairSelectorPanel({
           ))}
         </div>
 
+        {/* Hold-to-alert hint — sticky, outside the scroll container */}
+        <div className="flex items-center gap-1.5 px-4 py-2 bg-trade-surface/50 flex-shrink-0">
+          <Bell className="h-3 w-3 text-trade-text/30 flex-shrink-0" />
+          <span className="text-[11px] text-trade-text/30">
+            Hold a pair for 2 seconds to set a price alert
+          </span>
+        </div>
+
+        {/* Column headers — sticky, outside the scroll container */}
+        <div className="flex items-end bg-trade-card flex-shrink-0">
+          <div className="flex-1 min-w-0 px-4 pb-2 pt-1">
+            <span className="text-[11px] text-trade-text-muted">Symbol</span>
+          </div>
+          <div className="w-[100px] flex-shrink-0 pr-3 pb-2 pt-1 text-right">
+            <span className="text-[11px] text-trade-text-muted">Volume</span>
+            <br />
+            <span className="text-[11px] text-trade-text-muted">Open interest</span>
+          </div>
+          <div className="w-[90px] flex-shrink-0 pr-4 pb-2 pt-1 text-right">
+            <span className="text-[11px] text-trade-text-muted">Price</span>
+            <br />
+            <span className="text-[11px] text-trade-text-muted">24h change</span>
+          </div>
+        </div>
+
         {/* Pairs list — vertically scrollable only, no horizontal overflow */}
         <div className="flex-1 overflow-y-auto no-scrollbar">
           <div>
-
-            {/* Hold-to-alert hint */}
-            <div className="flex items-center gap-1.5 px-4 py-2 bg-trade-surface/50">
-              <Bell className="h-3 w-3 text-trade-text/30 flex-shrink-0" />
-              <span className="text-[11px] text-trade-text/30">
-                Hold a pair for 2 seconds to set a price alert
-              </span>
-            </div>
-
-            {/* Column headers */}
-            <div className="flex items-end bg-trade-card">
-              <div className="flex-1 min-w-0 px-4 pb-2 pt-1">
-                <span className="text-[11px] text-trade-text-muted">Symbol</span>
-              </div>
-              <div className="w-[100px] flex-shrink-0 pr-3 pb-2 pt-1 text-right">
-                <span className="text-[11px] text-trade-text-muted">Volume</span>
-                <br />
-                <span className="text-[11px] text-trade-text-muted">Open interest</span>
-              </div>
-              <div className="w-[90px] flex-shrink-0 pr-4 pb-2 pt-1 text-right">
-                <span className="text-[11px] text-trade-text-muted">Price</span>
-                <br />
-                <span className="text-[11px] text-trade-text-muted">24h change</span>
-              </div>
-            </div>
 
             {/* Rows */}
             {applyFilter(
