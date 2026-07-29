@@ -443,7 +443,7 @@ export function ChartOverlay({
       <div className="flex-1 px-1 flex flex-col gap-1">
 
         {/* ── CHART CARD — tiny side gap, slight rounding ── */}
-        <div className="rounded-3xl bg-trade-card shadow-2xl overflow-hidden">
+        <div className={`rounded-3xl bg-trade-card shadow-2xl ${viewMode === "chart" ? "overflow-hidden" : "overflow-visible"}`}>
 
           {/* Pair header */}
           <div className="px-3 pt-3 pb-2.5 bg-trade-surface/30">
@@ -701,7 +701,10 @@ export function ChartOverlay({
 
           {/* ── PAIRS VIEW ── */}
           {viewMode === "pairs" && (
-            <div>
+            <div
+              className="overflow-y-auto"
+              style={{ maxHeight: "calc(100vh - 190px)", scrollbarWidth: "none" }}
+            >
               {/* Search bar */}
               <div className="px-3 pt-3 pb-2">
                 <div className="flex items-center gap-2 h-9 rounded-xl bg-trade-surface/60 border border-trade-text/8 px-3">
