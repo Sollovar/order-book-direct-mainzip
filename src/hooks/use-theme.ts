@@ -32,17 +32,15 @@ function applyTheme(theme: "light" | "dark") {
 }
 
 export function useTheme() {
-  // SSR-safe default — replaced immediately on client mount below.
-  // We do NOT apply "dark" to the DOM here; the mount effect handles that.
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  // On the client (including client-side navigation), read localStorage
+  // immediately so there is zero flicker. On the server, fall back to "dark"
+  // and let suppressHydrationWarning absorb the mismatch.
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
 
-  // On first client mount: read localStorage and sync the DOM once.
-  // This is the ONLY place we call applyTheme on mount — no second
-  // effect that would race against this and overwrite localStorage.
+  // Apply the correct DOM state once on mount (covers both first SSR hydration
+  // and client-side navigations where the DOM may still be from the prev page).
   useEffect(() => {
-    const real = getInitialTheme();
-    setTheme(real);
-    applyTheme(real);
+    applyTheme(theme);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

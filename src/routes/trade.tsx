@@ -36,6 +36,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { PAIRS } from "../lib/pairs";
+import { loadSelectedPair, saveSelectedPair } from "../lib/selected-pair";
 import {
   loadAlerts,
   saveAlerts,
@@ -121,7 +122,7 @@ function Index() {
   const [bookVisible, setBookVisible] = useState(true);
   const [bookFilter, setBookFilter] = useState<"both" | "bids" | "asks">("both");
   // Selected pair — defaults to BTC (index 0 in PAIRS)
-  const [selectedPair, setSelectedPair] = useState(() => PAIRS[0]);
+  const [selectedPair, setSelectedPair] = useState(loadSelectedPair);
 
   // ── Live price ticker for browser tab title ──────────────────────────────
   const titlePriceRef = useRef<number>(parseFloat(PAIRS[0].price.replace(/,/g, "")));
@@ -817,7 +818,7 @@ function Index() {
       <PairSelectorPanel
         open={pairsOpen}
         onClose={() => setPairsOpen(false)}
-        onSelect={(pair) => setSelectedPair(pair)}
+        onSelect={(pair) => { saveSelectedPair(pair); setSelectedPair(pair); }}
         alerts={alerts}
         onAddAlert={addAlert}
         onRemoveAlert={removeAlert}
@@ -922,7 +923,7 @@ function Index() {
         onOpenChart={() => setChartOpen(true)}
         onOpenMenu={() => setMenuOpen(true)}
         selectedPair={selectedPair}
-        onSelectPair={(pair) => setSelectedPair(pair)}
+        onSelectPair={(pair) => { saveSelectedPair(pair); setSelectedPair(pair); }}
       />
 
       {/* Mobile Menu Bottom Sheet */}

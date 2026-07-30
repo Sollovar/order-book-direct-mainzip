@@ -6,6 +6,7 @@ import { NotificationsSheet, type Notification } from "../components/Notificatio
 import { SettingsSheet } from "../components/SettingsSheet";
 import { useTheme } from "../hooks/use-theme";
 import { PAIRS } from "../lib/pairs";
+import { loadSelectedPair, saveSelectedPair } from "../lib/selected-pair";
 import {
   X,
   Bell,
@@ -41,7 +42,7 @@ function MarketsRoute() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [selectedPair, setSelectedPair] = useState(() => PAIRS[0]);
+  const [selectedPair, setSelectedPair] = useState(loadSelectedPair);
 
   const countdown = 0;
 
@@ -57,7 +58,7 @@ function MarketsRoute() {
         onOpenChart={() => {}}
         onOpenMenu={() => setMenuOpen(true)}
         selectedPair={selectedPair}
-        onSelectPair={setSelectedPair}
+        onSelectPair={(pair) => { saveSelectedPair(pair); setSelectedPair(pair); }}
         onNavigateTo={(path) => navigate({ to: path as "/trade" | "/markets" })}
       />
 
