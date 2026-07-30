@@ -298,6 +298,14 @@ function Landing() {
                 </span>
               </Link>
             ))}
+            {/* More markets button */}
+            <Link
+              to="/markets"
+              className="flex items-center justify-center gap-2 w-full py-4 text-sm font-semibold transition-colors hover:bg-trade-surface"
+              style={{ color: "var(--trade-primary)" }}
+            >
+              View all markets <ChevronRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
