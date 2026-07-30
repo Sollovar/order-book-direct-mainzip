@@ -101,7 +101,9 @@ import {
   TrendingUp,
   TrendingDown,
   CandlestickChart,
+  Star,
 } from "lucide-react";
+import { loadFavorites, saveFavorites } from "../lib/alerts";
 import { PairSelectorPanel } from "./PairSelectorPanel";
 import { LadderHistoryPanel } from "./LadderOrderSheet";
 import { WalletButton, MobileWalletMenu } from "./WalletButton";
@@ -345,25 +347,33 @@ function CandleChart({ candles, currentPrice }: { candles: Candle[]; currentPric
    container so sticky top-0 isn't blocked by an overflow
    ancestor. Horizontal scroll is synced via refs.
 ─────────────────────────────────────────────────────── */
+const PAIR_FILTERS = ["All", "Favorites", "Gainers", "Losers", "Volume", "Trending"];
+
 function PairsView({
   pairsSearch,
   setPairsSearch,
-  filteredPairs,
-  gainers,
-  losers,
   activePair,
   onSelectPair,
 }: {
   pairsSearch: string;
   setPairsSearch: (s: string) => void;
-  filteredPairs: Pair[];
-  gainers: Pair[];
-  losers: Pair[];
   activePair: Pair;
   onSelectPair: (pair: Pair) => void;
 }) {
   const headerRef = useRef<HTMLDivElement>(null);
   const rowsRef = useRef<HTMLDivElement>(null);
+  const [filter, setFilter] = useState("All");
+  const [favorites, setFavorites] = useState<string[]>(() => loadFavorites());
+
+  const toggleFavorite = useCallback((symbol: string) => {
+    setFavorites((prev) => {
+      const next = prev.includes(symbol)
+        ? prev.filter((s) => s !== symbol)
+        : [...prev, symbol];
+      saveFavorites(next);
+      return next;
+    });
+  }, []);
 
   // Sync header horizontal scroll when rows are scrolled
   const onRowsScroll = useCallback(() => {
@@ -372,8 +382,48 @@ function PairsView({
     }
   }, []);
 
+  // Search first, then filter
+  const searched = PAIRS.filter(p =>
+    pairsSearch === "" ||
+    p.symbol.toLowerCase().includes(pairsSearch.toLowerCase()) ||
+    p.base.toLowerCase().includes(pairsSearch.toLowerCase())
+  );
+
+  function applyFilter(pairs: Pair[]): Pair[] {
+    switch (filter) {
+      case "Favorites":
+        return pairs.filter((p) => favorites.includes(p.symbol));
+      case "Gainers":
+        return [...pairs].filter((p) => p.up).sort((a, b) =>
+          parseFloat(b.change) - parseFloat(a.change)
+        );
+      case "Losers":
+        return [...pairs].filter((p) => !p.up).sort((a, b) =>
+          parseFloat(a.change) - parseFloat(b.change)
+        );
+      case "Volume":
+        return [...pairs].sort((a, b) =>
+          parseFloat(b.vol.replace(/[^0-9.]/g, "")) - parseFloat(a.vol.replace(/[^0-9.]/g, ""))
+        );
+      case "Trending":
+        return [...pairs].sort((a, b) =>
+          Math.abs(parseFloat(b.change.replace("%", "").replace("+", ""))) -
+          Math.abs(parseFloat(a.change.replace("%", "").replace("+", "")))
+        );
+      default:
+        return pairs;
+    }
+  }
+
+  const displayPairs = applyFilter(searched);
+
+  // Top gainers/losers cards — only shown on "All" tab when not searching
+  const gainers = [...PAIRS].filter(p => p.up).sort((a, b) => parseFloat(b.change) - parseFloat(a.change)).slice(0, 5);
+  const losers  = [...PAIRS].filter(p => !p.up).sort((a, b) => parseFloat(a.change) - parseFloat(b.change)).slice(0, 5);
+  const showCards = filter === "All" && !pairsSearch;
+
   const COL = { pair: 160, price: 96, change: 76, liquidity: 88, mktCap: 92 };
-  const MIN_W = COL.pair + COL.price + COL.change + COL.liquidity + COL.mktCap + 16; // +16 for pr-4
+  const MIN_W = COL.pair + COL.price + COL.change + COL.liquidity + COL.mktCap + 16;
 
   return (
     <div
@@ -399,11 +449,27 @@ function PairsView({
         </div>
       </div>
 
-      {/* Gainers & Losers — only shown when not searching */}
-      {!pairsSearch && (
+      {/* Filter tabs */}
+      <div className="flex items-center gap-5 px-3 pb-3 overflow-x-auto border-b border-trade-text/8" style={{ scrollbarWidth: "none" }}>
+        {PAIR_FILTERS.map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="flex-shrink-0 pb-2.5 text-[13px] font-medium border-b-2 transition-colors"
+            style={filter === f
+              ? { borderColor: "#f0b90b", color: "var(--trade-text)" }
+              : { borderColor: "transparent", color: "var(--trade-text-muted)" }}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {/* Gainers & Losers cards — only on "All" tab when not searching */}
+      {showCards && (
         <div className="flex-shrink-0">
           {/* Top Gainers */}
-          <div className="px-3 pt-1 pb-2">
+          <div className="px-3 pt-2 pb-2">
             <div className="flex items-center gap-1.5 mb-2.5">
               <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
                 <TrendingUp className="h-3 w-3 text-[#f0b90b]" />
@@ -425,7 +491,7 @@ function PairsView({
                     <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
                   </div>
                   <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                  <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
+                  <div className="text-[13px] font-bold tabular-nums" style={{ color: "#00c076" }}>{pair.change}</div>
                 </button>
               ))}
             </div>
@@ -434,10 +500,10 @@ function PairsView({
           {/* Top Losers */}
           <div className="px-3 pb-3">
             <div className="flex items-center gap-1.5 mb-2.5">
-              <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
-                <TrendingDown className="h-3 w-3 text-[#f0b90b]" />
+              <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(239,68,68,0.10)" }}>
+                <TrendingDown className="h-3 w-3 text-[#f04f5a]" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Losers</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#f04f5a]">Top Losers</span>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
               {losers.map(pair => (
@@ -454,7 +520,7 @@ function PairsView({
                     <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
                   </div>
                   <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                  <div className="text-[13px] font-bold tabular-nums text-trade-text/80">{pair.change}</div>
+                  <div className="text-[13px] font-bold tabular-nums" style={{ color: "#f04f5a" }}>{pair.change}</div>
                 </button>
               ))}
             </div>
@@ -464,9 +530,7 @@ function PairsView({
         </div>
       )}
 
-      {/* ── STICKY COLUMN HEADERS ──
-          Outside the rows overflow-x-auto so sticky top-0 works.
-          Scrolls horizontally in sync with the rows via JS ref.     */}
+      {/* ── STICKY COLUMN HEADERS ── */}
       <div
         ref={headerRef}
         className="sticky top-0 z-20 overflow-x-hidden flex-shrink-0 bg-trade-card border-b border-trade-text/8"
@@ -494,12 +558,12 @@ function PairsView({
         onScroll={onRowsScroll}
       >
         <div style={{ minWidth: MIN_W }}>
-          {filteredPairs.length === 0 ? (
+          {displayPairs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <Search className="h-7 w-7 text-trade-text/20" />
               <span className="text-[13px] text-trade-text-muted">No pairs found</span>
             </div>
-          ) : filteredPairs.map((pair, i) => (
+          ) : displayPairs.map((pair, i) => (
             <button
               key={pair.symbol}
               onClick={() => onSelectPair(pair)}
@@ -507,7 +571,7 @@ function PairsView({
                 activePair.symbol === pair.symbol ? "bg-trade-text/5" : ""
               } ${i > 0 ? "border-t border-trade-text/5" : ""}`}
             >
-              {/* Pair cell — sticky left so it stays visible on horizontal scroll */}
+              {/* Pair cell — sticky left */}
               <div
                 className="sticky left-0 z-10 flex-shrink-0 flex items-center gap-2.5 px-4 py-3"
                 style={{
@@ -517,6 +581,20 @@ function PairsView({
                     : "var(--trade-card, #141418)",
                 }}
               >
+                {/* Favorite star */}
+                <button
+                  className="flex-shrink-0 active:scale-110 transition-transform"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onPointerUp={(e) => { e.stopPropagation(); toggleFavorite(pair.symbol); }}
+                  aria-label={favorites.includes(pair.symbol) ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <Star
+                    className="h-3 w-3"
+                    style={favorites.includes(pair.symbol)
+                      ? { color: "#f0b90b", fill: "#f0b90b" }
+                      : { color: "rgba(255,255,255,0.2)" }}
+                  />
+                </button>
                 <div className="h-7 w-7 rounded-full flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 shadow-sm" style={{ backgroundColor: pair.color }}>
                   {pair.base.charAt(0)}
                 </div>
@@ -596,20 +674,6 @@ export function ChartOverlay({
   const [viewMode, setViewMode] = useState<"chart" | "pairs">("chart");
   const [pairsSearch, setPairsSearch] = useState("");
   const currentPrice = 63934.3;
-
-  // Compute top gainers & losers from the PAIRS list
-  const gainers = [...PAIRS]
-    .filter(p => p.up)
-    .sort((a, b) => parseFloat(b.change) - parseFloat(a.change))
-    .slice(0, 5);
-  const losers = [...PAIRS]
-    .filter(p => !p.up)
-    .sort((a, b) => parseFloat(a.change) - parseFloat(b.change))
-    .slice(0, 5);
-  const filteredPairs = PAIRS.filter(p =>
-    p.symbol.toLowerCase().includes(pairsSearch.toLowerCase()) ||
-    p.base.toLowerCase().includes(pairsSearch.toLowerCase())
-  );
 
   // Precision / tick-size state — derived from the active pair's price
   const precisionOptions = getPrecisionOptions(activePair.price);
@@ -924,9 +988,6 @@ export function ChartOverlay({
             <PairsView
               pairsSearch={pairsSearch}
               setPairsSearch={setPairsSearch}
-              filteredPairs={filteredPairs}
-              gainers={gainers}
-              losers={losers}
               activePair={activePair}
               onSelectPair={(pair) => { onSelectPair?.(pair); setViewMode("chart"); }}
             />
