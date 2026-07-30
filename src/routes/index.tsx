@@ -301,6 +301,7 @@ function Landing() {
             {/* More markets button */}
             <Link
               to="/markets"
+              search={{ view: "pairs" }}
               className="flex items-center justify-center gap-2 w-full py-4 text-sm font-semibold transition-colors hover:bg-trade-surface"
               style={{ color: "var(--trade-primary)" }}
             >

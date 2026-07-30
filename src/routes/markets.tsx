@@ -46,6 +46,12 @@ function MarketsRoute() {
 
   const countdown = 0;
 
+  // Read ?view=pairs from the URL to open directly in pairs list
+  const searchParams = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search)
+    : new URLSearchParams();
+  const initialView = searchParams.get("view") === "pairs" ? "pairs" as const : undefined;
+
   return (
     <>
       <ChartOverlay
@@ -60,6 +66,7 @@ function MarketsRoute() {
         selectedPair={selectedPair}
         onSelectPair={(pair) => { saveSelectedPair(pair); setSelectedPair(pair); }}
         onNavigateTo={(path) => navigate({ to: path as "/trade" | "/markets" })}
+        initialView={initialView}
       />
 
       {/* Menu sheet */}

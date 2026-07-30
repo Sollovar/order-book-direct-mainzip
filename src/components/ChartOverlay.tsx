@@ -648,6 +648,8 @@ export interface ChartOverlayProps {
    * for "Trade" / "Markets" call this instead of just updating navTab.
    */
   onNavigateTo?: (path: string) => void;
+  /** Open directly in pairs list view instead of the chart view. */
+  initialView?: "chart" | "pairs";
 }
 
 /* ─── Main component ────────────────────────────────── */
@@ -663,6 +665,7 @@ export function ChartOverlay({
   onSelectPair,
   asPage = false,
   onNavigateTo,
+  initialView,
 }: ChartOverlayProps) {
   const activePair = externalPair ?? PAIRS[0];
 
@@ -671,7 +674,7 @@ export function ChartOverlay({
   const [bottomTab, setBottomTab] = useState("Open Orders");
   const [pairsOpen, setPairsOpen] = useState(false);
   const [walletMenuOpen, setWalletMenuOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"chart" | "pairs">("chart");
+  const [viewMode, setViewMode] = useState<"chart" | "pairs">(initialView ?? "chart");
   const [pairsSearch, setPairsSearch] = useState("");
   const currentPrice = 63934.3;
 
