@@ -426,9 +426,9 @@ function PairsView({
   const MIN_W = COL.pair + COL.price + COL.change + COL.liquidity + COL.mktCap + 16;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
       {/* Search bar */}
-      <div className="flex-shrink-0 px-3 pt-3 pb-2">
+      <div className="px-3 pt-3 pb-2">
         <div className="flex items-center gap-2 h-9 rounded-xl bg-trade-surface/60 border border-trade-text/8 px-3">
           <Search className="h-3.5 w-3.5 text-trade-text-muted flex-shrink-0" />
           <input
@@ -447,7 +447,7 @@ function PairsView({
       </div>
 
       {/* Filter tabs */}
-      <div className="flex-shrink-0 flex items-center gap-5 px-3 pb-3 overflow-x-auto border-b border-trade-text/8" style={{ scrollbarWidth: "none" }}>
+      <div className="flex items-center gap-5 px-3 pb-3 overflow-x-auto border-b border-trade-text/8" style={{ scrollbarWidth: "none" }}>
         {PAIR_FILTERS.map((f) => (
           <button
             key={f}
@@ -464,7 +464,7 @@ function PairsView({
 
       {/* Gainers & Losers cards — only on "All" tab when not searching */}
       {showCards && (
-        <div className="flex-shrink-0 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+        <div>
           {/* Top Gainers */}
           <div className="px-3 pt-2 pb-2">
             <div className="flex items-center gap-1.5 mb-2.5">
@@ -527,10 +527,10 @@ function PairsView({
         </div>
       )}
 
-      {/* ── COLUMN HEADERS (always visible, not sticky — lives outside scroll) ── */}
+      {/* ── STICKY COLUMN HEADERS ── */}
       <div
         ref={headerRef}
-        className="flex-shrink-0 overflow-x-hidden bg-trade-card border-b border-trade-text/8"
+        className="sticky top-0 z-20 overflow-x-hidden bg-trade-card border-b border-trade-text/8"
         style={{ scrollbarWidth: "none" }}
       >
         <div className="flex items-center" style={{ minWidth: MIN_W }}>
@@ -547,10 +547,10 @@ function PairsView({
         </div>
       </div>
 
-      {/* ── SCROLLABLE ROWS ── */}
+      {/* ── ROWS ── */}
       <div
         ref={rowsRef}
-        className="flex-1 overflow-y-auto overflow-x-auto pb-20"
+        className="overflow-x-auto pb-20"
         style={{ scrollbarWidth: "none" }}
         onScroll={onRowsScroll}
       >
@@ -727,7 +727,7 @@ export function ChartOverlay({
       <div className="flex-1 px-1 flex flex-col gap-1">
 
         {/* ── CHART CARD — tiny side gap, slight rounding ── */}
-        <div className={`rounded-3xl bg-trade-card shadow-2xl ${viewMode === "chart" ? "overflow-hidden" : "flex-1 flex flex-col overflow-hidden"}`}>
+        <div className={`rounded-3xl bg-trade-card shadow-2xl ${viewMode === "chart" ? "overflow-hidden" : "flex-1 flex flex-col overflow-visible"}`}>
 
           {/* Pair header */}
           <div className="flex-shrink-0 px-3 pt-3 pb-2.5 bg-trade-surface/30">
