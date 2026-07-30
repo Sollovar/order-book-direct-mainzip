@@ -705,7 +705,7 @@ export function ChartOverlay({
   return (
     <div
       suppressHydrationWarning
-      className={`${asPage ? "min-h-screen" : "fixed inset-0 z-[70]"} flex flex-col bg-trade-bg text-trade-text font-sans text-[13px] overflow-y-auto pb-20 ${
+      className={`${asPage ? "h-screen overflow-y-auto" : "fixed inset-0 z-[70] overflow-y-auto"} flex flex-col bg-trade-bg text-trade-text font-sans text-[13px] pb-20 ${
         theme === "dark" ? "dark" : ""
       }`}
     >
@@ -733,7 +733,7 @@ export function ChartOverlay({
         <div className={`rounded-3xl bg-trade-card shadow-2xl ${viewMode === "chart" ? "overflow-hidden" : "flex-1 flex flex-col overflow-hidden"}`}>
 
           {/* Pair header */}
-          <div className="px-3 pt-3 pb-2.5 bg-trade-surface/30">
+          <div className="flex-shrink-0 px-3 pt-3 pb-2.5 bg-trade-surface/30">
             {/* Row 1: symbol (hidden in pairs mode) + view-mode toggle */}
             <div className="flex items-center justify-between mb-2">
               {viewMode === "chart" ? (
