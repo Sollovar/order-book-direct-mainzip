@@ -427,8 +427,8 @@ function PairsView({
 
   return (
     <div
-      className="overflow-y-auto"
-      style={{ maxHeight: "calc(100vh - 190px)", scrollbarWidth: "none" }}
+      className="flex-1 overflow-y-auto"
+      style={{ scrollbarWidth: "none" }}
     >
       {/* Search bar */}
       <div className="px-3 pt-3 pb-2 flex-shrink-0">
@@ -553,7 +553,7 @@ function PairsView({
       {/* ── SCROLLABLE ROWS ── */}
       <div
         ref={rowsRef}
-        className="overflow-x-auto pb-3"
+        className="overflow-x-auto pb-20"
         style={{ scrollbarWidth: "none" }}
         onScroll={onRowsScroll}
       >
@@ -730,7 +730,7 @@ export function ChartOverlay({
       <div className="flex-1 px-1 flex flex-col gap-1">
 
         {/* ── CHART CARD — tiny side gap, slight rounding ── */}
-        <div className={`rounded-3xl bg-trade-card shadow-2xl ${viewMode === "chart" ? "overflow-hidden" : "overflow-visible"}`}>
+        <div className={`rounded-3xl bg-trade-card shadow-2xl ${viewMode === "chart" ? "overflow-hidden" : "flex-1 flex flex-col overflow-hidden"}`}>
 
           {/* Pair header */}
           <div className="px-3 pt-3 pb-2.5 bg-trade-surface/30">
