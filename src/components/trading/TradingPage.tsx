@@ -1230,6 +1230,7 @@ type OrderTab = "market" | "limit" | "ladder";
 
 function OrderFormPanel() {
   const [tab, setTab] = useState<OrderTab>("limit");
+  const [side, setSide] = useState<"Buy" | "Sell">("Buy");
   const [levels, setLevels] = useState(10);
   const [tpsl, setTpsl] = useState(false);
   const [expiry, setExpiry] = useState(false);
@@ -1240,6 +1241,28 @@ function OrderFormPanel() {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 p-2 gap-2 overflow-hidden">
+      {/* Buy / Sell toggle */}
+      <div className="flex items-center shrink-0 rounded-lg overflow-hidden" style={{ background: "var(--background)" }}>
+        <button
+          onClick={() => setSide("Buy")}
+          className="flex-1 py-1.5 text-[12px] font-bold transition-all"
+          style={side === "Buy"
+            ? { background: "#f0b90b", color: "#1a1200" }
+            : { background: "transparent", color: "var(--muted-foreground)" }}
+        >
+          Buy
+        </button>
+        <button
+          onClick={() => setSide("Sell")}
+          className="flex-1 py-1.5 text-[12px] font-bold transition-all"
+          style={side === "Sell"
+            ? { background: "#ef4444", color: "#fff" }
+            : { background: "transparent", color: "var(--muted-foreground)" }}
+        >
+          Sell
+        </button>
+      </div>
+
       {/* Order type tabs */}
       <div className="flex items-center text-[11px] shrink-0 gap-0.5">
         <button
@@ -1441,7 +1464,7 @@ function OrderFormPanel() {
       </div>
 
       {/* Connect Wallet CTA */}
-      <WalletButton fullWidth />
+      <WalletButton fullWidth side={side} />
 
       {/* Order stats */}
       <div className="text-[11px] pt-0.5">

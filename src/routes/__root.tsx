@@ -141,38 +141,21 @@ function RootShell({ children }: { children: ReactNode }) {
             opacity: 0;
             visibility: hidden;
           }
-          .al-ring {
+          .al-logo-wrap {
             position: relative;
             width: 72px;
             height: 72px;
-          }
-          .al-ring svg {
-            position: absolute;
-            inset: 0;
-            animation: al-spin 1.1s linear infinite;
-          }
-          .al-logo {
-            position: absolute;
-            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
           }
-          .al-logo-inner {
-            width: 40px;
-            height: 40px;
+          .al-logo-img {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: #f0b90b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .al-logo-inner span {
-            font-size: 17px;
-            font-weight: 800;
-            color: #000;
-            font-family: system-ui, -apple-system, sans-serif;
-            letter-spacing: -0.5px;
+            object-fit: contain;
+            animation: al-spin 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            filter: drop-shadow(0 0 10px rgba(240,185,11,0.55));
           }
           .al-label {
             margin-top: 20px;
@@ -187,28 +170,23 @@ function RootShell({ children }: { children: ReactNode }) {
             color: rgba(0,0,0,0.35);
           }
           @keyframes al-spin {
-            to { transform: rotate(360deg); }
+            0%   { transform: rotate(0deg) scale(1); }
+            25%  { transform: rotate(90deg) scale(1.06); }
+            50%  { transform: rotate(180deg) scale(1); }
+            75%  { transform: rotate(270deg) scale(1.06); }
+            100% { transform: rotate(360deg) scale(1); }
           }
         ` }} />
       </head>
       <body>
         {/* Page loader — visible immediately, removed by RootComponent on mount */}
         <div id="asterdex-loader" aria-hidden="true" suppressHydrationWarning>
-          <div className="al-ring">
-            {/* Spinning gold arc */}
-            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="36" cy="36" r="32" stroke="rgba(240,185,11,0.15)" strokeWidth="3.5" />
-              <path
-                d="M36 4 A32 32 0 0 1 68 36"
-                stroke="#f0b90b"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-              />
-            </svg>
-            {/* Logo mark */}
-            <div className="al-logo">
-              <img src="https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8707.png" alt="AsterDex" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: '50%' }} />
-            </div>
+          <div className="al-logo-wrap">
+            <img
+              src="https://ndgywsfyfxrixhkfrtia.supabase.co/storage/v1/object/public/My%20logod/IMG_8707.png"
+              alt="AsterDex"
+              className="al-logo-img"
+            />
           </div>
         </div>
         {/* Runs synchronously right after the loader div exists — before any paint */}

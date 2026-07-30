@@ -530,7 +530,10 @@ function Index() {
             {/* Buy / Sell selector */}
             <button
               onClick={() => setSideSheetOpen(true)}
-              className="w-full rounded-md bg-trade-surface py-2 flex items-center justify-center gap-1 text-[13px]"
+              className="w-full rounded-md py-2 flex items-center justify-center gap-1 text-[13px] font-bold transition-all"
+              style={orderSide === "Buy"
+                ? { background: "rgba(240,185,11,0.15)", color: "#f0b90b", border: "1px solid rgba(240,185,11,0.35)" }
+                : { background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.35)" }}
             >
               {orderSide} <span className="text-[8px] leading-none">▼</span>
             </button>
@@ -779,7 +782,7 @@ function Index() {
               <Line label="Order value" value="0.00 USDT" />
             </div>
 
-            <WalletButton fullWidth />
+            <WalletButton fullWidth side={orderSide as "Buy" | "Sell"} />
           </div>
         </div>
       </section>

@@ -492,9 +492,11 @@ export function MobileWalletMenu({ open, onClose }: { open: boolean; onClose: ()
 interface WalletButtonProps {
   /** Renders full-width inside the order form */
   fullWidth?: boolean;
+  /** "Buy" → gold, "Sell" → red. Only applies when fullWidth=true */
+  side?: "Buy" | "Sell";
 }
 
-export function WalletButton({ fullWidth = false }: WalletButtonProps) {
+export function WalletButton({ fullWidth = false, side = "Buy" }: WalletButtonProps) {
   const { ready, authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
   const { addFunds } = useAddFunds();
@@ -536,6 +538,9 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
     await (wallet as { switchChain: (id: number) => Promise<void> }).switchChain(id);
   }
 
+  const sideBg   = side === "Sell" ? "#ef4444" : "#f0b90b";
+  const sideText = side === "Sell" ? "#fff"    : "#1a1200";
+
   /* ── Not ready ── */
   if (!ready) {
     if (fullWidth) {
@@ -560,7 +565,8 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
       return (
         <button
           onClick={login}
-          className="w-full rounded-full bg-[#f0b90b] text-[#1a1200] py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all"
+          className="w-full rounded-full py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all"
+          style={{ backgroundColor: sideBg, color: sideText }}
         >
           <Wallet className="h-4 w-4" />
           Connect Wallet
@@ -581,8 +587,11 @@ export function WalletButton({ fullWidth = false }: WalletButtonProps) {
   /* ── Authenticated ── */
   if (fullWidth) {
     return (
-      <button className="w-full rounded-full bg-[#f0b90b] text-[#1a1200] py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all">
-        Place Order
+      <button
+        className="w-full rounded-full py-2.5 text-[14px] font-bold mt-1 flex items-center justify-center gap-2 active:brightness-90 transition-all"
+        style={{ backgroundColor: sideBg, color: sideText }}
+      >
+        {side} Order
       </button>
     );
   }
