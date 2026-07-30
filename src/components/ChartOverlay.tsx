@@ -426,9 +426,10 @@ function PairsView({
   const MIN_W = COL.pair + COL.price + COL.change + COL.liquidity + COL.mktCap + 16;
 
   return (
-    <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-      {/* Search bar */}
-      <div className="px-3 pt-3 pb-2">
+    <div className="flex-1 flex flex-col overflow-hidden">
+
+      {/* ── FIXED: Search bar ── */}
+      <div className="flex-shrink-0 px-3 pt-3 pb-2">
         <div className="flex items-center gap-2 h-9 rounded-xl bg-trade-surface/60 border border-trade-text/8 px-3">
           <Search className="h-3.5 w-3.5 text-trade-text-muted flex-shrink-0" />
           <input
@@ -446,8 +447,8 @@ function PairsView({
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex items-center gap-5 px-3 pb-3 overflow-x-auto border-b border-trade-text/8" style={{ scrollbarWidth: "none" }}>
+      {/* ── FIXED: Filter tabs ── */}
+      <div className="flex-shrink-0 flex items-center gap-5 px-3 pb-3 overflow-x-auto border-b border-trade-text/8" style={{ scrollbarWidth: "none" }}>
         {PAIR_FILTERS.map((f) => (
           <button
             key={f}
@@ -462,82 +463,14 @@ function PairsView({
         ))}
       </div>
 
-      {/* Gainers & Losers cards — only on "All" tab when not searching */}
-      {showCards && (
-        <div>
-          {/* Top Gainers */}
-          <div className="px-3 pt-2 pb-2">
-            <div className="flex items-center gap-1.5 mb-2.5">
-              <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
-                <TrendingUp className="h-3 w-3 text-[#f0b90b]" />
-              </div>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Gainers</span>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-              {gainers.map(pair => (
-                <button
-                  key={pair.symbol}
-                  onClick={() => onSelectPair(pair)}
-                  className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 104 }}
-                >
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0" style={{ backgroundColor: pair.color }}>
-                      {pair.base.charAt(0)}
-                    </div>
-                    <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
-                  </div>
-                  <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                  <div className="text-[13px] font-bold tabular-nums" style={{ color: "#00c076" }}>{pair.change}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Losers */}
-          <div className="px-3 pb-3">
-            <div className="flex items-center gap-1.5 mb-2.5">
-              <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(239,68,68,0.10)" }}>
-                <TrendingDown className="h-3 w-3 text-[#f04f5a]" />
-              </div>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#f04f5a]">Top Losers</span>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-              {losers.map(pair => (
-                <button
-                  key={pair.symbol}
-                  onClick={() => onSelectPair(pair)}
-                  className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 104 }}
-                >
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0" style={{ backgroundColor: pair.color }}>
-                      {pair.base.charAt(0)}
-                    </div>
-                    <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
-                  </div>
-                  <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
-                  <div className="text-[13px] font-bold tabular-nums" style={{ color: "#f04f5a" }}>{pair.change}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mx-3 mb-1" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
-        </div>
-      )}
-
-      {/* ── STICKY COLUMN HEADERS ── */}
+      {/* ── FIXED: Column headers — always locked, never scrolls ── */}
       <div
         ref={headerRef}
-        className="sticky top-0 z-20 overflow-x-hidden bg-trade-card border-b border-trade-text/8"
+        className="flex-shrink-0 overflow-x-hidden bg-trade-card border-b border-trade-text/8"
         style={{ scrollbarWidth: "none" }}
       >
         <div className="flex items-center" style={{ minWidth: MIN_W }}>
-          <div
-            className="flex-shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold"
-            style={{ minWidth: COL.pair }}
-          >
+          <div className="flex-shrink-0 px-4 py-2 text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: COL.pair }}>
             Pair
           </div>
           <span className="text-right text-[10px] uppercase tracking-wider text-trade-text-muted/60 font-semibold" style={{ minWidth: COL.price }}>Price</span>
@@ -547,14 +480,81 @@ function PairsView({
         </div>
       </div>
 
-      {/* ── ROWS ── */}
+      {/* ── SCROLLABLE: gainers/losers cards + pair rows ── */}
       <div
         ref={rowsRef}
-        className="overflow-x-auto pb-20"
+        className="flex-1 overflow-y-auto overflow-x-auto pb-20"
         style={{ scrollbarWidth: "none" }}
         onScroll={onRowsScroll}
       >
         <div style={{ minWidth: MIN_W }}>
+
+          {/* Gainers & Losers cards — scroll away with list, only on "All" tab */}
+          {showCards && (
+            <div>
+              {/* Top Gainers */}
+              <div className="px-3 pt-2 pb-2">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(240,185,11,0.12)" }}>
+                    <TrendingUp className="h-3 w-3 text-[#f0b90b]" />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#f0b90b]">Top Gainers</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                  {gainers.map(pair => (
+                    <button
+                      key={pair.symbol}
+                      onClick={() => onSelectPair(pair)}
+                      className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 104 }}
+                    >
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <div className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0" style={{ backgroundColor: pair.color }}>
+                          {pair.base.charAt(0)}
+                        </div>
+                        <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
+                      </div>
+                      <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
+                      <div className="text-[13px] font-bold tabular-nums" style={{ color: "#00c076" }}>{pair.change}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Losers */}
+              <div className="px-3 pb-3">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(239,68,68,0.10)" }}>
+                    <TrendingDown className="h-3 w-3 text-[#f04f5a]" />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#f04f5a]">Top Losers</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                  {losers.map(pair => (
+                    <button
+                      key={pair.symbol}
+                      onClick={() => onSelectPair(pair)}
+                      className="flex-shrink-0 rounded-2xl p-3 text-left active:scale-[0.97] transition-transform"
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", minWidth: 104 }}
+                    >
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <div className="h-6 w-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0" style={{ backgroundColor: pair.color }}>
+                          {pair.base.charAt(0)}
+                        </div>
+                        <span className="text-[12px] font-bold text-trade-text leading-none">{pair.base}</span>
+                      </div>
+                      <div className="text-[11px] text-trade-text/60 mb-0.5 tabular-nums">{pair.price}</div>
+                      <div className="text-[13px] font-bold tabular-nums" style={{ color: "#f04f5a" }}>{pair.change}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mx-3 mb-1" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+            </div>
+          )}
+
+          {/* Pair rows */}
           {displayPairs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <Search className="h-7 w-7 text-trade-text/20" />
@@ -578,7 +578,6 @@ function PairsView({
                     : "var(--trade-card, #141418)",
                 }}
               >
-                {/* Favorite star */}
                 <button
                   className="flex-shrink-0 active:scale-110 transition-transform"
                   onPointerDown={(e) => e.stopPropagation()}
@@ -606,16 +605,13 @@ function PairsView({
                   <span className="text-[10px] text-trade-text-muted/60 truncate block">{pair.symbol}</span>
                 </div>
               </div>
-              {/* Price */}
               <span className="text-[12px] font-medium text-trade-text tabular-nums text-right" style={{ minWidth: COL.price }}>{pair.price}</span>
-              {/* 24h change */}
               <span className="text-[12px] font-bold tabular-nums text-right" style={{ minWidth: COL.change, color: pair.up ? "#00c076" : "#f04f5a" }}>{pair.change}</span>
-              {/* Liquidity */}
               <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right" style={{ minWidth: COL.liquidity }}>{pair.liquidity}</span>
-              {/* Market Cap */}
               <span className="text-[12px] font-medium text-trade-text/70 tabular-nums text-right pr-4" style={{ minWidth: COL.mktCap }}>{pair.marketCap}</span>
             </button>
           ))}
+
         </div>
       </div>
     </div>
