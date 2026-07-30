@@ -1,10 +1,10 @@
 /**
  * Shared theme hook — single source of truth across all mobile pages.
  *
- * - Reads initial value from localStorage / system preference
- * - Writes changes to localStorage AND document.documentElement.classList
- * - Uses MutationObserver so any component calling this hook stays in sync
- *   when another component (e.g. ChartOverlay's menu) changes the theme
+ * - Reads initial value from localStorage / system preference on mount
+ * - toggleTheme writes to localStorage + document.documentElement immediately
+ * - MutationObserver keeps any component using this hook in sync if
+ *   something else touches document.documentElement.classList externally
  */
 import { useEffect, useState } from "react";
 
@@ -32,28 +32,26 @@ function applyTheme(theme: "light" | "dark") {
 }
 
 export function useTheme() {
-  // Always start dark (matches SSR default) — client syncs in first useEffect
+  // SSR-safe default — replaced immediately on client mount below.
+  // We do NOT apply "dark" to the DOM here; the mount effect handles that.
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
-  // On first client mount, sync from localStorage / system preference
+  // On first client mount: read localStorage and sync the DOM once.
+  // This is the ONLY place we call applyTheme on mount — no second
+  // effect that would race against this and overwrite localStorage.
   useEffect(() => {
     const real = getInitialTheme();
     setTheme(real);
     applyTheme(real);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Apply to DOM whenever state changes (skips the initial render to avoid double-apply)
-  useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
-
-  // Watch DOM for changes made by any other component / effect
+  // Watch for external DOM changes (e.g. another component toggling the class).
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const isDark = document.documentElement.classList.contains("dark");
       setTheme((prev) => {
-        const next = isDark ? "dark" : "light";
+        const next: "light" | "dark" = isDark ? "dark" : "light";
         return prev === next ? prev : next;
       });
     });
@@ -64,8 +62,15 @@ export function useTheme() {
     return () => observer.disconnect();
   }, []);
 
+  // Toggle: apply to DOM + localStorage immediately, then update React state.
+  // Calling applyTheme inside the updater is safe because applyTheme is a
+  // pure DOM side-effect — it doesn't read React state.
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme((prev) => {
+      const next: "light" | "dark" = prev === "dark" ? "light" : "dark";
+      applyTheme(next);
+      return next;
+    });
   };
 
   return { theme, toggleTheme };
