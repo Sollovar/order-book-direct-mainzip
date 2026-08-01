@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { KLineChart } from "./KLineChart";
 import {
   AreaChart,
   Area,
@@ -190,157 +191,6 @@ function TickSizeSheet({
   );
 }
 
-/* ─── Seeded PRNG ────────────────────────────────────── */
-function seededRand(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
-  };
-}
-
-/* ─── Generate daily OHLC candles ───────────────────── */
-type Candle = { t: number; o: number; h: number; l: number; c: number };
-
-function generateCandles(): Candle[] {
-  const rand = seededRand(42);
-  const candles: Candle[] = [];
-  const startMs = new Date("2024-05-01").getTime();
-  let price = 60200;
-  for (let i = 0; i < 90; i++) {
-    const t = startMs + i * 86400_000;
-    const move = (rand() - 0.46) * 1600;
-    const open = price;
-    const close = Math.max(55000, Math.min(70000, price + move));
-    const high = Math.max(open, close) + rand() * 900;
-    const low = Math.min(open, close) - rand() * 900;
-    candles.push({ t, o: open, h: high, l: low, c: close });
-    price = close;
-  }
-  return candles;
-}
-
-const ALL_CANDLES = generateCandles();
-
-/* ─── Month labels for x-axis ───────────────────────── */
-function monthLabels(candles: Candle[], chartW: number) {
-  const cw = chartW / candles.length;
-  const seen = new Set<string>();
-  return candles.flatMap((c, i) => {
-    const d = new Date(c.t);
-    const key = `${d.getFullYear()}-${d.getMonth()}`;
-    if (seen.has(key)) return [];
-    seen.add(key);
-    return [{ x: i * cw, label: d.toLocaleString("en", { month: "short" }) }];
-  });
-}
-
-/* ─── Candlestick SVG chart ─────────────────────────── */
-function CandleChart({ candles, currentPrice }: { candles: Candle[]; currentPrice: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState({ w: 320, h: 300 });
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setDims({ w: el.clientWidth, h: el.clientHeight }));
-    ro.observe(el);
-    setDims({ w: el.clientWidth, h: el.clientHeight });
-    return () => ro.disconnect();
-  }, []);
-
-  const PL = 4, PR = 64, PT = 30, PB = 30;
-  const cW = dims.w - PL - PR;
-  const cH = dims.h - PT - PB;
-
-  const maxP = Math.max(...candles.map(c => c.h)) + 400;
-  const minP = Math.min(...candles.map(c => c.l)) - 400;
-  const range = maxP - minP;
-
-  const toY = (p: number) => PT + ((maxP - p) / range) * cH;
-  const candleW = cW / candles.length;
-  const bodyW = Math.max(1.5, candleW * 0.55);
-
-  // Price axis: 6 evenly spaced rounded labels
-  const step = (maxP - minP) / 5;
-  const priceAxis = Array.from({ length: 6 }, (_, i) =>
-    Math.round((maxP - i * step) / 500) * 500
-  );
-  const months = monthLabels(candles, cW);
-  const curY = toY(currentPrice);
-
-  return (
-    <div ref={ref} className="relative w-full h-full">
-      <svg width={dims.w} height={dims.h} viewBox={`0 0 ${dims.w} ${dims.h}`} className="absolute inset-0">
-        {/* Grid lines */}
-        {priceAxis.map(p => (
-          <line key={p} x1={PL} x2={dims.w - PR} y1={toY(p)} y2={toY(p)}
-            stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
-        ))}
-
-        {/* Current price dashed line */}
-        <line x1={PL} x2={dims.w - PR} y1={curY} y2={curY}
-          stroke="#ef4444" strokeWidth={0.8} strokeDasharray="3 4" />
-
-        {/* Candles */}
-        {candles.map((c, i) => {
-          const x = PL + i * candleW + candleW / 2;
-          const up = c.c >= c.o;
-          const col = up ? "#22c55e" : "#ef4444";
-          const bTop = toY(Math.max(c.o, c.c));
-          const bBot = toY(Math.min(c.o, c.c));
-          const bH = Math.max(1, bBot - bTop);
-          return (
-            <g key={i}>
-              <line x1={x} x2={x} y1={toY(c.h)} y2={toY(c.l)} stroke={col} strokeWidth={0.8} />
-              <rect x={x - bodyW / 2} y={bTop} width={bodyW} height={bH} fill={col} rx={0.5} />
-            </g>
-          );
-        })}
-
-        {/* Right axis price labels */}
-        {priceAxis.map(p => (
-          <text key={p} x={dims.w - PR + 5} y={toY(p) + 4}
-            fill="rgba(255,255,255,0.32)" fontSize={9} fontFamily="monospace">
-            {p.toLocaleString()}
-          </text>
-        ))}
-
-        {/* Current price pill */}
-        <rect x={dims.w - PR + 1} y={curY - 9} width={PR - 3} height={17} fill="#ef4444" rx={3} />
-        <text x={dims.w - PR + 4} y={curY + 4}
-          fill="white" fontSize={9} fontFamily="monospace" fontWeight="600">
-          {currentPrice.toFixed(1)}
-        </text>
-
-        {/* Month labels */}
-        {months.map(m => (
-          <text key={m.label + m.x} x={PL + m.x + 4} y={dims.h - 8}
-            fill="rgba(255,255,255,0.28)" fontSize={9} fontFamily="sans-serif">
-            {m.label}
-          </text>
-        ))}
-
-        {/* Chart watermark label top-left */}
-        <text x={PL + 6} y={PT - 13} fill="rgba(255,255,255,0.45)" fontSize={10.5}
-          fontFamily="sans-serif" fontWeight="600">
-          BTCUSDT · 1D · Aster
-        </text>
-        <text x={PL + 6} y={PT - 1} fill="#22c55e" fontSize={9.5} fontFamily="monospace">
-          {currentPrice.toFixed(1)}{"  0.0 (0.00%)"}
-        </text>
-      </svg>
-
-      {/* TV watermark circle */}
-      <div className="absolute left-4"
-        style={{ bottom: 36, width: 36, height: 36, borderRadius: "50%",
-          background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
-          display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700 }}>TV</span>
-      </div>
-    </div>
-  );
-}
 
 /* ─── PairsView ──────────────────────────────────────
    Column headers live OUTSIDE the overflow-x-auto rows
@@ -699,7 +549,7 @@ export function ChartOverlay({
   if (!open) return null;
 
   const chartTabs = ["Chart", "Order Book", "Trades", "Depth", "Details"];
-  const timeframes = ["5m", "1H", "1D"];
+  const timeframes = ["5m", "15m", "1H", "4H", "1D", "1W"];
   const bottomTabs = ["Open Orders", "Ladder History", "Order History", "Trade History"];
 
   return (
@@ -868,20 +718,13 @@ export function ChartOverlay({
 
             {/* Chart area */}
             {chartTab === "Chart" && (
-              <div className="relative bg-trade-surface/30" style={{ height: 310 }}>
-                <CandleChart candles={ALL_CANDLES.slice(-60)} currentPrice={currentPrice} />
-                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 py-1.5 text-[10px] bg-trade-surface/30">
-                  <span className="font-mono text-trade-text-muted">
-                    {new Date().toLocaleTimeString("en-GB", {
-                      hour: "2-digit", minute: "2-digit", second: "2-digit",
-                    })}{" "}UTC+1
-                  </span>
-                  <div className="flex items-center gap-3 text-trade-text-muted">
-                    <span>%</span>
-                    <span>log</span>
-                    <span className="text-trade-text font-medium">auto</span>
-                  </div>
-                </div>
+              <div style={{ height: 320 }}>
+                <KLineChart
+                  symbol={activePair.symbol}
+                  pricePrecision={activePair.price.includes(".") ? activePair.price.replace(/,/g, "").split(".")[1].length : 0}
+                  timeframe={timeframe}
+                  theme={theme}
+                />
               </div>
             )}
 
